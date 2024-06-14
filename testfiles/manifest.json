@@ -1,0 +1,39 @@
+{
+    "name": "GitHub Commit Suggestor",
+    "version": "1.0.0",
+    "description": "Gives out suggestions for commit messages based on refactored code",
+    "manifest_version": 3,
+    "author": "Saikarthik Mummadisingu",
+    "action":{
+        "default_popup": "popup.html",
+        "default_title": "GitHub Commit Suggestor",
+        "default_icon": "file.png"
+    },
+    "background": 
+    {
+        "service_worker": "background.js"
+    },
+    "permissions":[
+        "activeTab",
+        "tabs",
+        "http://localhost:8080/"
+    ],
+    "content_scripts" : [
+        {
+            "matches" : ["https://github.com/"],
+            "js" : ["content.js"]
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": ["axios.min.js"],
+            "matches": ["<all_urls>"]
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": ["popup.js"], 
+            "matches": ["<all_urls>"]
+        }
+    ]
+}

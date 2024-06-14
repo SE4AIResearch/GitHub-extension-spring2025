@@ -1,0 +1,20 @@
+body{
+    width: 230px;
+    text-align: center;
+    background-color: rgb(228, 237, 220);
+    font-family: "Roboto Mono", monospace;
+    font-optical-sizing: auto;
+}
+
+button{
+    border: black solid 2px;
+    border-radius: 10px;
+    padding: 8px;
+    width: 150px;
+}
+button:hover {
+    background-color: rgb(248, 241, 234);
+}
+p{
+    margin-bottom: 5px;
+}
