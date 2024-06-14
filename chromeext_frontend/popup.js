@@ -2,6 +2,8 @@ const button = document.getElementById("b");
 const ref = document.getElementById("p");
 const commit = document.getElementById("c");
 
+//test comment to see if push is occurring
+
 window.addEventListener("DOMContentLoaded", () => {
     button.addEventListener('click', () => 
         {
