@@ -51,7 +51,7 @@ public class RefactoringController {
         StringBuilder returnedResult = new StringBuilder();
         try {
             CompletionRequest completionRequest = CompletionRequest.builder()
-            .prompt("Act as a prompt optimizer and optimize the following prompt for summary on changes. The prompt is [IF THERE ARE NO REFACTORINGS JUST SAY NO REFACTORINGSbut otherwise Given the following list of refactoring changes, generate a clear, concise and COMPLETE message that can contain multiple sentences that summarizes ALL the refactoring changes effectively for people to understand. After the summary, give one line for the motivation behind these changes and then give one line on the impact of these changes.]\n"+ refactorings)
+            .prompt("Act as a prompt optimizer and optimize the following prompt for summary on changes. The prompt is [Given the following list of refactoring changes, generate a clear, concise and COMPLETE message that can contain multiple sentences that summarizes ALL the refactoring changes effectively for people to understand. After the summary, give one line for the motivation behind these changes and then give one line on the impact of these changes.]\n"+ refactorings)
             .model("gpt-3.5-turbo-instruct")
             .maxTokens(200)
             .build();

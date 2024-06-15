@@ -2,6 +2,10 @@ console.log("content.js");
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "fetchData") 
     {
+        if(chrome.runtime.lastError){
+            console.log("Error runtime content");
+            return;
+        }
         function match(url) {
             const splitwords = url.split('/');
             return splitwords;

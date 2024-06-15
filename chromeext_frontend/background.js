@@ -6,6 +6,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
         {
             chrome.tabs.sendMessage(tabs[0].id, { action: 'fetchData' }, (response) => 
             {
+                    if(chrome.runtime.lastError){
+                        console.log("Error runtime background");
+                        return;
+                    }
                     if (response === null){
                         console.log("response is null");
                         return;
