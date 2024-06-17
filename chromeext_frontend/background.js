@@ -23,8 +23,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
                         sendResponse({ error: "Failed to retrieve URL or commit ID" });
                         return;
                     }
-                    // console.log(urlToSend);
-                    // console.log(commitID);
                     fetch(`http://localhost:8080/greeting?${new URLSearchParams({
                         url: urlToSend,
                         id: commitID,

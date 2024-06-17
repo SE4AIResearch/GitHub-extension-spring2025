@@ -18,12 +18,13 @@ import com.theokanning.openai.service.OpenAiService;
 
 
 @RestController
-public class RefactoringController {
-
+public class RefactoringController 
+{
     private static final String aitoken = System.getenv("OPENAI_API_KEY");
     private final AtomicLong counter = new AtomicLong();
 
-    public String returnrefs (String url, String id) {
+    public String returnrefs (String url, String id) 
+    {
         if (aitoken == null || aitoken.isBlank()) {
             System.out.println(aitoken);
             throw new RuntimeException("Token not valid.");
@@ -33,7 +34,8 @@ public class RefactoringController {
         miner.detectAtCommit(url,
             id, new RefactoringHandler() {
                 @Override
-                public void handle(String commitId, List<Refactoring> refactorings) {
+                public void handle(String commitId, List<Refactoring> refactorings) 
+                {
                     int x = 1;
                     for (Refactoring ref : refactorings) {
                         refactoringMessages.append(x + ". " +  ref.toString() + "\n");
@@ -49,7 +51,8 @@ public class RefactoringController {
 
         OpenAiService service = new OpenAiService(aitoken);
         StringBuilder returnedResult = new StringBuilder();
-        try {
+        try 
+        {
             CompletionRequest completionRequest = CompletionRequest.builder()
             .prompt("Act as a prompt optimizer and optimize the following prompt for summary on changes. The prompt is [Given the following list of refactoring changes, generate a clear, concise and COMPLETE message that can contain multiple sentences that summarizes ALL the refactoring changes effectively for people to understand. After the summary, give one line for the motivation behind these changes and then give one line on the impact of these changes.]\n"+ refactorings)
             .model("gpt-3.5-turbo-instruct")
@@ -58,19 +61,23 @@ public class RefactoringController {
             CompletionResult result = service.createCompletion(completionRequest);
             List<CompletionChoice> choices = result.getChoices();
 
-            if (choices != null && !choices.isEmpty()) {
+            if (choices != null && !choices.isEmpty()) 
+            {
                 String text = choices.get(0).getText();
                 returnedResult.append(text);
             }
 
             return returnedResult.toString();
-        } catch (Exception exp) {
+        } 
+        catch (Exception exp) 
+        {
             throw new RuntimeException(exp.getMessage());
         }
     }
 
     @GetMapping("/greeting")    
-    public Greeting greeting(@RequestParam String url, @RequestParam String id) {
+    public Greeting greeting(@RequestParam String url, @RequestParam String id) 
+    {
         String refMessage = returnrefs(url, id);
         System.out.println("Refactoring message: " + refMessage);
         return new Greeting(counter.incrementAndGet(), refMessage);
@@ -99,24 +106,23 @@ public class RefactoringController {
     //     // System.out.println(openAIOutput(refactoringMessages.toString()));
     // }
 
-    private static String openAIOutput(String refactorings) {
-        OpenAiService service = new OpenAiService(aitoken);
-        StringBuilder returnedResult = new StringBuilder();
-        try {
-            CompletionRequest completionRequest = CompletionRequest.builder()
-                .prompt("Generate a clear and concise commit message for the following refactoring changes:\n" + refactorings)
-                .model("gpt-3.5-turbo")
-                .build();
-            CompletionResult result = service.createCompletion(completionRequest);
-            List<CompletionChoice> choices = result.getChoices();
-
-            if (choices != null && !choices.isEmpty()) {
-                String text = choices.get(0).getText();
-                returnedResult.append(text);
-            }
-            return returnedResult.toString();
-        } catch (Exception exp) {
-            throw new RuntimeException(exp.getMessage());
-        }
-    }
+    // private static String openAIOutput(String refactorings) {
+    //     OpenAiService service = new OpenAiService(aitoken);
+    //     StringBuilder returnedResult = new StringBuilder();
+    //     try {
+    //         CompletionRequest completionRequest = CompletionRequest.builder()
+    //             .prompt("Generate a clear and concise commit message for the following refactoring changes:\n" + refactorings)
+    //             .model("gpt-3.5-turbo")
+    //             .build();
+    //         CompletionResult result = service.createCompletion(completionRequest);
+    //         List<CompletionChoice> choices = result.getChoices();
+    //         if (choices != null && !choices.isEmpty()) {
+    //             String text = choices.get(0).getText();
+    //             returnedResult.append(text);
+    //         }
+    //         return returnedResult.toString();
+    //     } catch (Exception exp) {
+    //         throw new RuntimeException(exp.getMessage());
+    //     }
+    // }
 }
