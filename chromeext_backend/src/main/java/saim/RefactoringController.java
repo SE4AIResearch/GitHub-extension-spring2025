@@ -1,6 +1,8 @@
 package saim;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.refactoringminer.api.GitHistoryRefactoringMiner;
@@ -16,7 +18,6 @@ import com.theokanning.openai.completion.CompletionRequest;
 import com.theokanning.openai.completion.CompletionResult;
 import com.theokanning.openai.service.OpenAiService;
 
-
 @RestController
 public class RefactoringController 
 {
@@ -25,32 +26,72 @@ public class RefactoringController
 
     public String returnrefs (String url, String id) 
     {
-        if (aitoken == null || aitoken.isBlank()) {
+        String fullurl = url + "/commit/" + id;
+        if (aitoken == null || aitoken.isBlank()) 
+        {
             System.out.println(aitoken);
             throw new RuntimeException("Token not valid.");
         }
+        
         StringBuilder refactoringMessages = new StringBuilder();
         GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
-        miner.detectAtCommit(url,
-            id, new RefactoringHandler() {
+        HashMap<String, Integer> refactoringinstances = new HashMap<String, Integer>();
+
+        miner.detectAtCommit(url,id, new RefactoringHandler() 
+            {
                 @Override
                 public void handle(String commitId, List<Refactoring> refactorings) 
                 {
                     int x = 1;
                     for (Refactoring ref : refactorings) {
-                        refactoringMessages.append(x + ". " +  ref.toString() + "\n");
+                        //BINDS ALL THE COMMIT MESSAGES INTO REFACTORING MESSAGES
+                        refactoringMessages.append(x + ". " + ref.toString() + "\n");
+                        
+                        String refType = ref.getRefactoringType().toString();
+
+                        int count = refactoringinstances.containsKey(refType) ? refactoringinstances.get(refType):0;
+                        refactoringinstances.put(refType, count + 1);
                         x++;
                     }
                 }
             }, 10);
 
-        if (refactoringMessages.toString().trim().isEmpty()) {
-            return "No refactoring Changes";
-        }
         String refactorings = refactoringMessages.toString();
 
+        // IF THERE ARE NO REFACTORINGS
+        if (refactorings.trim().isEmpty()) 
+        {
+            System.out.println("No refs");
+            OpenAiService service = new OpenAiService(aitoken);
+            StringBuilder returnedResultfromgpt = new StringBuilder();
+            try 
+            {
+                CompletionRequest completionRequest = CompletionRequest.builder()
+                .prompt("Act as a prompt optimizer and optimize the following prompt for summary on changes. The prompt is [Given the following url, generate a clear, concise and COMPLETE message that is 1-2 sentences that summarizes the changes in the code for people to understand. After the summary, give one line for the motivation behind these changes and then give one line on the impact of these changes.]\n"+ fullurl)
+                .model("gpt-3.5-turbo-instruct")
+                .maxTokens(200)
+                .build();
+                CompletionResult result = service.createCompletion(completionRequest);
+                List<CompletionChoice> choices = result.getChoices();
+    
+                if (choices != null && !choices.isEmpty()) 
+                {
+                    String text = choices.get(0).getText();
+                    returnedResultfromgpt.append(text);
+                }
+    
+                return returnedResultfromgpt.toString();
+            } 
+            catch (Exception exp) 
+            {
+                throw new RuntimeException(exp.getMessage());
+            }
+        }
+
+        // IF THERE ARE REFACTORINGS
         OpenAiService service = new OpenAiService(aitoken);
-        StringBuilder returnedResult = new StringBuilder();
+        StringBuilder returnedResultfromgpt = new StringBuilder();
+        StringBuilder instructions = new StringBuilder();
         try 
         {
             CompletionRequest completionRequest = CompletionRequest.builder()
@@ -64,10 +105,17 @@ public class RefactoringController
             if (choices != null && !choices.isEmpty()) 
             {
                 String text = choices.get(0).getText();
-                returnedResult.append(text);
+                returnedResultfromgpt.append(text);
             }
 
-            return returnedResult.toString();
+            for (Map.Entry<String, Integer> entry : refactoringinstances.entrySet()) {
+                String key = entry.getKey();
+                Integer value = entry.getValue();
+                instructions.append(value + " " + key + "  ");
+                
+            }
+            returnedResultfromgpt.append(" || " + instructions.toString());
+            return returnedResultfromgpt.toString();
         } 
         catch (Exception exp) 
         {
@@ -82,6 +130,8 @@ public class RefactoringController
         System.out.println("Refactoring message: " + refMessage);
         return new Greeting(counter.incrementAndGet(), refMessage);
     }
+
+    //old methods
 
     // public static void main(String[] args) throws Exception {
     //     if (aitoken == null || aitoken.isBlank()) {
@@ -108,7 +158,7 @@ public class RefactoringController
 
     // private static String openAIOutput(String refactorings) {
     //     OpenAiService service = new OpenAiService(aitoken);
-    //     StringBuilder returnedResult = new StringBuilder();
+    //     StringBuilder returnedResultfromgpt = new StringBuilder();
     //     try {
     //         CompletionRequest completionRequest = CompletionRequest.builder()
     //             .prompt("Generate a clear and concise commit message for the following refactoring changes:\n" + refactorings)
@@ -118,9 +168,9 @@ public class RefactoringController
     //         List<CompletionChoice> choices = result.getChoices();
     //         if (choices != null && !choices.isEmpty()) {
     //             String text = choices.get(0).getText();
-    //             returnedResult.append(text);
+    //             returnedResultfromgpt.append(text);
     //         }
-    //         return returnedResult.toString();
+    //         return returnedResultfromgpt.toString();
     //     } catch (Exception exp) {
     //         throw new RuntimeException(exp.getMessage());
     //     }
