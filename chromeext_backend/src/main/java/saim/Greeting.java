@@ -1,5 +1,6 @@
 package saim;
 
+// Sending the data back to the user using ID and content
 public class Greeting {
     private final long id;
     private final String content;

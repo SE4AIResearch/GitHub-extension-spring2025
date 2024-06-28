@@ -1,2 +1,7 @@
+saim\Commit.class
+saim\Greeting.class
+saim\CommitDetailsRepo.class
+saim\RestServiceApplication.class
+saim\CommitService.class
 saim\RefactoringController$1.class
 saim\RefactoringController.class

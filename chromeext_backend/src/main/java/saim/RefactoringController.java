@@ -3,12 +3,14 @@ package saim;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.refactoringminer.api.GitHistoryRefactoringMiner;
 import org.refactoringminer.api.Refactoring;
 import org.refactoringminer.api.RefactoringHandler;
 import org.refactoringminer.rm1.GitHistoryRefactoringMinerImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,12 +23,17 @@ import com.theokanning.openai.service.OpenAiService;
 @RestController
 public class RefactoringController {
     private static final String aitoken = System.getenv("OPENAI_API_KEY");
+
+    @Autowired
+    private CommitService cService;
     private final AtomicLong counter = new AtomicLong();
 
-    public String returnrefs(String url, String id) {
+    public String returnrefs(String url, String id) 
+    {
         String fullurl = url + "/commit/" + id;
         System.out.println(fullurl);
-        if (aitoken == null || aitoken.isBlank()) {
+        if (aitoken == null || aitoken.isBlank()) 
+        {
             System.out.println(aitoken);
             throw new RuntimeException("Token not valid.");
         }
@@ -35,7 +42,8 @@ public class RefactoringController {
         GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
         HashMap<String, Integer> refactoringinstances = new HashMap<>();
 
-        miner.detectAtCommit(url, id, new RefactoringHandler() {
+        miner.detectAtCommit(url, id, new RefactoringHandler() 
+        {
             @Override
             public void handle(String commitId, List<Refactoring> refactorings) {
                 int x = 1;
@@ -53,6 +61,7 @@ public class RefactoringController {
         }, 10);
 
         String refactorings = refactoringMessages.toString();
+        System.out.println("Refactoring Miner tool " + refactorings + "\n");
 
         // IF THERE ARE NO REFACTORINGS
         if (refactorings.trim().isEmpty()) {
@@ -111,8 +120,15 @@ public class RefactoringController {
     }
 
     @GetMapping("/greeting")
-    public Greeting greeting(@RequestParam String url, @RequestParam String id) {
+    public Greeting greeting(@RequestParam String url, @RequestParam String id) 
+    {
+        Optional<String> commitmsg = cService.getCommitfromDB(url, id);
+        if (commitmsg.isPresent()){
+            System.out.println("Refactoring message: " + commitmsg);
+            return new Greeting(counter.incrementAndGet(), commitmsg.get());
+        }
         String refMessage = returnrefs(url, id);
+        cService.saveCommit(id, url, refMessage);
         System.out.println("Refactoring message: " + refMessage);
         return new Greeting(counter.incrementAndGet(), refMessage);
     }
