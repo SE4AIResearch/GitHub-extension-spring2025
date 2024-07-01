@@ -10,17 +10,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
                         console.log("Error runtime background");
                         return;
                     }
-                    if (response === null){
-                        console.log("response is null");
-                        return;
-                    }
-                    if (response === undefined){
-                        console.log("response is undefined");
+                    if (response === null || response === undefined){
+                        console.log("response is null or undefined");
                         return;
                     }
                     const { urlToSend, commitID } = response;
                     if (!urlToSend || !commitID) {
-                        sendResponse({ error: "Failed to retrieve URL or commit ID" });
+                        console.log("Failed to fetch either url or commitId")
                         return;
                     }
                     fetch(`http://localhost:8080/greeting?${new URLSearchParams({
@@ -33,8 +29,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
                         sendResponse(data.content)
                     })
                     .catch(error => {
-                        console.error('Error: from background', error);
-                        sendResponse("Error from background");
+                        console.log('Error: from background', error);
+                        return;
                     });
             });
         });

@@ -16,7 +16,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (words[5] !== "commit") 
         {
             console.log("Error in content words");
-            sendResponse({ error: "Wrong URL, must go to a commit page like https://github.com/user/project/commit/id" });
+            console.error("Wrong url");
+            return;
         } 
         else {
             const urlToSend = words[0] + '//' + words[2] + "/" + words[3] + "/" + words[4];
