@@ -7,7 +7,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             chrome.tabs.sendMessage(tabs[0].id, { action: 'fetchData' }, (response) => 
             {
                     if(chrome.runtime.lastError){
-                        console.log("Error runtime background");
+                        console.log(chrome.runtime.lastError.message);
                         return;
                     }
                     if (response === null || response === undefined){
@@ -24,10 +24,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
                         id: commitID,
                     })}`)
                     .then(response => response.json())
-                    .then(data => {
+                    .then(data => 
+                        {
                         console.log(data.content + "data.content from background");
-                        sendResponse(data.content)
-                    })
+                        //sendResponse(data.content)
+                        chrome.tabs.sendMessage(tabs[0].id, { action: 'updateContent', content: data.content });
+                        }
+                    )
                     .catch(error => {
                         console.log('Error: from background', error);
                         return;

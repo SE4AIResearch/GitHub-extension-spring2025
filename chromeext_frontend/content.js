@@ -11,7 +11,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             return splitwords;
         }
         const url = window.location.href;
-        console.log(url);
+
+        //console.log(url);
         const words = match(url);
         if (words[5] !== "commit") 
         {
@@ -21,11 +22,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         } 
         else {
             const urlToSend = words[0] + '//' + words[2] + "/" + words[3] + "/" + words[4];
-            console.log(urlToSend);
+            //console.log(urlToSend);
             const commitID = words[words.length - 1];
-            console.log(commitID);
+            //console.log(commitID);
             sendResponse({ urlToSend, commitID });
         }
+    }
+    else if (message.action === "updateContent"){
+        let commitTitleDiv = document.querySelector('div.commit-title.markdown-title');
+        commitTitleDiv.textContent += "COMMIT PRO" + message.content;
     }
     return true;
 });

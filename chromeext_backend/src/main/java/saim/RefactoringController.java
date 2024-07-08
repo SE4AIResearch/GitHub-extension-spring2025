@@ -129,9 +129,9 @@ public class RefactoringController {
             System.out.println("Refactoring message: " + commitmsg);
             return new Greeting(counter.incrementAndGet(), commitmsg.get());
         }
-        String refMessage = returnrefs(url, id);
+        var refMessage = returnrefs(url, id);
         cService.saveCommit(id, url, refMessage);
-        System.out.println("Refactoring message: " + refMessage);
+        //System.out.println("Refactoring message: " + refMessage);
         return new Greeting(counter.incrementAndGet(), refMessage);
     }
 
