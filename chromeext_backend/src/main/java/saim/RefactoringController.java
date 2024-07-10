@@ -3,7 +3,6 @@ package saim;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.refactoringminer.api.GitHistoryRefactoringMiner;
@@ -124,13 +123,13 @@ public class RefactoringController {
     @GetMapping("/greeting")
     public Greeting greeting(@RequestParam String url, @RequestParam String id) 
     {
-        Optional<String> commitmsg = cService.getCommitfromDB(url, id);
-        if (commitmsg.isPresent()){
-            System.out.println("Refactoring message: " + commitmsg);
-            return new Greeting(counter.incrementAndGet(), commitmsg.get());
-        }
+        // Optional<String> commitmsg = cService.getCommitfromDB(url, id);
+        // if (commitmsg.isPresent()){
+        //     System.out.println("Refactoring message: " + commitmsg);
+        //     return new Greeting(counter.incrementAndGet(), commitmsg.get());
+        // }
         var refMessage = returnrefs(url, id);
-        cService.saveCommit(id, url, refMessage);
+        //cService.saveCommit(id, url, refMessage);
         //System.out.println("Refactoring message: " + refMessage);
         return new Greeting(counter.incrementAndGet(), refMessage);
     }

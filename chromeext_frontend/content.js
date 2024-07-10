@@ -30,7 +30,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
     else if (message.action === "updateContent"){
         let commitTitleDiv = document.querySelector('div.commit-title.markdown-title');
-        commitTitleDiv.textContent += "COMMIT PRO" + message.content;
+        let commitProText = document.createElement('span');
+        commitProText.style.color = 'red';
+        commitProText.className = 'commit-pro-text';
+        commitProText.innerHTML = "<br>COMMIT PRO" + message.content + "<br>";
+        
+        commitTitleDiv.appendChild(commitProText);
     }
     return true;
 });
