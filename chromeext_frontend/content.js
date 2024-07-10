@@ -22,16 +22,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         } 
         else {
             const urlToSend = words[0] + '//' + words[2] + "/" + words[3] + "/" + words[4];
-            //console.log(urlToSend);
             const commitID = words[words.length - 1];
-            //console.log(commitID);
             sendResponse({ urlToSend, commitID });
         }
     }
     else if (message.action === "updateContent"){
         let commitTitleDiv = document.querySelector('div.commit-title.markdown-title');
         let commitProText = document.createElement('span');
-        commitProText.style.color = 'red';
+        
+        commitProText.style.color = 'blue';
         commitProText.className = 'commit-pro-text';
         commitProText.innerHTML = "<br>COMMIT PRO" + message.content + "<br>";
         
