@@ -4,8 +4,6 @@ const intent = document.getElementById("intent");
 const impact = document.getElementById("impact");
 const instruction = document.getElementById("instruction");
 
-//test comment to see if push is occurring
-
 window.addEventListener("DOMContentLoaded", () => 
 {
     button.addEventListener('click', () => 

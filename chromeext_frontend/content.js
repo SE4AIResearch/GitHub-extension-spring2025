@@ -1,11 +1,22 @@
 console.log("content.js");
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    let commitTitleDiv = document.querySelector('.commit-desc');
+    if (!commitTitleDiv){
+        commitTitleDiv = document.querySelector('div.commit-title.markdown-title');
+    }
+
     if (message.action === "fetchData") 
     {
+        let loading = document.createElement('span');
+        loading.style.color = 'blue';
+        loading.className = 'loading';
+        loading.innerHTML = "Loading...";
+        commitTitleDiv.appendChild(loading);
         if(chrome.runtime.lastError){
             console.log("Error runtime content");
             return;
         }
+        
         function match(url) {
             const splitwords = url.split('/');
             return splitwords;
@@ -27,7 +38,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
     }
     else if (message.action === "updateContent"){
-        let commitTitleDiv = document.querySelector('div.commit-title.markdown-title');
+        let loading = document.querySelector('.loading');
+        if (loading) {
+            commitTitleDiv.removeChild(loading);
+        }
+
         let commitProText = document.createElement('span');
         
         commitProText.style.color = 'blue';
