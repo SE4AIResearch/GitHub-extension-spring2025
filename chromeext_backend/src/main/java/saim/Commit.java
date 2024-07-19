@@ -23,6 +23,9 @@ public class Commit {
   @Column(name = "commit_message", length = 1000)
   private String commitmessage;
 
+  @Column(name = "og_message", length = 1000)
+  private String ogmessage;
+
   public Long getId() {
     return id;
   }
@@ -44,11 +47,17 @@ public class Commit {
     this.url = url;
   }
 
-public String getCommitMessage(){
-    return commitmessage;
-}
-public void setCommitMessage(String commit){
-    this.commitmessage = commit;
-}
+  public String getCommitMessage(){
+      return commitmessage;
+  }
+  public void setCommitMessage(String commit){
+      this.commitmessage = commit;
+  }
 
+  public String getOgMessage(){
+    return ogmessage;
+  }
+  public void setOgMessage(String og){
+    this.ogmessage = og;
+  }
 }

@@ -15,11 +15,12 @@ public class CommitService {
         Optional<Commit> c = repo.findByUrlAndCommitId(url,id);
         return c.map(Commit::getCommitMessage);
     }
-    public Commit saveCommit(String commitID, String url, String msg){
+    public Commit saveCommit(String commitID, String url, String msg, String og){
         Commit c = new Commit();
         c.setCommitId(commitID);
         c.setUrl(url);
         c.setCommitMessage(msg);
+        c.setOgMessage(og);
         return repo.save(c);
     }
 }
