@@ -12,7 +12,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             chrome.tabs.sendMessage(tabs[0].id, { action: 'fetchData' }, async (response) => 
             {
 
-                    // Getting the data {url, commitID}
+                    // Getting the data {url, commitID, original message}
                     if(chrome.runtime.lastError){
                         console.log(chrome.runtime.lastError.message);
                         sendResponse({ error: "Invalid data from content script" });
@@ -53,6 +53,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
                     // Async function
                     async function fetchCommitSummaryData(urlToSend, commitID, ogMessage){
                         try{
+                            function delay(ms) {
+                                return new Promise(resolve => setTimeout(resolve, ms));
+                            }
                             const response = await fetch(`http://localhost:8080/greeting?${new URLSearchParams({
                                 url: urlToSend,
                                 id: commitID,
@@ -60,6 +63,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
                             })}`);
                             const data = await response.json();
                             console.log(data.content + "data.content from background");
+                            await delay(2000);
                             chrome.tabs.sendMessage(tabs[0].id, { action: 'updateContent', content: data.content });
                             sendResponse({ error: "Invalid data" });
 
@@ -71,7 +75,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
                         }
                     }
 
-                    fetchCommitSummaryData(urlToSend, commitID, ogMessage);
+                    await fetchCommitSummaryData(urlToSend, commitID, ogMessage);
             });
         });
         return true;

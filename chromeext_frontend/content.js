@@ -1,5 +1,5 @@
-console.log("content.js");
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => 
+{
     let commitTitleDiv = document.querySelector('.commit-desc');
     if (!commitTitleDiv){
         commitTitleDiv = document.querySelector('div.commit-title.markdown-title');
@@ -18,10 +18,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             console.log(ogMessage);
         }
 
-        let loading = document.createElement('span');
-        loading.style.color = 'blue';
+        let loading = document.createElement('img');
         loading.className = 'loading';
-        loading.innerHTML = "Loading...";
+        loading.src = chrome.runtime.getURL('pics/load2.gif');
+        loading.style.width = '40px';
+        loading.style.height = '40px';
+        loading.style.display = 'block';
         commitTitleDiv.appendChild(loading);
         if(chrome.runtime.lastError){
             console.log("Error runtime content");
@@ -33,9 +35,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
         const url = window.location.href;
         
-        // getting the original commit message from GitHub
-
-        //console.log(url);
         const words = match(url);
         if (words[5] !== "commit") 
         {
@@ -57,7 +56,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         let commitProText = document.createElement('span');
-        
         commitProText.style.color = 'blue';
         commitProText.className = 'commit-pro-text';
         commitProText.innerHTML = "<br>COMMIT PRO" + message.content + "<br>";
