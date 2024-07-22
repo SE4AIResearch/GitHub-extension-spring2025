@@ -1,1 +1,2 @@
+## Commit Pro
 Commit Pro is a Google Chrome Extension designed for GitHub to help developers understand code changes at a commit level by providing code summaries based on code or refactoring changes.  Clear and understandable commit messages are crucial for code documentation, but there is a current lack in documentation standards for developers. Commit Pro addresses this challenge by generating detailed summaries on code changes especially from refactoring instances along with the intent and impact of the change in the codebase.
