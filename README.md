@@ -11,41 +11,42 @@ Things required for Commit Pro:
  
 Check Edit the System Environment Variables on your workspace -> Click Environment Variables -> Under system variables click on Path and check all 4 paths to the downloads are there
  
-#### Database Setup
+#### 1. Database Setup
 1. In your command prompt type in the command **mysql -u root -p** -> Default user is root choose the username you used when setting up mysql as well as the password when you hit Enter
 2. To create database type in **create database name_of_your_database;** -> Make sure to remember this database name, To make sure the database is there type in **show databases;**
 
-#### 1. Downloading Repo
+#### 2. Downloading Repo
 1.  Download the source code of the repo by clicking on the green button **Code** -> Download zip
 2.  In your file system click on Extract All and extract it into your Downloads folder
 
-#### 2. Vscode Setup
+#### 3. Vscode Setup
 1. Open the folder now in Vscode, in the extensions icon on Vscode itself, download **Extension Pack for Java**
 2. Need to configure our database file now go to the resources folder under chromeext_backend/src/main
 3. In the resources folder go to application.properties file. Make sure the port number (so in my end it is 3306, picture for reference) is the same when you setup MySQL. Also make sure your **database_name** is the same (on my end it is commit_database2). Change that line to the database name you gave it. Do the same with username and password(in the picture my username and password is root and root123! respectively)
    ![image](https://github.com/user-attachments/assets/6230e7f0-0402-4ab8-9505-4b803e446ed3)
 
-#### 3. GitHub and OpenAI Keys
+#### 4. GitHub and OpenAI Keys
 1. In github.com go to your profile -> settings -> developer settings(scroll down) -> personal access tokens(classic) -> generate new token(classic) -> name it and click generate (Make sure to note this down somewhere)
 2. https://platform.openai.com/api-keys -> Sign in -> Create New Secret Key(Make sure to note this key down somewhere as well) **Important: This tool only works if you have money in your OpenAI account, $5 is enough**
 
-#### 4. Setting up Keys in Vscode and Vscode Setup
+#### 5. Setting up Keys in Vscode and Vscode Setup
 1. In the root directory there is github-oauth.properties file -> Copy your generated GitHub Key and replace the key already there. (OAuthToken="YOUR KEY")
 2. Go into your backend folder for the project in your Vscode terminal, **cd chromeext_backend**, copy your OpenAI key that you have generated. In the Vscode terminal type in the command **${env:OPENAI_API_KEY}="YOUR OPENAI KEY GOES INSIDE HERE"** (Copy your key inside the double quotations and hit enter). To make sure the key is there type in the command **${env:OPENAI_API_KEY}** and hit Enter and make sure your key is returned
 3. You are in your backend folder in the terminal type in the command **mvn clean install** and wait until everything is downloaded
 
-#### 5. Unpacking the frontend portion
+#### 6. Unpacking the frontend portion
 1. Go to the site chrome://extensions, in the top right make sure Developer Mode is Switched on
    ![image](https://github.com/user-attachments/assets/4faacbd8-9a7a-4436-a6d4-e88588890f64)
 2. Click on **Load Unpacked** select your main folder and then select the **chromeext_frontend folder** and then click **Select Folder**
 
-#### 6. Running the Chrome Extension
+#### 7. Running the Chrome Extension
 1. In Vscode, to the chromeext_backend/src/main/java/saim folder and then click on the RestServiceApplication.java file. Right Click and **Run Java**. If this is successful your terminal should look like this
 ![image](https://github.com/user-attachments/assets/ba525dba-5192-41e0-8b18-1a319f852e9a)
 2. Go back to chrome://extensions. You will see that the service worker is inactive. Click the reload button in that
    ![image](https://github.com/user-attachments/assets/1b3c7020-f370-47db-9deb-d34bcd769728)
 3. Now this extension is working, you can use this tool on paths that follow this pattern: https://github.com/user/project/commit/id
 4. Note: If the tool seems to be running too long, go back to chrome://extensions and reload the service worker(this may go inactive) and then reload the page you are on and click on the chrome extension and click generate commit
+   
 ![image](https://github.com/user-attachments/assets/9804278a-1b2e-44a7-bcbc-b3f17d348884)
 
 
