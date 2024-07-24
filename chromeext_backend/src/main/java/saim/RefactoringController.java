@@ -82,7 +82,7 @@ public class RefactoringController {
                     String text = choices.get(0).getText();
                     returnedResultfromgpt.append(text);
                 }
-                returnedResultfromgpt.append(" ." + " Instruction: " + "No Refactorings");
+                returnedResultfromgpt.append(" ." + " INSTRUCTION: " + "No Refactorings");
                 return returnedResultfromgpt.toString();
             } catch (Exception exp) {
                 throw new RuntimeException(exp.getMessage());

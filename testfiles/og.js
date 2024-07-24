@@ -1,9 +1,9 @@
 // const urlToSend = "https://github.com/SE4AIResearch/GitHub-extension-summer2024";
 // const commitID = "dc8832108964ce2df010b9ea090bafe50ef7fe5c";
 
-const urlToSend = "https://github.com/apache/hadoop";
-const commitID = "f1e2ceb823e92ce864f7f2f327c4c0af722b4d85";
-const ogmessage = "Do not propagate ExecutionException while initializing ED…EK queues for keys."
+const urlToSend = "https://github.com/danilofes/refactoring-toy-example";
+const commitID = "0a46ed5c56c8b1576dfc92f3ec5bc2f0ea68aafe";
+const ogmessage = "Delete attributes in Snake;"
 
 fetch(`http://localhost:8080/greeting?${new URLSearchParams({
     url: urlToSend,
