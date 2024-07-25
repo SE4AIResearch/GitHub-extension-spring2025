@@ -30,6 +30,7 @@ Check Edit the System Environment Variables on your workspace -> Click Environme
 2. https://platform.openai.com/api-keys -> Sign in -> Create New Secret Key(Make sure to note this key down somewhere as well) **Important: This tool only works if you have money in your OpenAI account, $5 is enough**
 
 #### 5. Setting up Keys in Vscode and Vscode Setup
+**Important: Use powershell in your VsCode terminal**
 1. In the root directory there is github-oauth.properties file -> Copy your generated GitHub Key and replace the key already there. (OAuthToken="YOUR KEY")
 2. Go into your backend folder for the project in your Vscode terminal, **cd chromeext_backend**, copy your OpenAI key that you have generated. In the Vscode terminal type in the command **${env:OPENAI_API_KEY}="YOUR OPENAI KEY GOES INSIDE HERE"** (Copy your key inside the double quotations and hit enter). To make sure the key is there type in the command **${env:OPENAI_API_KEY}** and hit Enter and make sure your key is returned
 3. You are in your backend folder in the terminal, type in the command **mvn clean install** and wait until everything is downloaded
@@ -44,8 +45,8 @@ Check Edit the System Environment Variables on your workspace -> Click Environme
 ![image](https://github.com/user-attachments/assets/ba525dba-5192-41e0-8b18-1a319f852e9a)
 2. Go back to chrome://extensions. You will see that the service worker is inactive. Click the reload button in that
    ![image](https://github.com/user-attachments/assets/1b3c7020-f370-47db-9deb-d34bcd769728)
-3. Now this extension is working, you can use this tool on paths that follow this pattern: https://github.com/user/project/commit/id
-Note: If the tool seems to be running too long, go back to chrome://extensions and reload the service worker(this may go inactive) and then reload the page you are on and click on the chrome extension and click generate commit
+3. Now the extension is working, you can use this tool on paths that follow this pattern: https://github.com/user/project/commit/id
+Note: If the tool seems to be running too long, go back to chrome://extensions and reload the service worker(this may go inactive), Reload Page where commit is -> Click on Chrome extension -> Click Generate commit
    
 ![image](https://github.com/user-attachments/assets/9804278a-1b2e-44a7-bcbc-b3f17d348884)
 
