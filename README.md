@@ -3,7 +3,9 @@ Commit Pro is a Google Chrome Extension designed for GitHub to help developers u
 
 #### Commit Pro Demo + Video Installation
 Commit Pro User Demo: https://stevens.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=d5fc2b35-8293-4dea-83b5-b1b60168bd2a&start=0
+
 Commit Pro Installation + Setup: https://stevens.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=228e5f3f-26b5-4fbe-9690-b1b4015a3333&start=0
+
 Commit Pro Demo: https://stevens.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=0b6934a1-9dc8-4f9f-8ee5-b1b401628b01&start=0
 
 ### Installation
