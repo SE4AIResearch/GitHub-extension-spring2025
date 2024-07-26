@@ -1,6 +1,11 @@
 ## Commit Pro
 Commit Pro is a Google Chrome Extension designed for GitHub to help developers understand code changes at a commit level by providing code summaries based on code or refactoring changes. Clear and understandable commit messages are crucial for code documentation, but there is a current lack in documentation standards for developers leading to vague and inconsistent commit messages. Commit Pro addresses this challenge by generating detailed summaries on code changes especially from refactoring instances along with the intent and impact of the change in the codebase to help developers have more productive code reviews.
 
+#### Commit Pro Demo + Video Installation
+Commit Pro User Demo: https://stevens.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=d5fc2b35-8293-4dea-83b5-b1b60168bd2a&start=0
+Commit Pro Installation + Setup: https://stevens.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=228e5f3f-26b5-4fbe-9690-b1b4015a3333&start=0
+Commit Pro Demo: https://stevens.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=0b6934a1-9dc8-4f9f-8ee5-b1b401628b01&start=0
+
 ### Installation
 Things required for Commit Pro:
 - Maven: https://www.youtube.com/watch?v=YTvlb6eny_0
@@ -50,6 +55,11 @@ Note: If the tool seems to be running too long, go back to chrome://extensions a
    
 ![image](https://github.com/user-attachments/assets/9804278a-1b2e-44a7-bcbc-b3f17d348884)
 
+
+### Troubleshooting
+If the extension doesn't seem to be working. Go back to VsCode and check the terminal(where you ran RestServiceApplication.java)
+
+If it says Token not valid. End the process. In the same terminal where you ended the process set the OPENAI_API_KEY in there **${env:OPENAI_API_KEY}="YOUR OPENAI KEY GOES INSIDE HERE"** and then rerun the application in the **same terminal**
 
 
    
