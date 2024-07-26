@@ -52,7 +52,7 @@ Check Edit the System Environment Variables on your workspace -> Click Environme
 ![image](https://github.com/user-attachments/assets/ba525dba-5192-41e0-8b18-1a319f852e9a)
 2. Go back to chrome://extensions. You will see that the service worker is inactive. Click the reload button in that
    ![image](https://github.com/user-attachments/assets/1b3c7020-f370-47db-9deb-d34bcd769728)
-3. Now the extension is working, you can use this tool on paths that follow this pattern: https://github.com/user/project/commit/id
+3. Now the extension is working, you can use this tool on paths that follow this pattern: https://github.com/user/project/commit/id and https://github.com/user/project/pull/id/commits/id
 Note: If the tool seems to be running too long, go back to chrome://extensions and reload the service worker(this may go inactive), Reload Page where commit is -> Click on Chrome extension -> Click Generate commit
    
 ![image](https://github.com/user-attachments/assets/9804278a-1b2e-44a7-bcbc-b3f17d348884)
