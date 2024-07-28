@@ -53,6 +53,10 @@ Check Edit the System Environment Variables on your workspace -> Click Environme
 2. Go back to chrome://extensions. You will see that the service worker is inactive. Click the reload button in that
    ![image](https://github.com/user-attachments/assets/1b3c7020-f370-47db-9deb-d34bcd769728)
 3. Now the extension is working, you can use this tool on paths that follow this pattern: https://github.com/user/project/commit/id and https://github.com/user/project/pull/id/commits/id
+   Here are some links to try out the tool!
+   - https://github.com/danilofes/refactoring-toy-example/commit/63cbed99a601e79c6a0ae389b2a57acdbd3e1b44
+   - https://github.com/danilofes/refactoring-toy-example/commit/36287f7c3b09eff78395267a3ac0d7da067863fd
+   - https://github.com/tsantalis/RefactoringMiner/commit/f096939929d712ecd23e6ca726c6fb4ca903f900
 Note: If the tool seems to be running too long, go back to chrome://extensions and reload the service worker(this may go inactive), Reload Page where commit is -> Click on Chrome extension -> Click Generate commit
    
 ![image](https://github.com/user-attachments/assets/9804278a-1b2e-44a7-bcbc-b3f17d348884)
