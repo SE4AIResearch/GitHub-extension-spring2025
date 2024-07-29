@@ -33,8 +33,9 @@ Check Edit the System Environment Variables on your workspace -> Click Environme
    ![image](https://github.com/user-attachments/assets/6230e7f0-0402-4ab8-9505-4b803e446ed3)
 
 #### 4. GitHub and OpenAI Keys
-1. In github.com go to your profile -> settings -> developer settings(scroll down) -> personal access tokens(classic) -> generate new token(classic) -> name it and click generate (Make sure to note this down somewhere)
-2. https://platform.openai.com/api-keys -> Sign in -> Create New Secret Key(Make sure to note this key down somewhere as well) **Important: This tool only works if you have money in your OpenAI account, $5 is enough**
+1. https://github.com/settings/tokens -> generate new token(classic) -> name it and click generate (Make sure to note this down somewhere)
+   - **Note: This token expires after a while (usually 30 days) -> Make sure to generate a new one if it does**
+3. https://platform.openai.com/api-keys -> Sign in -> Create New Secret Key(Make sure to note this key down somewhere as well) **Important: This tool only works if you have money in your OpenAI account, $5 is enough**
 
 #### 5. Setting up Keys in Vscode and Vscode Setup
 **Important: Use powershell in your VsCode terminal**
@@ -63,9 +64,17 @@ Note: If the tool seems to be running too long, go back to chrome://extensions a
 
 
 ### Troubleshooting
-If the extension doesn't seem to be working. Go back to VsCode and check the terminal(where you ran RestServiceApplication.java)
 
+1.If the extension doesn't seem to be working. Go back to VsCode and check the terminal(where you ran RestServiceApplication.java)
 If it says Token not valid. End the process. In the same terminal where you ended the process set the OPENAI_API_KEY in there **${env:OPENAI_API_KEY}="YOUR OPENAI KEY GOES INSIDE HERE"** and then rerun the application in the **same terminal**
+
+This is the terminal where the RestServiceApplication.java runs. End the process set the open key there and then run the file again in the same terminal.
+![image](https://github.com/user-attachments/assets/94d061aa-4edc-4eb0-a24c-4c1f7b68c4b9)
+
+2. Make sure to generate a new GitHub token if the backend throws an error with something like this
+   ![image](https://github.com/user-attachments/assets/fcc31061-473a-48e9-bac6-f822201aca32)
+
+
 
 
    
