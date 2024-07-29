@@ -28,8 +28,11 @@ Check Edit the System Environment Variables on your workspace -> Click Environme
 
 #### 3. Vscode Setup
 1. Open the folder now in Vscode, in the extensions icon on Vscode itself, download **Extension Pack for Java**
-2. Need to configure our database file now go to the resources folder under chromeext_backend/src/main
-3. In the resources folder go to application.properties file. Make sure the port number (so in my end it is 3306, picture for reference) is the same when you setup MySQL. Also make sure your **database_name** is the same (on my end it is commit_database2). Change that line to the database name you gave it. Do the same with username and password(in the picture my username and password is root and root123! respectively)
+   - **Note: Make sure the folder loads completely to avoid inactive backend errors**
+    ![image](https://github.com/user-attachments/assets/3b39cb31-33ab-4f06-a7ff-2991babc717a)
+
+3. Need to configure our database file now go to the resources folder under chromeext_backend/src/main
+4. In the resources folder go to application.properties file. Make sure the port number (so in my end it is 3306, picture for reference) is the same when you setup MySQL. Also make sure your **database_name** is the same (on my end it is commit_database2). Change that line to the database name you gave it. Do the same with username and password(in the picture my username and password is root and root123! respectively)
    ![image](https://github.com/user-attachments/assets/6230e7f0-0402-4ab8-9505-4b803e446ed3)
 
 #### 4. GitHub and OpenAI Keys
@@ -69,6 +72,7 @@ Note: If the tool seems to be running too long, go back to chrome://extensions a
 If it says Token not valid. End the process. In the same terminal where you ended the process set the OPENAI_API_KEY in there **${env:OPENAI_API_KEY}="YOUR OPENAI KEY GOES INSIDE HERE"** and then rerun the application in the **same terminal**
 
 This is the terminal where the RestServiceApplication.java runs. End the process set the open key there and then run the file again in the same terminal.
+
 ![image](https://github.com/user-attachments/assets/94d061aa-4edc-4eb0-a24c-4c1f7b68c4b9)
 
 2. Make sure to generate a new GitHub token if the backend throws an error with something like this
