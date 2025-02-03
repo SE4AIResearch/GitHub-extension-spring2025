@@ -3,3 +3,9 @@ Commit Pro is a browser extension designed for Git to help developers understand
 ## Name of team members:
 -Vaibhavi Shah <br/>
 -Meghna Agrawal <br/>
+-Ali Vaziri <br/>
+-Ishan Garg <br/>
+-Priyanshi Yadav <br/>
+
+
+
