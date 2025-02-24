@@ -5,7 +5,7 @@ const urlToSend = "https://github.com/danilofes/refactoring-toy-example";
 const commitID = "0a46ed5c56c8b1576dfc92f3ec5bc2f0ea68aafe";
 const ogmessage = "Delete attributes in Snake;"
 
-fetch(`http://localhost:8080/greeting?${new URLSearchParams({
+fetch(`http://localhost:8084/greeting?${new URLSearchParams({
     url: urlToSend,
     id: commitID,
     og: ogmessage

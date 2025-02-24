@@ -121,7 +121,7 @@ public class RefactoringController {
         }
     }
 
-    @CrossOrigin(origins = "http://localhost:8080")
+    @CrossOrigin(origins = "http://localhost:8084")
     @GetMapping("/greeting")
     public Greeting greeting(@RequestParam String url, @RequestParam String id, @RequestParam String og) 
     {

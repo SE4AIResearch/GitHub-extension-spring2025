@@ -56,7 +56,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
                             function delay(ms) {
                                 return new Promise(resolve => setTimeout(resolve, ms));
                             }
-                            const response = await fetch(`http://localhost:8080/greeting?${new URLSearchParams({
+                            const response = await fetch(`http://localhost:8084/greeting?${new URLSearchParams({
                                 url: urlToSend,
                                 id: commitID,
                                 og: ogMessage
