@@ -1,7 +1,10 @@
-saim\Commit.class
-saim\Greeting.class
-saim\CommitDetailsRepo.class
-saim\RestServiceApplication.class
-saim\CommitService.class
-saim\RefactoringController$1.class
-saim\RefactoringController.class
+saim/UnderstandService.class
+saim/ApiKeyManager.class
+saim/RefactoringController.class
+saim/Commit.class
+saim/RestServiceApplication.class
+saim/CommitService.class
+saim/RefactoringController$1.class
+saim/ApiKey.class
+saim/Greeting.class
+saim/CommitDetailsRepo.class

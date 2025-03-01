@@ -24,9 +24,9 @@
 
     <maven.compiler.target>1.7</maven.compiler.target> -->
 
-<maven.compiler.source>16</maven.compiler.source>
+<maven.compiler.source>17</maven.compiler.source>
 
-<maven.compiler.target>16</maven.compiler.target>
+<maven.compiler.target>17</maven.compiler.target>
 </properties>
 
 
@@ -124,8 +124,8 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.0</version>
           <configuration>
-            <source>8</source>
-            <target>8</target>
+            <source>17</source>
+            <target>17</target>
           </configuration>
         </plugin>
 
