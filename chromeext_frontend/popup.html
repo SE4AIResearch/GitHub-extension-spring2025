@@ -12,10 +12,35 @@
 </head>
 <body>
     <h1>Commit Pro</h1>
-    <button id="b">Generate commit</button>
-    <!-- <p id = "summary"></p>
-    <p id = "intent"></p>
-    <p id = "impact"></p>
-    <p id = "instruction"></p> -->
+    
+    <div>
+        <label for="tokenSelect">GitHub OAuth Token:</label>
+        <select id="tokenSelect">
+            <option value="token1">Token 1</option>
+            <option value="token2">Token 2</option>
+        </select>
+    </div>
+    
+    <div>
+        <label for="llmSelect">Choose LLM:</label>
+        <select id="llmSelect">
+            <option value="openai">OpenAI</option>
+            <option value="gemini">Gemini</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="llmKey">LLM API Key:</label>
+        <input type="text" id="llmKey" value="Value" readonly>
+    </div>
+
+    
+    <button id="b">Generate Summary</button>
+    <button id="cancel_btn">Cancel</button>
+
+    <p id="summary"></p>
+    <p id="intent"></p>
+    <p id="impact"></p>
+    <p id="instruction"></p>
 </body>
 </html>
