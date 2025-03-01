@@ -4,6 +4,15 @@ const intent = document.getElementById("intent");
 const impact = document.getElementById("impact");
 const instruction = document.getElementById("instruction");
 
+document.addEventListener("DOMContentLoaded", () => {
+    const settingsBtn = document.getElementById("settings-btn");
+    if (settingsBtn) {
+      settingsBtn.addEventListener("click", () => {
+        window.location.href = "settings.html";
+      });
+    }
+  });
+
 window.addEventListener("DOMContentLoaded", () => 
 {
     button.addEventListener('click', () => 

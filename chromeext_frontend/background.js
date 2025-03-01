@@ -1,3 +1,33 @@
+chrome.runtime.onInstalled.addListener(function(details){
+    if(details.reason == "install"){
+        console.log("This is a first install!");
+        const registerAppUrl = 'http://localhost:8080/register-app';
+
+    fetch(registerAppUrl)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const uuid = data.uuid;
+        console.log("Received UUID:", uuid);
+
+        chrome.storage.local.set({ appId: uuid }, () => {
+          console.log("UUID stored in permanent storage.");
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching /register-app:", error);
+      });
+    }else if(details.reason == "update"){
+        var thisVersion = chrome.runtime.getManifest().version;
+        console.log("Updated from " + details.previousVersion + " to " + thisVersion + "!");
+    }
+});
+
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => 
 {
     if (message.action === "buttonClicked") 
