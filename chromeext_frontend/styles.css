@@ -6,13 +6,31 @@ body{
     font-optical-sizing: auto;
 }
 
-button{
+.settings-container{
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+}
+
+#settings-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: contents
+}
+
+#settings-btn img {
+width: 18px;
+height: 18px;
+}
+  
+#b{
     border: black solid 2px;
     border-radius: 10px;
     padding: 8px;
     width: 150px;
 }
-button:hover {
+#b:hover {
     background-color: rgb(248, 241, 234);
 }
 p{
