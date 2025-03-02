@@ -71,15 +71,40 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             commitProText.className = 'commit-pro-text';
             // //commitProText.innerHTML = "<br>COMMIT PRO<br>" + message.content + "<br>";
 
-            const sum = message.content.match(/SUMMARY:\s*(.*?)(?:\s*INTENT:|$)/)[1];
-            const int = message.content.match(/INTENT:\s*(.*?)(?:\s*IMPACT:|$)/)[1];
-            const imp = message.content.match(/IMPACT:\s*(.*?)(?:\s*INSTRUCTION:|$)/)[1];
-            const ins = message.content.split("INSTRUCTION:")
-            const ins2 = ins[1];
+            console.log(message.content);
+            let summary = ""
+
+            try{
+                const sum = message.content.match(/SUMMARY:\s*(.*?)(?:\s*INTENT:|$)/)[1];
+                summary += "<br>COMMIT PRO<br>SUMMARY: " + sum
+
+            }catch(e){
+                console.log("Error in summary");
+            }
+            try{
+                const int = message.content.match(/INTENT:\s*(.*?)(?:\s*IMPACT:|$)/)[1];
+                summary += "<br>INTENT: " + int
+
+            }catch(e){
+                console.log("Error in intent");
+                summary += "<br>IMPACT: " + imp
+            }
+            try{
+                const imp = message.content.match(/IMPACT:\s*(.*?)(?:\s*INSTRUCTION:|$)/)[1];
+                summary
+            }catch(e){
+                console.log("Error in impact");
+            }
+            try{
+                const ins = message.content.split("INSTRUCTION:")
+                const ins2 = ins[1];
+                summary += "<br>INSTRUCTION: " + ins2 + "<br>"
+            }catch(e){
+                console.log("Error in instruction");
+            }
             
             // Update the HTML content
-            commitProText.innerHTML = "<br>COMMIT PRO<br>SUMMARY: " + sum + "<br>INTENT: " +
-                int + "<br>IMPACT: " + imp + "<br>INSTRUCTION: " + ins2 + "<br>";
+            commitProText.innerHTML = summary;
             
             
             commitTitleDiv.appendChild(commitProText);
