@@ -1,17 +1,19 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => 
     {
-        let commitTitleDiv = document.querySelector('.commit-desc');
+        let commitTitleDiv = document.querySelector('.commit-desc') || document.querySelector(".extended-commit-description-container");
         if (!commitTitleDiv){
-            commitTitleDiv = document.querySelector('div.commit-title.markdown-title');
+            commitTitleDiv = document.querySelector('div.commit-title.markdown-title') || document.querySelector('div.CommitHeader-module__commit-message-container--nl1pf span > div')
+            console.log(commitTitleDiv);
+            
         }
     
         if (message.action === "fetchData") 
         {
-    
-            let ogMessage = document.querySelector("div.commit-title.markdown-title").innerText;
+            //let ogMessage = document.querySelector("div.commit-title.markdown-title").innerText || document.querySelector('div.CommitHeader-module__commit-message-container--nl1pf span > div').innerText;
+            let ogMessage = commitTitleDiv.innerText;
             console.log(ogMessage);
             
-            const additional = document.querySelector(".commit-desc");
+            const additional = document.querySelector(".commit-desc") || document.querySelector(".extended-commit-description-container");
             if (additional) {
                 console.log(additional.innerText);
                 ogMessage += additional.innerText;
@@ -61,22 +63,34 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             }
         }
         else if (message.action === "updateContent"){
+
+            let tempChild = document.querySelector('.commit-pro-text');
+            console.log(tempChild);
+            if(tempChild) {
+                // tempChild.innerText = '';
+                // tempChild.innerHTML = '';
+                // commitTitleDiv.removeChild(tempChild);
+                tempChild.textContent = '';
+                tempChild.remove();
+            }
+            
             let loading = document.querySelector('.loading');
             if (loading) {
                 commitTitleDiv.removeChild(loading);
             }
-    
+            
+
             let commitProText = document.createElement('span');
-            commitProText.style.color = 'blue';
+            commitProText.style.color = '#2f68a8';
             commitProText.className = 'commit-pro-text';
-            // //commitProText.innerHTML = "<br>COMMIT PRO<br>" + message.content + "<br>";
 
             console.log(message.content);
             let summary = ""
 
+
             try{
                 const sum = message.content.match(/SUMMARY:\s*(.*?)(?:\s*INTENT:|$)/)[1];
-                summary += "<br>COMMIT PRO<br>SUMMARY: " + sum
+                summary += "<br><br>COMMIT PRO<br><br>SUMMARY: " + sum
 
             }catch(e){
                 console.log("Error in summary");
@@ -87,11 +101,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
 
             }catch(e){
                 console.log("Error in intent");
-                summary += "<br>IMPACT: " + imp
             }
             try{
                 const imp = message.content.match(/IMPACT:\s*(.*?)(?:\s*INSTRUCTION:|$)/)[1];
-                summary
+                summary += "<br>IMPACT: " + imp
             }catch(e){
                 console.log("Error in impact");
             }
@@ -109,6 +122,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             
             commitTitleDiv.appendChild(commitProText);
         }
+
         return true;
     });
     
