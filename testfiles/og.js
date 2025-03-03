@@ -5,7 +5,7 @@ const urlToSend = "https://github.com/danilofes/refactoring-toy-example";
 const commitID = "63cbed99a601e79c6a0ae389b2a57acdbd3e1b44";
 const ogmessage = "Rename Class	org.animals.Cow renamed to org.animals.CowRenamed"
 
-fetch(`http://localhost:8080/greeting?${new URLSearchParams({
+fetch(`http://localhost:8084/greeting?${new URLSearchParams({
     url: urlToSend,
     id: commitID,
     og: ogmessage

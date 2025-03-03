@@ -27,7 +27,7 @@
     "web_accessible_resources": [
         {
             
-            "resources": ["pics/*"],
+            "resources": ["pics/*","dashboard.html", "styles.css", "dashboard.js"],
             "matches": ["<all_urls>"]
         }
     ]
