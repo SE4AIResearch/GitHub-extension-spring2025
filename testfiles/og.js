@@ -2,8 +2,8 @@
 // const commitID = "dc8832108964ce2df010b9ea090bafe50ef7fe5c";
 
 const urlToSend = "https://github.com/danilofes/refactoring-toy-example";
-const commitID = "0a46ed5c56c8b1576dfc92f3ec5bc2f0ea68aafe";
-const ogmessage = "Delete attributes in Snake;"
+const commitID = "63cbed99a601e79c6a0ae389b2a57acdbd3e1b44";
+const ogmessage = "Rename Class	org.animals.Cow renamed to org.animals.CowRenamed"
 
 fetch(`http://localhost:8084/greeting?${new URLSearchParams({
     url: urlToSend,

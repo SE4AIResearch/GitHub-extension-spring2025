@@ -24,13 +24,13 @@ import com.theokanning.openai.service.OpenAiService;
 @RestController
 public class RefactoringController {
     private static final String aitoken = System.getenv("OPENAI_API_KEY");
-
     @Autowired
     private CommitService cService;
     private final AtomicLong counter = new AtomicLong();
 
     public String returnrefs(String url, String id) 
     {
+        System.out.println("OPENAI Token: " + aitoken);
         String fullurl = url + "/commit/" + id;
         System.out.println(fullurl);
         if (aitoken == null || aitoken.isBlank()) 
