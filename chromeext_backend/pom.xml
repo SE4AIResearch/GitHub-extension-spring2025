@@ -42,7 +42,7 @@
     <dependency>
         <groupId>com.github.tsantalis</groupId>
         <artifactId>refactoring-miner</artifactId>
-        <version>3.0.4</version>
+        <version>3.0.10</version>
         <exclusions>
             <exclusion>
                 <groupId>org.slf4j</groupId>
