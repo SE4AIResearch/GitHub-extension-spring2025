@@ -22,12 +22,10 @@ public class ApiKey {
     @Column(name = "openai_llm_api_key", nullable = true, length = 255)
     private String openaiLlmApiKey;
 
-    // Database provides a default value if not set, but you can also initialize it here if desired.
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public ApiKey() {}
-
 
     public Integer getId() {
         return id;
