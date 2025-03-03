@@ -43,6 +43,7 @@ select {
     cursor: pointer;
 }
 
+
 input[readonly] {
     background-color: #e9ecef;
     cursor: not-allowed;
@@ -61,6 +62,8 @@ button {
 }
 
 button:hover {
+  
+ 
 .settings-container{
     display: flex;
     justify-content: space-between;
@@ -86,6 +89,7 @@ height: 18px;
     width: 150px;
 }
 #b:hover {
+
     background-color: rgb(248, 241, 234);
 }
 
@@ -99,6 +103,8 @@ height: 18px;
 }
 
 button:hover {
+ 
+  
     background-color: rgb(248, 241, 234);
 }
 

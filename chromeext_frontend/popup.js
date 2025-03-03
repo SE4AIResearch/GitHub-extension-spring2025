@@ -10,26 +10,14 @@ const intent = document.getElementById("intent");
 const impact = document.getElementById("impact");
 const instruction = document.getElementById("instruction");
 
-window.addEventListener("DOMContentLoaded", () => {
 
-    button.addEventListener("click", () => {
-        chrome.runtime.sendMessage({ action: "buttonClicked" });
-    });
 
-    cancelButton.addEventListener("click", () => {
-        console.log("Cancelled");
-        nameDisplay.innerText = "Action Cancelled";
-    });
+document.addEventListener("DOMContentLoaded", () => {
+    const settingsBtn = document.getElementById("settings-btn");
+    if (settingsBtn) {
+      settingsBtn.addEventListener("click", () => {
+        window.location.href = "settings.html";
+      });
+    }
+  });
 
-    llmSelect.addEventListener("change", () => {
-        console.log("Selected LLM:", llmSelect.value);
-    });
-
-    tokenSelect.addEventListener("change", () => {
-        console.log("Selected Token:", tokenSelect.value);
-    });
-
-    llmSelect.addEventListener("change", () => {
-        llmKey.value = llmSelect.value === "openai" ? "OpenAI-API-KEY" : "Gemini-API-KEY";
-    });
-});
