@@ -11,10 +11,32 @@
     </style>
 </head>
 <body>
-    <select>
+<a href="popup.html" id ="back_btn">
+            <img src="pics/back_button.png" alt="back Button" />
+
+</a>
+    <div>
+        <label for="tokenSelect">GitHub OAuth Token:</label>
+        <input type="text" id="github" value="Value" readonly>
+    </div>
+    
+    <div>
+        <label for="llmSelect">Choose LLM:</label>
+        <select id="llmSelect">
+            <option value="openai">OpenAI</option>
+            <option value="gemini">Gemini</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="llmKey">LLM API Key:</label>
+        <input type="text" id="open-ai-key" placeholder="LLM API Key">
+    </div>
+
+   <!-- <select>
         <option>ChatGPT</option>
     </select>
-    <input type="text" id="open-ai-key" placeholder="LLM API Key">
-    <button id="settings-save">Sav</button>
+    <input type="text" id="open-ai-key" placeholder="LLM API Key">-->
+    <button id="settings-save">Save</button>
 </body>
 </html>
