@@ -275,15 +275,15 @@ public class RefactoringController {
                     System.out.println("  - " + entry.getValue() + "x " + entry.getKey());
                 }
             }
-
+            String prompt = "Act as a prompt optimizer and optimize the following prompt for summary on changes. The prompt is [Given the following url, generate a clear, concise and COMPLETE message that is 1-2 sentences that summarizes the changes in the code for people to understand. After the summary, give one line for the motivation behind these changes and then give one line on the impact of these changes. Write it in this format: SUMMARY: summary changes, INTENT: intent line, IMPACT: impact line]\n" + fullurl;
+            String prompt2 = "Act as a prompt optimizer and optimize the following prompt for summary on changes. The prompt is [Given the following url, generate a clear, concise and COMPLETE message that is 2-3 sentences that summarizes the changes in the code for people to understand. Based on your understanding of the code changes, the summary should give a detailed view on what the code is doing including how the code changes in this commit might improve the code, any error that might be fixed and the file name where the code has changed. After the summary, give one line for the motivation behind these changes and then give one line on the impact of these changes. Write it in this format: SUMMARY: summary changes, INTENT: intent line, IMPACT: impact line]\n" + fullurl;
             // IF THERE ARE NO REFACTORINGS
             if (refactorings.trim().isEmpty()) {
                 System.out.println("No refactorings found in final analysis, generating regular summary");
 
                 OpenAiService service = new OpenAiService(aitoken);
                 StringBuilder returnedResultfromgpt = new StringBuilder();
-                String prompt = "Act as a prompt optimizer and optimize the following prompt for summary on changes. The prompt is [Given the following url, generate a clear, concise and COMPLETE message that is 1-2 sentences that summarizes the changes in the code for people to understand. After the summary, give one line for the motivation behind these changes and then give one line on the impact of these changes. Write it in this format: SUMMARY: summary changes, INTENT: intent line, IMPACT: impact line]\n" + fullurl;
-                String prompt2 = "Act as a prompt optimizer and optimize the following prompt for summary on changes. The prompt is [Given the following url, generate a clear, concise and COMPLETE message that is 2-3 sentences that summarizes the changes in the code for people to understand. The summary should give a detailed view on what the code is doing including what the code change might be, any error that might be fixed and the file name. After the summary, give one line for the motivation behind these changes and then give one line on the impact of these changes. Write it in this format: SUMMARY: summary changes, INTENT: intent line, IMPACT: impact line]\n" + fullurl;
+                
                 StringBuilder newResturnedResultfromgpt = new StringBuilder();
                 try {
                     OpenAIClient client1 = OpenAIOkHttpClient.builder()
@@ -326,8 +326,7 @@ public class RefactoringController {
             StringBuilder instructions = new StringBuilder();
             try {
                 CompletionRequest completionRequest = CompletionRequest.builder()
-                        .prompt("Act as a prompt optimizer and optimize the following prompt for summary on changes. The prompt is [Given the following list of refactoring changes, generate a clear, concise and COMPLETE message that can contain multiple sentences that summarizes ALL the refactoring changes effectively for people to understand. After the summary, give one line for the intent behind these changes and then give one line on the impact of these changes. Write it in this format: SUMMARY: summary changes, INTENT: intent line, IMPACT: impact line]\n"
-                                + refactorings)
+                        .prompt(prompt2 + refactorings)
                         .model("gpt-3.5-turbo-instruct")
                         .maxTokens(300)
                         .build();
