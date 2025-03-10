@@ -9,7 +9,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
     
         if (message.action === "fetchData") 
         {
-            //let ogMessage = document.querySelector("div.commit-title.markdown-title").innerText || document.querySelector('div.CommitHeader-module__commit-message-container--nl1pf span > div').innerText;
             let ogMessage = commitTitleDiv.innerText;
             console.log(ogMessage);
             
@@ -27,49 +26,47 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             loading.style.height = '40px';
             loading.style.display = 'block';
             commitTitleDiv.appendChild(loading);
-            if(chrome.runtime.lastError){
-                console.log("Error runtime content");
-                return;
-            }
-            function match(url) {
-                const splitwords = url.split('/');
-                return splitwords;
-            }
-            const url = window.location.href;
-            
-            const words = match(url);
-            //Adding additional pull request functionality
-            if (words[5] === "commit" || (words[5] === "pull" && words[7] === "commits")) 
-            {
-                // console.log("Error in content words");
-                // console.error("Wrong url");
-                // return;
-                const urlToSend = words[0] + '//' + words[2] + "/" + words[3] + "/" + words[4];
-                console.log(urlToSend);
-                const commitIDlist = words[words.length - 1].split('?');
-                const commitID = commitIDlist[0];
-                console.log(commitID);
-                console.log(ogMessage);
-                sendResponse({ urlToSend, commitID, ogMessage });
-            } 
-            else {
-                // const urlToSend = words[0] + '//' + words[2] + "/" + words[3] + "/" + words[4];
-                // const commitIDlist = words[words.length - 1].split('?');
-                // const commitID = commitIDlist[0];
-                // sendResponse({ urlToSend, commitID, ogMessage });
-                console.log("Error in content words");
-                console.error("Wrong url");
-                return;
-            }
+
+            // Get the UUID from storage
+            chrome.storage.local.get(['appId'], function(result) {
+                const uuid = result.appId;
+                if (!uuid) {
+                    console.error("No UUID found");
+                    return;
+                }
+
+                if(chrome.runtime.lastError){
+                    console.log("Error runtime content");
+                    return;
+                }
+
+                function match(url) {
+                    const splitwords = url.split('/');
+                    return splitwords;
+                }
+                const url = window.location.href;
+                
+                const words = match(url);
+                if (words[5] === "commit" || (words[5] === "pull" && words[7] === "commits")) {
+                    const urlToSend = words[0] + '//' + words[2] + "/" + words[3] + "/" + words[4];
+                    console.log(urlToSend);
+                    const commitIDlist = words[words.length - 1].split('?');
+                    const commitID = commitIDlist[0];
+                    console.log(commitID);
+                    console.log(ogMessage);
+                    sendResponse({ urlToSend, commitID, ogMessage, uuid });
+                } else {
+                    console.log("Error in content words");
+                    console.error("Wrong url");
+                    return;
+                }
+            });
         }
         else if (message.action === "updateContent"){
 
             let tempChild = document.querySelector('.commit-pro-text');
             console.log(tempChild);
             if(tempChild) {
-                // tempChild.innerText = '';
-                // tempChild.innerHTML = '';
-                // commitTitleDiv.removeChild(tempChild);
                 tempChild.textContent = '';
                 tempChild.remove();
             }
@@ -89,31 +86,50 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
 
 
             try{
+                // Setting the COMMIT PRO header
+                summary += "<br><br>COMMIT PRO<br><br>";
+                
+                // Extract the summary section
                 const sum = message.content.match(/SUMMARY:\s*(.*?)(?:\s*INTENT:|$)/)[1];
-                summary += "<br><br>COMMIT PRO<br><br>SUMMARY: " + sum
+                summary += "SUMMARY: " + sum;
 
             }catch(e){
                 console.log("Error in summary");
             }
             try{
+                // Extract the intent section
                 const int = message.content.match(/INTENT:\s*(.*?)(?:\s*IMPACT:|$)/)[1];
-                summary += "<br>INTENT: " + int
+                summary += "<br>INTENT: " + int;
 
             }catch(e){
                 console.log("Error in intent");
             }
             try{
+                // Extract the impact section
                 const imp = message.content.match(/IMPACT:\s*(.*?)(?:\s*INSTRUCTION:|$)/)[1];
-                summary += "<br>IMPACT: " + imp
+                summary += "<br>IMPACT: " + imp;
             }catch(e){
                 console.log("Error in impact");
             }
             try{
-                const ins = message.content.split("INSTRUCTION:")
-                const ins2 = ins[1];
-                summary += "<br>INSTRUCTION: " + ins2 + "<br>"
+                // Extract the instruction section
+                const ins = message.content.split("INSTRUCTION:");
+                if (ins.length > 1) {
+                    const ins2 = ins[1].trim();
+                    // Check if there are any refactorings
+                    if (ins2 && ins2 !== "No Refactorings" && ins2 !== "No specific refactoring instructions available") {
+                        summary += "<br>INSTRUCTION: " + ins2;
+                    } else {
+                        // No refactorings case
+                        summary += "<br>INSTRUCTION: No Refactoring Detected";
+                    }
+                } else {
+                    summary += "<br>INSTRUCTION: No Refactoring Detected";
+                }
             }catch(e){
-                console.log("Error in instruction");
+                console.log("Error processing refactoring details: " + e.message);
+                // Fallback display if there's an error parsing the refactorings
+                summary += "<br>INSTRUCTION: No Refactoring Detected";
             }
             
             // Update the HTML content

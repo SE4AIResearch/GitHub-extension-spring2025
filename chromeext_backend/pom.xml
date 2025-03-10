@@ -42,7 +42,7 @@
     <dependency>
         <groupId>com.github.tsantalis</groupId>
         <artifactId>refactoring-miner</artifactId>
-        <version>3.0.10</version>
+        <version>3.0.4</version>
         <exclusions>
             <exclusion>
                 <groupId>org.slf4j</groupId>
@@ -68,6 +68,13 @@
             <artifactId>slf4j-log4j12</artifactId>
         </exclusion>
     </exclusions>
+    </dependency>
+
+    <!-- GitHub API dependency for direct integration -->
+    <dependency>
+        <groupId>org.kohsuke</groupId>
+        <artifactId>github-api</artifactId>
+        <version>1.135</version>
     </dependency>
 
 		<dependency>

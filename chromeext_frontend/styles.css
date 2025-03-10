@@ -197,3 +197,33 @@ p {
 .metric-table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
+
+/* Disabled button style */
+button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Styles for the commit pro text displayed on GitHub pages */
+.commit-pro-text {
+    display: block;
+    font-family: 'Roboto Mono', monospace;
+    line-height: 1.5;
+    padding: 15px;
+    margin: 15px 0;
+    border-left: 3px solid #2f68a8;
+    background-color: #f6f8fa;
+    border-radius: 3px;
+    white-space: pre-line;
+    color: #24292e;
+}
+
+.commit-pro-text strong {
+    font-weight: 600;
+}
+
+/* Loading animation */
+.loading {
+    display: block;
+    margin: 10px auto;
+}

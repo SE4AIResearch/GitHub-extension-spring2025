@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Commit Message Extension</title>
-    <script src="popup.js" defer></script>
+    <script src="Settings.js" defer></script>
     <link rel="stylesheet" href="styles.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
@@ -17,7 +17,7 @@
 </a>
     <div>
         <label for="tokenSelect">GitHub OAuth Token:</label>
-        <input type="text" id="github" value="Value" readonly>
+        <input type="password" id="github" placeholder="Enter GitHub OAuth Token">
     </div>
     
     <div>
@@ -30,13 +30,9 @@
 
     <div>
         <label for="llmKey">LLM API Key:</label>
-        <input type="text" id="open-ai-key" placeholder="LLM API Key">
+        <input type="password" id="open-ai-key" placeholder="LLM API Key">
     </div>
 
-   <!-- <select>
-        <option>ChatGPT</option>
-    </select>
-    <input type="text" id="open-ai-key" placeholder="LLM API Key">-->
     <button id="settings-save">Save</button>
 </body>
 </html>
