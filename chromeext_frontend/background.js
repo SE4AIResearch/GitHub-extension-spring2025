@@ -78,7 +78,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
                     const fetchPromise = fetch(`http://localhost:8080/greeting?${new URLSearchParams({
                         url: urlToSend,
                         id: commitID,
-                        og: ogMessage
+                        og: ogMessage,
+                        uuid: response.uuid
                     })}`)
                     .then(response => {
                         if (!response.ok) {

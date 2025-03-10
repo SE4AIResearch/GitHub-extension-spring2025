@@ -28,18 +28,27 @@ public class AppController {
             @RequestParam("uuid") String uuid,
             @RequestParam("llmKey") String llmKey) {
         
-        Optional<ApiKey> optionalApiKey = apiKeyRepo.findByUuid(uuid);
-        if (optionalApiKey.isEmpty()) {
+        try {
+            Optional<ApiKey> optionalApiKey = apiKeyRepo.findByUuid(uuid);
+            if (optionalApiKey.isEmpty()) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "UUID not found"));
+            }
+
+            ApiKey apiKey = optionalApiKey.get();
+            apiKey.setOpenaiLlmApiKey(llmKey);
+            apiKeyRepo.save(apiKey);
+            
+            System.out.println("Saved OpenAI key for UUID: " + uuid); // Debug log
+            
+            return ResponseEntity.ok(Map.of("message", "LLM key updated successfully"));
+        } catch (Exception e) {
+            System.err.println("Error saving OpenAI key: " + e.getMessage()); // Debug log
             return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "UUID not found"));
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to save LLM key"));
         }
-
-        ApiKey apiKey = optionalApiKey.get();
-        apiKey.setOpenaiLlmApiKey(llmKey);
-        apiKeyRepo.save(apiKey);
-
-        return ResponseEntity.ok(Map.of("message", "LLM key updated successfully"));
     }
 
     /**
@@ -55,18 +64,27 @@ public class AppController {
             @RequestParam("uuid") String uuid,
             @RequestParam("githubKey") String githubKey) {
         
-        Optional<ApiKey> optionalApiKey = apiKeyRepo.findByUuid(uuid);
-        if (optionalApiKey.isEmpty()) {
+        try {
+            Optional<ApiKey> optionalApiKey = apiKeyRepo.findByUuid(uuid);
+            if (optionalApiKey.isEmpty()) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "UUID not found"));
+            }
+
+            ApiKey apiKey = optionalApiKey.get();
+            apiKey.setGithubApiKey(githubKey);
+            apiKeyRepo.save(apiKey);
+            
+            System.out.println("Saved GitHub key for UUID: " + uuid); // Debug log
+            
+            return ResponseEntity.ok(Map.of("message", "GitHub key updated successfully"));
+        } catch (Exception e) {
+            System.err.println("Error saving GitHub key: " + e.getMessage()); // Debug log
             return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "UUID not found"));
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to save GitHub key"));
         }
-
-        ApiKey apiKey = optionalApiKey.get();
-        apiKey.setGithubApiKey(githubKey);
-        apiKeyRepo.save(apiKey);
-
-        return ResponseEntity.ok(Map.of("message", "GitHub key updated successfully"));
     }
     
     /**
@@ -78,19 +96,28 @@ public class AppController {
     @CrossOrigin(origins = "*")
     @GetMapping("/get-keys")
     public ResponseEntity<?> getKeys(@RequestParam("uuid") String uuid) {
-        Optional<ApiKey> optionalApiKey = apiKeyRepo.findByUuid(uuid);
-        if (optionalApiKey.isEmpty()) {
+        try {
+            Optional<ApiKey> optionalApiKey = apiKeyRepo.findByUuid(uuid);
+            if (optionalApiKey.isEmpty()) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "UUID not found"));
+            }
+
+            ApiKey apiKey = optionalApiKey.get();
+            Map<String, String> response = Map.of(
+                "githubApiKey", apiKey.getGithubApiKey() != null ? apiKey.getGithubApiKey() : "",
+                "openaiLlmApiKey", apiKey.getOpenaiLlmApiKey() != null ? apiKey.getOpenaiLlmApiKey() : ""
+            );
+            
+            System.out.println("Retrieved keys for UUID: " + uuid); // Debug log
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error retrieving keys: " + e.getMessage()); // Debug log
             return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "UUID not found"));
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to retrieve keys"));
         }
-
-        ApiKey apiKey = optionalApiKey.get();
-        Map<String, String> response = Map.of(
-            "githubApiKey", apiKey.getGithubApiKey() != null ? apiKey.getGithubApiKey() : "",
-            "openaiLlmApiKey", apiKey.getOpenaiLlmApiKey() != null ? apiKey.getOpenaiLlmApiKey() : ""
-        );
-
-        return ResponseEntity.ok(response);
     }
 }
