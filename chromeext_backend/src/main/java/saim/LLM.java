@@ -11,25 +11,52 @@ import java.util.Map;
 public class LLM {
 
     public String buildPromptFromURL(String fullUrl) {
+        System.out.println("Building prompt from " + fullUrl);
         String prompt = "You are an expert software engineer trained in commit summarization.\n" +
-                "Given a code diff or commit URL, go through the entire changes, and extract a meaningful summary using this structure. If the url is given go the URL and extract information:\n" +
+                "Given a code diff or commit URL, go through the entire changes, and extract a meaningful summary using this structure. If the URL is provided, go to the URL and extract information from the webpage:\n" +
                 "\n" +
                 "MANDATORY FORMAT:\n" +
                 "SUMMARY: A concise technical description of the change (1–2 lines max), " +
                 "INTENT: One of: Fixed Bug, Improved Internal Quality, Improved External Quality, Feature Update, Code Smell Resolution, " +
-                "IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability, " +
+                "IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability.\n" +
                 "\n" +
                 "You MUST include all three sections. Always use the specified keywords for INTENT.\n" +
+                "\n" + "Also what infomration came from the url and the url itself \n" +
+                "Here are some examples before and after your improvements:\n" +
                 "\n" +
-                "Here is an example before and after your improvements:\n" +
-                "\n" +
-                "Example:\n" +
+                "Example 1:\n" +
                 "SUMMARY: Replaced nested loops with a hash-based lookup in UserProcessor.java.\n" +
                 "INTENT: Improved Internal Quality.\n" +
                 "IMPACT: Reduced time complexity from O(n^2) to O(n), improving efficiency and code clarity.\n" +
                 "\n" +
+                "Example 2:\n" +
+                "SUMMARY: Fixed null pointer exception in PaymentService.java during refund processing.\n" +
+                "INTENT: Fixed Bug.\n" +
+                "IMPACT: Enhanced system stability by preventing crashes and improving error handling.\n" +
+                "\n" +
+                "Example 3:\n" +
+                "SUMMARY: Refactored the login module to adopt MVC architecture in AuthenticationController.java.\n" +
+                "INTENT: Improved Internal Quality.\n" +
+                "IMPACT: Increased maintainability and readability by separating concerns and simplifying future modifications.\n" +
+                "\n" +
+                "Example 4:\n" +
+                "SUMMARY: Updated API endpoint to support pagination in user request listings.\n" +
+                "INTENT: Feature Update.\n" +
+                "IMPACT: Improved usability and performance by reducing response times and enhancing navigation.\n" +
+                "\n" +
+                "Example 5:\n" +
+                "SUMMARY: Removed redundant code and improved variable naming in DataProcessor.java.\n" +
+                "INTENT: Code Smell Resolution.\n" +
+                "IMPACT: Enhanced readability and maintainability by reducing code clutter and clarifying functionality.\n" +
+                "\n" +
+                "Example 6:\n" +
+                "SUMMARY: Enhanced error messages in the user interface for better clarity during failures.\n" +
+                "INTENT: Improved External Quality.\n" +
+                "IMPACT: Improved user experience by providing actionable information during errors.\n" +
+                "\n" +
                 "Now, generate the structured summary for:\n" +
                 "URL: " + fullUrl;
+
 
         return prompt;
     }
@@ -67,7 +94,7 @@ public class LLM {
             CompletionRequest completionRequest = CompletionRequest.builder()
                     .prompt(prompt)
                     .model("gpt-3.5-turbo-instruct")
-                    .maxTokens(300)
+                    .maxTokens(600)
                     .build();
             CompletionResult result = service.createCompletion(completionRequest);
             String text = result.getChoices().isEmpty() ? "" : result.getChoices().get(0).getText();
