@@ -17,7 +17,7 @@ const Charts = () => {
       .attr("width", 400)
       .attr("height", 300);
 
-    svg.selectAll("*").remove(); // Clear previous drawings
+    svg.selectAll("*").remove(); 
 
     const xScale = d3.scaleBand()
       .domain(data.map(d => d.category))

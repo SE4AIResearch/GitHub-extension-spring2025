@@ -15,7 +15,7 @@ const TrendsHistory = () => {
       .attr("width", 400)
       .attr("height", 300);
 
-    svg.selectAll("*").remove(); // Clear previous drawings
+    svg.selectAll("*").remove(); 
 
     const xScale = d3.scaleLinear()
       .domain([2021, 2023])
