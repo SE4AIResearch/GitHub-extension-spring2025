@@ -1,0 +1,386 @@
+I. I NTRODUCTION
+The success of a software system depends on its ability to
+retain high-quality design in the face of continuous change.
+However, managing the growth of the software while continuously developing its functionalities is challenging and can
+account for up to 75% of the total development [1], [2].
+One key practice to cope with this challenge is refactoring.
+Refactoring is the art of remodeling the software design
+without altering its functionalities [3]. It was popularized by
+Fowler [3], who identiﬁed 72 refactoring types and provided
+examples of how to apply them in his catalog.
+Refactoring is a critical software maintenance activity that
+is performed by developers for an amalgamation of reasons
+[4]–[6]. Refactoring activities in the source code can be
+automatically detected [4], [7] providing a unique opportunity
+to practitioners and researchers to analyze how developers
+maintain their code during different phases of the development
+life-cycle and over large periods of time. Such valuable knowledge is vital for understanding more about the maintenance
+phase; the most costly phase in software development [1], [8].
+To detect refactorings, the state-of-the-art techniques [4], [7]
+typically search at the level of commits. As a result, these
+techniques are also able to group commit messages with their
+corresponding refactorings.
+III. RESEARCH GOALS
+To cope with the above-mentioned challenges, throughout
+this project, we aim to achieve the following research goals:
+• Goal #1: Exploring how developers document refactoring
+activities. We aim to extract how developers express
+their nonfunctional activities, namely improving software design, renaming semantically ambiguous identiﬁers, removing code redundancies etc. Multiple studies
+have been detecting the performed refactoring operations,
+e.g., rename class, move method etc. within committed
+changes to better understand how developers cope with
+bad design decisions, also known as design antipatterns,
+and to extract their removal strategy through the selection
+of the appropriate set of refactoring operations [9].
+• Goal #2: Understanding developer perception of refactoring. We aim to augment our understanding of the
+development contexts that trigger refactoring activities
+and enable future research to take development contexts
+into account more effectively when studying refactorings.
+Thus, the advantages of analyzing the textual description of the code change that was intended to describe
+refactoring activities are three-fold: 1) it improves our
+ability to study and commit message content and relate
+this content to refactorings; a challenging task which
+posed a signiﬁcant hurdle in recent work on contextualizing rename refactorings, 2) it gives us a stronger
+understanding of commit message practices and could
+help us improve commit message generation by making
+it clear how developers prefer to express their refactoring activities, 3) it provides us with a way of relating
+common words and phrases used to describe refactorings
+with one another. We plan to progress on refactoring
+motivation direction by identifying, among the various
+quality models presented in the literature, the ones that
+are more inline with the developer’s vision of quality,
+when they explicitly state that they are refactoring the
+code to improve it.
+• Goal #3: Studying developers refactoring perspective in
+practice. We aim to survey professional developers and
+conduct a case study in the industry to gain practical insights from refactoring in practice by studying refactoring
+motivation, documentation practices, and challenges. This
+direction of study can help us design future studies in
+refactoring that are empirically relevant to practitioners’
+obstacles, challenges, and needs, and create the next generation of industry-relevant automated refactoring tools.
+
+discussing a refactoring at all, and it is hard to determine
+how a commit message is discussing the refactoring.
+As the accuracy of refactoring detectors has reached
+a relatively high rate, the mined commits represent a
+rich space to understand how developers describe, in
+natural language, and their refactoring activities. Yet, such
+information retrieval can be challenging since there are
+no common standards on how developers should be formally documenting their refactorings, besides inheriting
+all the challenges related to natural language processing.
+However, using the developer’s inline documentation has
+added another dimension to better understanding software
+quality, as mining developers comments, for instance, has
+unveiled how developers knowingly commit code that is
+either incomplete, temporary, error-prone.
+• Documenting refactoring, similarly to any code change
+documentation, is helpful to decipher the the rationale
+behind any applied change, and it can help future developers in various engineering tasks, such as program comprehension, design reverse-engineering, and debugging.
+The detection of such refactoring documentation was
+hardly manual and limited. There is a need to automate
+the detection of such documentation activities with an
+acceptable level of accuracy. Indeed, the automated detection of refactoring documentation may support various
+applications and provide actionable insights to software
+practitioners and researchers, including empirical studies
+around the developer’s perception of refactoring. This can
+question whether developers care about structural metrics
+and code smells when refactoring their code, or if other
+factors may inﬂuence such non-functional changes.
+• Despite the growing effort in recommending refactorings through structural metrics, optimization and code
+smells removal, there is very little evidence on whether
+developers follow that intention when refactoring their
+code. Thus, there is a need to distinguish among all the
+structural metrics, typically used in refactoring literature,
+the particular ones that are a better representation of the
+developers’ perception of software quality improvement.
+• Refactoring, just like any code change, has to be reviewed
+before being merged into the code base. However, little
+is known about how developers perceive and practice
+refactoring during the code review process, especially
+since refactoring, by deﬁnition, is not intended to alter
+the system’s behavior, but to improve its structure, so its
+review may differ from other code changes. Yet, there is
+not much research investigating how developers to review
+code refactoring. The refactoring research has focused on
+its automation by identifying refactoring opportunities in
+the source code and recommending adequate refactoring
+operations to perform. Moreover, the research on code
+reviews has been focused on automating them by recommending the most appropriate reviewer for a given code
+change. However, despite the critical role of refactoring
+and code review, their innate relationship is still largely
+unexplored in practice.
+
+IV. C ONTRIBUTIONS
+In accomplishing the goals, the solutions are organized into
+3 main contributions as it is shown in Figure 1.
+• In our research (IWoR2019 [10], JSS2020 [11], KMDDIS2020 [12], ASEj2021 [13], MSR2022 [14]), we extracted how developers express their nonfunctional activities, namely improving software design, renaming
+semantically ambiguous identiﬁers, removing code redundancies etc.
+
+1
+
+HOW?
+
+Refactoring Documentation
+
+1.1
+
+Exploring how developers document refactoring activities (IWoR 2019 & MSR 2022)
+
+1.2
+
+Automating the detection of refactoring documentation (JSS 2020)
+
+1.3
+
+Mining and managing big data refactoring for design improvement (KMDDIS 2020)
+
+1.4
+
+Improving the quality of refactoring documentation (ASEj 2020)
+
+2.1
+
+Understanding developer perception of refactoring (ESWA 2020)
+
+2.2
+
+Understanding the relationship between developer
+improvement of internal quality attributes (ESEM 2019)
+
+perception
+
+and
+
+the
+
+2.3
+
+Understanding the relationship between developer perception
+improvement of external quality attribute (ICSR 2020 & ISSE 2021)
+
+and
+
+the
+
+2.4
+
+Understanding the relationship between developer experience and refactoring
+(IWoR 2020 & JSEP 2021)
+
+3.1
+
+Studying the challenges of reviewing refactoring changes (ICSE 2021 & MSR 2022)
+
+3.2
+
+Improving the usability of automated refactoring tools (FSE 2021)
+
+3.3
+
+Understanding behavior preservation approaches in software refactoring
+(IST 2021)
+
+3.4
+
+Understanding relationship between technical debt and refactoring
+(SCP 2022)
+
+Lack of refactoring
+culture
+
+2
+
+Preference of manual
+refactoring
+
+No formal refactoring
+documentation
+
+refactoring tools are
+underused
+
+Understand developer
+perception
+of refactoring
+
+WHY?
+
+Refactoring Motivation
+
+Misperception of quality
+metrics
+
+3
+
+WHAT?
+
+Refactoring in Practice
+
+Problem Investigation
+
+Research Objective
+
+Research Plan
+
+Research Method
+
+the existing effort in accurately detecting refactorings, by
+augmenting with any description that was intended to describe
+the refactoring activity. As per our ﬁndings, developers tend
+to add a high-level description of their refactoring activity,
+and occasionally mention their intention behind refactoring
+(remove duplicate code, improve readability), along with mentioning the refactoring operations they apply (type migration,
+inline methods, etc.). Our model, combined with detecting
+refactoring operations, serves as a solid background for various
+empirical investigations. For instance, previous studies have
+analyzed the impact of refactoring operations on structural
+metrics [31]. One of the main limitations of these studies
+is the absence of any context related to the application of
+refactorings, i.e., it is not clear whether developers did apply
+these refactoring with the intention of improving design metrics. Therefore, using our model will allow the consideration
+of commits whose commit messages speciﬁcally express the
+refactoring to optimize structural metrics, such as coupling and
+complexity. So, many empirical studies can be revisited with
+an adequate dataset.
+
+In our research (ESEM2019 [15], ICSR2020 [16],
+ESWA2020 [17], IWoR2020 [18], JSEP2021 [19],
+ISSE2021 [20]), we augmented our understanding of the
+development contexts that trigger refactoring activities
+and enable future research to take development contexts
+into account more effectively when studying refactorings.
+• In our research (ICSE2021 [21], MSR2022 [22],
+FSE2021 [23], IST2021 [24], SCP2022 [25]), we surveyed professional developers and conduct a case study
+in the industry to gain practical insights from refactoring
+in practice by studying refactoring motivation, documentation practices, and challenges.
+Research repositories: The comprehensive experiments package are available online in [26].
+•
+
+V. R ESEARCH I MPLICATION
+ Augmenting refactoring automation with documentation. Recent studies have been focusing on automatically
+identifying any execution of a refactoring operation in the
+source code [9], [27]. The main purpose of the automatic
+detection of refactoring is to understand better how developers
+cope with their software decay by extracting any refactoring
+strategies that can be associated with removing code smells
+[28], [29], or improving the structural design measurements
+[30]. However, these techniques only analyze the changes at
+the source code level, and provide the operations performed,
+without associating it with any textual description, which may
+infer the rationale behind the refactoring application. Our
+proposed model intends to bridge this gap by complementing
+
+Furthermore, our study provides software practitioners with
+a catalog of common refactoring documentation patterns
+which would represent concrete examples of common ways
+to document refactoring activities in commit messages. This
+catalog of SAR patterns can encourage developers follow
+best documentation patterns and also to further extend these
+patterns to improve refactoring changes documentation in
+particular and code changes in general. Indeed, reliable and
+accurate documentation is crucial in any software project.
+
+explicitly stating the motivation of the refactoring. This will
+provide the context of the proposed changes, for the reviewers,
+so they can quickly identify how they can comprehend it.
+According to our initial investigations, examples of refactoring
+intents include enforcing best practices, removing legacy code,
+improving readability, optimizing for performance, code clean
+up, and splitting logic.
+
+The presence of documentation for low-level changes such
+as refactoring operations and commit changes helps to keep
+track of all aspects of software development, and it improves
+the quality of the end product. Its main focuses are learning
+and knowledge transfer to other developers.
+ Understanding developer’s motivation behind refactoring. One of the main ﬁndings shows that developers are not
+only driven by design improvement and code smell removal
+when taking decisions about refactoring. According to our
+ﬁndings, ﬁxing bugs, and feature implementation play a major
+role in triggering various refactoring activities. Traditional
+refactoring tools are still leading their refactoring effort based
+on how it is needed to cope with design antipatterns, which
+is acceptable to the extent where it is indeed the developer’s
+intention, otherwise, they have not been designed or tested
+in different circumstances. So, an interesting future direction
+is to study how we can augment existing refactoring tools to
+better frame the developer’s perception of refactoring, and then
+their corresponding objectives to achieve (reducing coupling,
+improving code readability, renaming to remove ambiguity
+etc.). This will automatically induce the search for more
+adequate refactoring operations, to achieve each objective.
+The categories of refactoring motivation provide software
+practitioners with a catalog of common documentation patterns that represent concrete examples of common ways to
+document refactoring activities in commit messages. Having
+these higher-level categories helps developers ﬁnd the speciﬁc
+refactoring patterns they are looking for faster. Generally, in
+industry, there is no guideline on structuring commit messages.
+This catalog of SAR patterns can encourage developers to follow the best documentation patterns and further extend these
+patterns to improve refactoring documentation in particular
+and code changes in general. This work will also help developers to improve the quality of the refactoring documentation and
+trigger the need to explore the motivation behind refactoring.
+Further, these categories tell the opinion of developers, so
+it is essential for managers to learn developers’ opinions
+and feelings, especially for distributed software development
+practices. If developers do not document, managers will not
+know their intention. Since software engineering is a humancentric process, it is essential for managers to understand the
+intention of people working on the team.
+ Understanding code review practice for refactoring
+changes. It is heartening for us to realize that developers
+refactor their code and perform reviews for the refactored code.
+Our main observation, from developers’ responses, is how the
+review process for refactoring is being hindered by the lack
+of documentation. Therefore, as part of our survey report to
+the company, we designed a procedure for documenting any
+refactoring ReR, respecting three dimensions that we refer to
+as the three Is, namely, Intent, Instruction, and Impact. We
+detail each one of these dimensions as follows:
+Intent. According to our survey results, it is intuitive that
+reviewers need to understand the purpose of the intended
+refactoring as part of evaluating its relevance. Therefore, when
+preparing the request for review, developers need to start with
+
+Instruction. Our results show how rarely developers report
+refactoring operations as part of their documentation. Developers need to clearly report all the refactoring operations they
+have performed, in order to allow their reproducibility by
+the reviewers. Each instruction needs to state the type of the
+refactoring (move, extract, rename, etc.) along with the code
+element being refactored (i.e., package, class, method, etc.),
+and the results of the refactoring (the new location of a method,
+the newly extracted class, the new name of an identiﬁer, etc.).
+If developers have applied batch or composite refactorings,
+they need to be broken down for the reviewers. Also, in case
+of multiple refactorings applied, they need to be reported in
+their execution chronological order.
+Impact. We observe that practitioners care about understanding the impact of applied refactoring. Thus, the third
+dimension of the documentation is the need to describe how
+developers ensure that they have correctly implemented their
+refactoring and how they veriﬁed the achievement of their
+intent. For instance, if this refactoring was part of a bug ﬁx,
+developers must reference the patch. If developers have added
+or updated the selected unit tests, they need to attach them
+as part of the review request. Also, it is critical to self-assess
+the proposed changes using Quality Gate, to report all the
+variations in the structural measurements and metrics (e.g.,
+coupling, complexity, cohesion, etc.), and provide a necessary
+explanation in case the proposed changes do not optimize the
+quality deﬁcit index.
+ Developing next-generation refactoring-related code
+review tools. Finding that reviewing refactoring changes takes
+longer than non-refactoring changes reafﬁrms the necessity
+of developing accurate and efﬁcient tools and techniques that
+can assist developers in the review process in the presence of
+refactorings. The refactoring toolset should be treated like the
+CI/CD toolset and integrated into the tool chain. Researchers
+could use our ﬁndings with other empirical investigations of
+refactoring to deﬁne, validate, and develop a scheme to build
+automated assistance for reviewing refactoring considering the
+refactoring review criteria as review code become an easier
+process if the code review dashboard augmented with the
+factors to offer suggestions to document the review better.
+ Teaching Documentation Best Practices. Prospective
+software engineers are mainly taught how to model, develop
+and maintain software. With the growth of software communities and their organizational and socio-technical issues, it
+is important also to teach the next generation of software
+engineers the best practices of refactoring documentation. So
+far, these skills can only be acquired by experience or training.
