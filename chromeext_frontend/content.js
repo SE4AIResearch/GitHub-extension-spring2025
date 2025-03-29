@@ -141,3 +141,32 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
 
         return true;
     });
+
+
+// Ali Vaziri's Code: (I will remove this comment!)
+(function() {
+    // Wait for the page to fully load
+    window.addEventListener('load', () => {
+        // Find the container where we want to inject the link
+        const commitTitleDiv = document.querySelector('.commit-desc')
+            || document.querySelector('.extended-commit-description-container')
+            || document.querySelector('div.commit-title.markdown-title')
+            || document.querySelector('div.CommitHeader-module__commit-message-container--nl1pf span > div');
+
+        if (commitTitleDiv) {
+            // Create a new link
+            const link = document.createElement('a');
+            link.textContent = "Reprosetory Analysis";    // Use the exact wording your team prefers
+            link.href = chrome.runtime.getURL('dashboard.html'); // Load dashboard.html from the extension
+            link.target = '_blank';                                 // Open in a new tab
+            link.style.color = 'blue';                              // Make it look clickable
+            link.style.textDecoration = 'underline';
+            link.style.cursor = 'pointer';
+
+            // Optionally insert a line break before the link
+            commitTitleDiv.appendChild(document.createElement('br'));
+            commitTitleDiv.appendChild(link);
+        }
+    });
+})();
+// The END of Ali Vaziri's Code. (I will remove this comment!)
