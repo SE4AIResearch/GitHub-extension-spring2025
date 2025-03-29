@@ -1,41 +1,194 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Commit Dashboard</title>-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
+<!--    <script src="https://d3js.org/d3.v7.min.js"></script>-->
+<!--    <link rel="stylesheet" href="styles.css">-->
+<!--</head>-->
+<!--<body>-->
+<!--    <div class="dashboard-container">-->
+<!--        <h2 class="dashboard-title">Class Metrics</h2>-->
+
+<!--        <div class="metrics-and-charts">-->
+<!--            <div class="table-container">-->
+<!--                <h3>Metric Summary</h3>-->
+<!--                <table class="metric-table">-->
+<!--                    <thead>-->
+<!--                        <tr>-->
+<!--                            <th>Metric</th>-->
+<!--                            <th>Value</th>-->
+<!--                        </tr>-->
+<!--                    </thead>-->
+<!--                    <tbody id="metricSummary">-->
+<!--                    </tbody>-->
+<!--                </table>-->
+<!--            </div>-->
+
+<!--            <div class="chart-container">-->
+<!--                <canvas id="couplingChart"></canvas>-->
+<!--                <canvas id="cohesionChart"></canvas>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        <div id="inheritanceTree"></div>-->
+<!--    </div>-->
+
+<!--    <script src="dashboard.js"></script>-->
+<!--</body>-->
+<!--</html>-->
+
+<!--<Ali Vaziri's code: (I will remove this comment!)>-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Commit Dashboard</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Commit Pro - Repository Analysis</title>
+
+    <!-- Include Chart.js, D3, and your CSS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="dashboard-container">
-        <h2 class="dashboard-title">Class Metrics</h2>
+<!-- WRAPPER to hold sidebar + main content -->
+<div class="dashboard-wrapper">
+    <!-- SIDEBAR (Left) -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h2>Repository's Name</h2>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" class="active">Repository Overview</a></li>
+            <li><a href="#">Quality Metrics</a></li>
+            <li><a href="#">Trends History</a></li>
+            <li><a href="#">Refactoring Details</a></li>
+        </ul>
+    </nav>
 
-        <div class="metrics-and-charts">
-            <div class="table-container">
-                <h3>Metric Summary</h3>
-                <table class="metric-table">
-                    <thead>
-                        <tr>
-                            <th>Metric</th>
-                            <th>Value</th>
-                        </tr>
-                    </thead>
-                    <tbody id="metricSummary">
-                    </tbody>
-                </table>
+    <!-- MAIN CONTENT (Right) -->
+    <div class="main-content">
+        <!-- TOP BAR -->
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <h1>Commit Pro - Repository Analysis</h1>
             </div>
-
-            <div class="chart-container">
-                <canvas id="couplingChart"></canvas>
-                <canvas id="cohesionChart"></canvas>
+            <div class="top-bar-right">
+                <p><strong>Current Branch:</strong> <span id="currentBranch">main</span></p>
+                <p><strong>Last Analyzed:</strong> <span id="lastAnalyzed">03/17/25 10:10 EST</span></p>
+                <div class="score-badge">
+                    Overall Repository Score:
+                    <span id="repoScore">Maintainable (85)</span>
+                </div>
             </div>
         </div>
 
-        <div id="inheritanceTree"></div>
-    </div>
+        <!-- CONTENT SECTIONS -->
+        <div class="content-sections">
 
-    <script src="dashboard.js"></script>
+            <!-- METRIC SUMMARY CARD -->
+            <section class="card">
+                <h2>Metric Summary</h2>
+                <div class="metrics-and-charts">
+                    <!-- Existing table container -->
+                    <div class="table-container">
+                        <table class="metric-table">
+                            <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Value</th>
+                            </tr>
+                            </thead>
+                            <tbody id="metricSummary">
+                            <!-- Populated by dashboard.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Existing chart container for coupling & cohesion -->
+                    <div class="chart-container">
+                        <canvas id="couplingChart"></canvas>
+                        <canvas id="cohesionChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- QUALITY METRICS CARD -->
+            <section class="card">
+                <h2>Quality Metrics</h2>
+                <div class="quality-metrics-row">
+                    <!-- Example table for quality metrics -->
+                    <div class="table-container">
+                        <table class="metric-table">
+                            <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Value</th>
+                            </tr>
+                            </thead>
+                            <tbody id="qualityMetrics">
+                            <tr>
+                                <td>Cyclomatic Complexity (CC)</td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td>Lines of Code (LOC)</td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td>Weighted Method Count (WMC)</td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td>Number of Children (NOC)</td>
+                                <td>—</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Example charts for quality metrics -->
+                    <div class="chart-container multi-charts">
+                        <canvas id="qualityChart1"></canvas>
+                        <canvas id="qualityChart2"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- REFACTORING DETAILS CARD -->
+            <section class="card">
+                <h2>Refactoring Details</h2>
+                <div id="refactoringDetails">
+                    <!-- Example placeholder text or structure -->
+                    <p><strong>Refactoring Types:</strong> (e.g., Move Method, Pull Up Method, Inline Method)</p>
+                    <p><strong>Summary:</strong> A summary of changes made during refactoring.</p>
+                </div>
+            </section>
+
+            <!-- TRENDS HISTORY CARD -->
+            <section class="card">
+                <h2>Trends History</h2>
+                <div class="chart-container multi-charts">
+                    <!-- Multiple canvases for your bar/line charts -->
+                    <canvas id="trendsChart1"></canvas>
+                    <canvas id="trendsChart2"></canvas>
+                    <canvas id="trendsChart3"></canvas>
+                </div>
+            </section>
+
+            <!-- INHERITANCE TREE (if used) -->
+            <section class="card">
+                <h2>Inheritance Tree</h2>
+                <div id="inheritanceTree"></div>
+            </section>
+
+        </div> <!-- end content-sections -->
+    </div> <!-- end main-content -->
+</div> <!-- end dashboard-wrapper -->
+
+<!-- Link to your existing JS -->
+<script src="dashboard.js"></script>
 </body>
 </html>
+<!--< The END of Ali Vaziri's code. (I will remove this comment!)>-->
