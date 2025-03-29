@@ -156,7 +156,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
         if (commitTitleDiv) {
             // Create a new link
             const link = document.createElement('a');
-            link.textContent = "Reprosetory Analysis Ali";
+            link.textContent = "Reprosetory Analysis";
             link.href = chrome.runtime.getURL('dashboard.html'); // Load dashboard.html from the extension
             link.target = '_blank';                                 // Open in a new tab
             link.style.color = 'blue';                              // Make it look clickable
