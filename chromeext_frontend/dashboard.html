@@ -54,8 +54,9 @@
     <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<!-- WRAPPER to hold sidebar + main content -->
+<!-- WRAPPER for the entire page (sidebar + main) -->
 <div class="dashboard-wrapper">
+
     <!-- SIDEBAR (Left) -->
     <nav class="sidebar">
         <div class="sidebar-header">
@@ -69,7 +70,7 @@
         </ul>
     </nav>
 
-    <!-- MAIN CONTENT (Right) -->
+    <!-- MAIN AREA (Right) -->
     <div class="main-content">
         <!-- TOP BAR -->
         <div class="top-bar">
@@ -77,8 +78,15 @@
                 <h1>Commit Pro - Repository Analysis</h1>
             </div>
             <div class="top-bar-right">
-                <p><strong>Current Branch:</strong> <span id="currentBranch">main</span></p>
-                <p><strong>Last Analyzed:</strong> <span id="lastAnalyzed">03/17/25 10:10 EST</span></p>
+                <div class="branch-info">
+                    <p><strong>Current Branch:</strong> <span id="currentBranch">main</span></p>
+                    <p><strong>Last Analyzed:</strong> <span id="lastAnalyzed">03/17/25 10:10 EST</span></p>
+                </div>
+                <!-- Example placeholder icons: pencil, gear, etc. (optional) -->
+                <div class="icons-row">
+                    <!-- <img src="pencil.png" alt="Edit" /> -->
+                    <!-- <img src="gear.png" alt="Settings" /> -->
+                </div>
                 <div class="score-badge">
                     Overall Repository Score:
                     <span id="repoScore">Maintainable (85)</span>
@@ -86,11 +94,10 @@
             </div>
         </div>
 
-        <!-- CONTENT SECTIONS -->
-        <div class="content-sections">
-
-            <!-- METRIC SUMMARY CARD -->
-            <section class="card">
+        <!-- MAIN GRID for the content sections -->
+        <div class="content-grid">
+            <!-- METRIC SUMMARY -->
+            <section class="card metric-summary">
                 <h2>Metric Summary</h2>
                 <div class="metrics-and-charts">
                     <!-- Existing table container -->
@@ -107,7 +114,6 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- Existing chart container for coupling & cohesion -->
                     <div class="chart-container">
                         <canvas id="couplingChart"></canvas>
                         <canvas id="cohesionChart"></canvas>
@@ -115,11 +121,10 @@
                 </div>
             </section>
 
-            <!-- QUALITY METRICS CARD -->
-            <section class="card">
+            <!-- QUALITY METRICS -->
+            <section class="card quality-metrics">
                 <h2>Quality Metrics</h2>
                 <div class="quality-metrics-row">
-                    <!-- Example table for quality metrics -->
                     <div class="table-container">
                         <table class="metric-table">
                             <thead>
@@ -148,7 +153,6 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- Example charts for quality metrics -->
                     <div class="chart-container multi-charts">
                         <canvas id="qualityChart1"></canvas>
                         <canvas id="qualityChart2"></canvas>
@@ -156,34 +160,31 @@
                 </div>
             </section>
 
-            <!-- REFACTORING DETAILS CARD -->
-            <section class="card">
+            <!-- REFACTORING DETAILS -->
+            <section class="card refactoring-details">
                 <h2>Refactoring Details</h2>
                 <div id="refactoringDetails">
-                    <!-- Example placeholder text or structure -->
-                    <p><strong>Refactoring Types:</strong> (e.g., Move Method, Pull Up Method, Inline Method)</p>
+                    <p><strong>Refactoring Types:</strong> (Move Method, Pull Up Method, etc.)</p>
                     <p><strong>Summary:</strong> A summary of changes made during refactoring.</p>
                 </div>
             </section>
 
-            <!-- TRENDS HISTORY CARD -->
-            <section class="card">
+            <!-- TRENDS HISTORY -->
+            <section class="card trends-history">
                 <h2>Trends History</h2>
                 <div class="chart-container multi-charts">
-                    <!-- Multiple canvases for your bar/line charts -->
                     <canvas id="trendsChart1"></canvas>
                     <canvas id="trendsChart2"></canvas>
                     <canvas id="trendsChart3"></canvas>
                 </div>
             </section>
 
-            <!-- INHERITANCE TREE (if used) -->
-            <section class="card">
+            <!-- INHERITANCE TREE (if needed) -->
+            <section class="card inheritance-tree">
                 <h2>Inheritance Tree</h2>
                 <div id="inheritanceTree"></div>
             </section>
-
-        </div> <!-- end content-sections -->
+        </div> <!-- end content-grid -->
     </div> <!-- end main-content -->
 </div> <!-- end dashboard-wrapper -->
 
