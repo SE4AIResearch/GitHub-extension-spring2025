@@ -84,7 +84,7 @@ public class RefactoringController {
         if (refactoringMessages.toString().trim().isEmpty()) {
             return llm.generateSummaryForNoRefactorings(fullUrl, service);
         } else {
-            return llm.generateSummaryForRefactorings(refactoringMessages.toString(), refactoringInstances, service);
+            return llm.generateSummaryForRefactorings(refactoringMessages.toString(), refactoringInstances);
         }
     }
 
