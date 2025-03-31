@@ -1,20 +1,22 @@
- .dashboard-header {
+ .dashboard-container .dashboard-header {
   position: relative;
-  background: #b02727;
+  background: #f7f3f3;
+  font-style: italic;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   font-family: 'Poppins', sans-serif;
 }
 
- .dashboard-header h1 {
+ .dashboard-container .dashboard-header h1 {
   font-size: 1.8rem;
   font-weight: 600;
+  font-style: italic;
   margin-bottom: 20px;
-  color: #b02727;
+  color: #090707;
 }
 
- .dashboard-header .header-buttons {
+.dashboard-container .dashboard-header .header-buttons {
   top: 20px;
   right: 20px;
   display: flex;
@@ -22,7 +24,7 @@
 
 }
 
-.dashboard-header .header-buttons button {
+.dashboard-container .dashboard-header .header-buttons button {
   background: transparent;
   border: none;
   padding: 5px;
@@ -52,4 +54,36 @@
 .header-details .score {
   font-weight: 600;
   color: #007b5e;
+}
+
+/* Quality Metrics */
+
+.quality-metrics {
+  font-family: "Poppins", sans-serif;
+}
+
+.quality-metrics h2 {
+  font-style: italic;
+  margin-bottom: 12px;
+}
+
+.metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.metrics-table th,
+.metrics-table td {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.metrics-table th {
+  background-color: #f2f2f2;
+}
+
+.metrics-table tr:hover {
+  background-color: #f9f9f9;
 }

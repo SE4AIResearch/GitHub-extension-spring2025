@@ -1,6 +1,6 @@
 import React from 'react';
 import Dashboard from './Dashboard.js';
-import './dashboardStyles.css';  // Add this line at the top
+
 
 
 const App = () => {

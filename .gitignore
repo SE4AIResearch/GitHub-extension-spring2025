@@ -1,7 +1,14 @@
 .env
 launch.json
+<<<<<<< HEAD
 package-lock.json
 node_modules/
 *.properties
 *.class
 *.jar
+=======
+undtest/
+.DS_Store
+__pycache__/
+*.pyc
+>>>>>>> origin/main
