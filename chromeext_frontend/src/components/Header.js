@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import downloadicon from "../icons/download.svg";
 import refreshicon from "../icons/refresh.svg"
 import editicon from "../icons/edit.svg";
+import logo from "../icons/logo.png";
 
 
 const Header = () => {
@@ -34,9 +35,7 @@ const Header = () => {
 
   return (
     <header className="dashboard-header">
-      <h1>Commit Pro - Repository Analysis</h1>
-       <div className="header-buttons">
-
+        <div className="header-buttons">
           <button id="download-btn" >
             <img src={downloadicon} height={24} alt="download" />
           </button>
@@ -47,6 +46,12 @@ const Header = () => {
             <img src={editicon} height={24} alt="edit" />
           </button>
         </div>
+
+      <div className="logo-title">
+        <img src={logo} height={100} width={100} alt ="cp_logo" id="cp_logo"/>
+        <h1>Commit Pro - Repository Analysis</h1>
+      </div>
+
       <div className="header-details">
         <span>Current Branch: main</span>
         <span>Last Analyzed:{lastAnalyizedTime}</span>

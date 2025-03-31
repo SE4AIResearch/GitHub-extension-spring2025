@@ -9,19 +9,36 @@
 }
 
  .dashboard-container .dashboard-header h1 {
-  font-size: 1.8rem;
+  
+  font-size: 3.0rem;
   font-weight: 600;
   font-style: italic;
-  margin-bottom: 20px;
+  margin-bottom: 50px;
   color: #090707;
 }
+
+.dashboard-container .dashboard-header .logo-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.dashboard-container .dashboard-header .cp-logo {
+  height: 55px;
+  width: 55px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+
 
 .dashboard-container .dashboard-header .header-buttons {
   top: 20px;
   right: 20px;
   display: flex;
   align-items: center; 
-
+  margin-left: 1100px;
 }
 
 .dashboard-container .dashboard-header .header-buttons button {
