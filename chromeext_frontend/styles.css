@@ -27,7 +27,6 @@ h1 {
     height: 45px;
     width: 45px;  
     height: auto;  
-
 }
 
 div {
@@ -144,31 +143,6 @@ p {
     margin-bottom: 5px;
 }
 
-
-.dashboard-container {
-    width: 80%;
-    max-width: 700px;
-    margin: auto;
-    padding: 15px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.chart-container {
-    width: 100%;
-    margin: 20px auto;
-}
-
-#inheritanceTree {
-    margin-top: 20px;
-}
-.dashboard-title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
 .commit-info {
     text-align: left;
     font-size: 14px;
@@ -177,27 +151,6 @@ p {
     border-radius: 5px;
     margin-top: 10px;
 }
-.metric-table {
-    width: 100%;
-    margin-top: 10px;
-    border-collapse: collapse;
-}
-
-.metric-table th, .metric-table td {
-    border: 1px solid #ccc;
-    padding: 8px;
-    text-align: left;
-}
-
-.metric-table th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-}
-
-.metric-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
 /* Disabled button style */
 button.disabled {
   opacity: 0.5;
@@ -227,3 +180,64 @@ button.disabled {
     display: block;
     margin: 10px auto;
 }
+
+
+
+
+/* dashboard 
+.dashboard-container .dashboard-header {
+    position: relative;
+    background: #b02727;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: 'Poppins', sans-serif;
+  }
+  
+   .dashboard-header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #b02727;
+  }
+  
+   .dashboard-header .header-buttons {
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center; 
+  
+  }
+  
+  .dashboard-header .header-buttons button {
+    background: transparent;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  
+  .dashboard-header .header-buttons button img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+  
+  .dashboard-header .header-buttons button:hover {
+    transform: scale(1.1);
+  }
+  
+  .header-details {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    font-size: 0.95rem;
+    color: #555;
+  }
+  
+  .header-details .score {
+    font-weight: 600;
+    color: #007b5e;
+  }
+  */
