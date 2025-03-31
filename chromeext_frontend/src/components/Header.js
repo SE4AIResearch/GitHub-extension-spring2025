@@ -35,29 +35,31 @@ const Header = () => {
 
   return (
     <header className="dashboard-header">
-        <div className="header-buttons">
-          <button id="download-btn" >
-            <img src={downloadicon} height={24} alt="download" />
-          </button>
-          <button id="refresh-btn" >
-            <img src={refreshicon} height={24} alt="refresh" />
-          </button>
-          <button id="edit-btn">
-            <img src={editicon} height={24} alt="edit" />
-          </button>
-        </div>
-
+    <div className="logo-title-buttons">
       <div className="logo-title">
-        <img src={logo} height={100} width={100} alt ="cp_logo" id="cp_logo"/>
-        <h1>Commit Pro - Repository Analysis</h1>
+        <img src={logo} alt="cp_logo" className="cp-logo" />
+        <h1>Commit Pro – Repository Analysis</h1>
       </div>
-
-      <div className="header-details">
-        <span>Current Branch: main</span>
-        <span>Last Analyzed:{lastAnalyizedTime}</span>
-        <span className="score">Overall Repository Score: Maintainable (85)</span>
+  
+      <div className="header-buttons">
+        <button id="download-btn">
+          <img src={downloadicon} height={24} alt="download" />
+        </button>
+        <button id="refresh-btn">
+          <img src={refreshicon} height={24} alt="refresh" />
+        </button>
+        <button id="edit-btn">
+          <img src={editicon} height={24} alt="edit" />
+        </button>
       </div>
-    </header>
+    </div>
+  
+    <div className="header-details">
+      <span><em>Current Branch:</em> main</span>
+      <span><em>Last Analyzed:</em> {lastAnalyizedTime}</span>
+      <span className="score">Overall Repository Score: Maintainable (85)</span>
+    </div>
+  </header>  
   );
 };
 

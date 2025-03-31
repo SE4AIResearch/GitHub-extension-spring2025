@@ -1,62 +1,59 @@
- .dashboard-container .dashboard-header {
-  position: relative;
+.dashboard-header {
   background: #f7f3f3;
-  font-style: italic;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   font-family: 'Poppins', sans-serif;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
- .dashboard-container .dashboard-header h1 {
-  
-  font-size: 3.0rem;
-  font-weight: 600;
-  font-style: italic;
-  margin-bottom: 50px;
-  color: #090707;
+.logo-title-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-.dashboard-container .dashboard-header .logo-title {
+.logo-title {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 20px;
 }
 
-.dashboard-container .dashboard-header .cp-logo {
-  height: 55px;
-  width: 55px;
+.cp-logo {
+  height: 60px;
+  width: 60px;
   object-fit: contain;
   border-radius: 8px;
 }
 
-
-
-.dashboard-container .dashboard-header .header-buttons {
-  top: 20px;
-  right: 20px;
-  display: flex;
-  align-items: center; 
-  margin-left: 1100px;
+.dashboard-header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  font-style: italic;
+  color: #090707;
+  margin: 0;
 }
 
-.dashboard-container .dashboard-header .header-buttons button {
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.header-buttons button {
   background: transparent;
   border: none;
-  padding: 5px;
   cursor: pointer;
   transition: transform 0.2s ease;
 }
 
-.dashboard-header .header-buttons button img {
+.header-buttons button:hover {
+  transform: scale(1.1);
+}
+
+.header-buttons button img {
   width: 24px;
   height: 24px;
   object-fit: contain;
-}
-
-.dashboard-header .header-buttons button:hover {
-  transform: scale(1.1);
 }
 
 .header-details {
@@ -66,41 +63,96 @@
   margin-top: 10px;
   font-size: 0.95rem;
   color: #555;
+  width: 100%;
 }
 
 .header-details .score {
   font-weight: 600;
   color: #007b5e;
 }
-
-/* Quality Metrics */
-
-.quality-metrics {
-  font-family: "Poppins", sans-serif;
+ 
+/* charttabs */
+.chart-tabs-wrapper .chart-tabs {
+   margin-left: 260px;
+   margin-right: 260px;
+   margin-top: 50px;
+   justify-content: center;
+}
+.chart-tabs-wrapper .chart-display{
+  margin-left: 460px;
+  margin-right: 460px;
 }
 
-.quality-metrics h2 {
-  font-style: italic;
-  margin-bottom: 12px;
+/* chart table and charts */
+:root {
+  --table-heading-size: 24px;
+  --column-name-size: 14px;
+  --table-padding: 12px 16px;
+  --table-border-color: #ccc;
+  --table-max-width: 800px;
+  --section-spacing: 50px;
 }
 
 .metrics-table {
+  font-family: "Poppins", sans-serif;
+  max-width: var(--table-max-width);
+  margin: var(--section-spacing) auto 0 auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.metrics-table h2 {
+  font-size: var(--table-heading-size);
+  font-style: italic;
+  margin-bottom: 20px;
+}
+
+.metrics-table table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
 }
 
 .metrics-table th,
 .metrics-table td {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
+  padding: var(--table-padding);
+  border: 1px solid var(--table-border-color);
   text-align: left;
+  font-size: var(--column-name-size);
 }
 
 .metrics-table th {
-  background-color: #f2f2f2;
+  background-color: #f5f5f5;
+  font-weight: bold;
 }
 
 .metrics-table tr:hover {
-  background-color: #f9f9f9;
+  background-color: #fafafa;
+}
+
+/* Chart Tabs Layout */
+.chart-tabs-wrapper .chart-tabs {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: var(--section-spacing) auto 10px auto;
+}
+
+.chart-tabs-wrapper .chart-display {
+  margin: 0 auto;
+  max-width: var(--table-max-width);
+  padding: 20px;
+}
+
+
+.bubble-chart {
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bubble-chart canvas {
+  max-width: 100%;
+  height: 100%;
 }
