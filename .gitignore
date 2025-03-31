@@ -1,2 +1,6 @@
 .env
 launch.json
+undtest/
+.DS_Store
+__pycache__/
+*.pyc
