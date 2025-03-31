@@ -20,6 +20,8 @@ import pandas as pd
 from typing import Union
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
+import requests
+from bs4 import BeautifulSoup
 
 load_dotenv()
 # app = FastAPI()
@@ -49,6 +51,24 @@ Context: {context}
 """
 
 template_wo_rag = """Question: {question}"""
+
+prompt = '''
+    You are an expert software engineer trained in commit summarization
+    Given a code text extracted from Github, go through the entire changes, and extract a meaningful summary using this structure.
+
+    MANDATORY FORMAT:\n
+    SUMMARY: A concise technical description of the change (1–2 lines max), 
+    INTENT: All the ones which apply: Fixed Bug, Improved Internal Quality, Improved External Quality, Feature Update, Code Smell Resolution, 
+    IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability.\n
+    \n
+    You MUST include all three sections. Always use the specified keywords for INTENT.\n
+    Here is example response:
+    Example 1:\n
+    SUMMARY: Replaced nested loops with a hash-based lookup in UserProcessor.java.\n
+    INTENT: Improved Internal Quality, Fixed Bug\n
+    IMPACT: Reduced time complexity from O(n^2) to O(n), improving efficiency and code clarity.\n
+
+'''
 
 # template = """
 # You are an expert software engineer trained in commit summarization.
@@ -103,12 +123,30 @@ def normalize_text(text):
     text = re.sub(f"[{string.punctuation}]", "", text)
     return text.strip()
 
+def get_github_commit_changes(commit_url):
+    response = requests.get(commit_url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    print(soup.text)
 
-def main_wo_rag(query, retriever, embeddings, ground_truth):
+    changes = []
+    files = soup.find_all('div', class_='file')
+
+    div = soup.find('div', class_='Box-sc-g0xbh4-0 prc-PageLayout-PageLayoutContent-jzDMn')
+    if div:
+         return div.get_text()
+    else:
+        print('Not Found')
+    
+
+    # print('Changes: ', changes)
+    # return changes
+
+
+def main_wo_rag(query):
     parser = StrOutputParser()
-    model = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-3.5-turbo")
-    setup = RunnableParallel(context=retriever, question=RunnablePassthrough())
-    prompt = ChatPromptTemplate.from_template(template)
+    model = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-4-turbo")
+    # setup = RunnableParallel(context=retriever, question=RunnablePassthrough())
+    # prompt = ChatPromptTemplate.from_template(template)
     
     chain =  model | parser
     response = chain.invoke(query)
@@ -169,38 +207,10 @@ async def process_output(request: QueryRequest):
     print('Generated: ', response)
     return {"response_with_cs": response}
 
+
 # if __name__ == '__main__':
-#     loader = TextLoader("data.txt")
-#     text_documents = loader.load()
-#     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=20)
-#     documents = text_splitter.split_documents(text_documents)
-#     embeddings = OpenAIEmbeddings()
-    
-#     vectorstore = DocArrayInMemorySearch.from_texts(
-#         [doc.page_content for doc in documents], embedding=embeddings
-#     )
-#     retriever = vectorstore.as_retriever()
-
-
-    # main_with_cs(retriever, embeddings, ground_truth, use_rag=False)
-    # main_with_roberta(documents, use_rag=True)
-
-    # csv_path = "nlp-analysis.csv"
-    # df = pd.read_csv(csv_path, header=None, names=["Question", "GroundTruth"])
-
-    # while True:
-    #     query = input('Ask a question?: ')
-    #     response_wo_rag, response_from_cs, response_from_roberta = process_output(query, retriever, embeddings, ground_truth, documents)
-
-    # responses_wo_rag = []?
-
-    # df["Response_Without_RAG"] = responses_wo_rag
-    # df["Response_With_CS"] = responses_with_cs
-    # df["Response_With_RoBERTa"] = responses_with_roberta
-
-    # output_csv_path = "nlp-analysis-results.csv"
-    # df.to_csv(output_csv_path, index=False)
-
-    query = input('enter your question: ')
-
-    # print(f"\nResults saved to {output_csv_path}")
+#     url =  'https://github.com/SE4AIResearch/GitHub-extension-summer2024/commit/0984e1d6e5dd1deed866abd7a3073e1a82eb39db'
+#     changes = get_github_commit_changes(url)
+#     query = prompt + changes
+#     response = main_wo_rag(query)
+#     print(response)

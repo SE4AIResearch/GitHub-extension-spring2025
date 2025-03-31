@@ -19,7 +19,11 @@ import string
 import pandas as pd
 from typing import Union
 from fastapi import FastAPI, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
+
+import requests
+from bs4 import BeautifulSoup
+from typing import Union
 
 load_dotenv()
 # app = FastAPI()
@@ -50,52 +54,6 @@ Context: {context}
 
 template_wo_rag = """Question: {question}"""
 
-# template = """
-# You are an expert software engineer trained in commit summarization.
-# Visit the provided URL, carefully analyze the commit changes directly from the webpage, and generate a meaningful structured summary strictly following this format:
-
-# MANDATORY FORMAT:
-# SUMMARY: A concise technical description of the change (1–2 lines max).
-# INTENT: One of: Fixed Bug, Improved Internal Quality, Improved External Quality, Feature Update, Code Smell Resolution.
-# IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability.
-
-# You MUST include all three sections. Always use the specified keywords for INTENT.
-
-# Also clearly mention what information was extracted directly from the provided URL, along with the URL itself.
-
-# Here are some examples before and after your improvements:
-
-# Example 1:
-# SUMMARY: Replaced nested loops with a hash-based lookup in UserProcessor.java.
-# INTENT: Improved Internal Quality.
-# IMPACT: Reduced time complexity from O(n^2) to O(n), improving efficiency and code clarity.
-
-# Example 2:
-# SUMMARY: Fixed null pointer exception in PaymentService.java during refund processing.
-# INTENT: Fixed Bug.
-# IMPACT: Enhanced system stability by preventing crashes and improving error handling.
-
-# Example 3:
-# SUMMARY: Refactored the login module to adopt MVC architecture in AuthenticationController.java.
-# INTENT: Improved Internal Quality.
-# IMPACT: Increased maintainability and readability by separating concerns and simplifying future modifications.
-
-# Example 4:
-# SUMMARY: Updated API endpoint to support pagination in user request listings.
-# INTENT: Feature Update.
-# IMPACT: Improved usability and performance by reducing response times and enhancing navigation.
-
-# Now, generate the structured summary for:
-# URL: {url}
-# context: {context}
-# """
-
-# def typing_effect(text, delay=0.05):
-#     for char in text:
-#         sys.stdout.write(char)  
-#         sys.stdout.flush()     
-#         time.sleep(delay) 
-#     print()
 
 def normalize_text(text):
     """Normalize text by lowercasing, removing punctuation, and extra spaces."""
@@ -103,12 +61,26 @@ def normalize_text(text):
     text = re.sub(f"[{string.punctuation}]", "", text)
     return text.strip()
 
+def get_github_commit_changes(commit_url):
+    response = requests.get(commit_url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    print(soup.text)
 
-def main_wo_rag(query, retriever, embeddings, ground_truth):
+    changes = []
+    files = soup.find_all('div', class_='file')
+
+    div = soup.find('div', class_='Box-sc-g0xbh4-0 prc-PageLayout-PageLayoutContent-jzDMn')
+    if div:
+         return div.get_text()
+    else:
+        print('Not Found')
+
+
+def main_wo_rag(query):
     parser = StrOutputParser()
-    model = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-3.5-turbo")
-    setup = RunnableParallel(context=retriever, question=RunnablePassthrough())
-    prompt = ChatPromptTemplate.from_template(template)
+    model = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-4-turbo")
+    # setup = RunnableParallel(context=retriever, question=RunnablePassthrough())
+    # prompt = ChatPromptTemplate.from_template(template)
     
     chain =  model | parser
     response = chain.invoke(query)
@@ -118,7 +90,7 @@ def main_wo_rag(query, retriever, embeddings, ground_truth):
 def main_with_rag(query, retriever, embeddings):
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     parser = StrOutputParser()
-    model = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-3.5-turbo")
+    model = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-4-turbo")
     setup = RunnableParallel(context=retriever, question=RunnablePassthrough())
     prompt = ChatPromptTemplate.from_template(template_w_rag)
     
@@ -145,27 +117,62 @@ async def log_request(request: Request, call_next):
     return response
 
 class QueryRequest(BaseModel):
-    query: str
+    query: Union[str, HttpUrl]
     userag: bool
+
+def is_valid_url(url: str):
+    try:
+        HttpUrl(url=url)
+        return True
+    except:
+        return False
 
 @app.post("/get-response")
 async def process_output(request: QueryRequest):
-    retrieved_docs = retriever.get_relevant_documents(request.query)
-    
-    chain_input = {"url": request.query, "context": retrieved_docs, "question": request.query}
-    
-    model = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-4-turbo")
-    parser = StrOutputParser()
-    if request.userag:
-        prompt = ChatPromptTemplate.from_template(template_w_rag)
-    else:
-        prompt = ChatPromptTemplate.from_template(template_wo_rag)
+    query_text = request.query.strip()
+    print(query_text)
+    print(is_valid_url(query_text))
 
-    # prompt = ChatPromptTemplate.from_template(template_w_rag)
-    
-    chain = prompt | model | parser
-    
-    response = chain.invoke(chain_input)
-    print('Generated: ', response)
-    return {"response_with_cs": response}
+    if is_valid_url(query_text):
+        print('Fetching commit changes')
+        prompt = '''
+            You are an expert software engineer trained in commit summarization
+            Given a code text extracted from Github, go through the entire changes, and extract a meaningful summary using this structure.
+
+            MANDATORY FORMAT:\n
+            SUMMARY: A concise technical description of the change (1–2 lines max), 
+            INTENT: All the ones which apply: Fixed Bug, Improved Internal Quality, Improved External Quality, Feature Update, Code Smell Resolution, 
+            IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability.\n
+            \n
+            You MUST include all three sections. Always use the specified keywords for INTENT.\n
+            Here is example response:
+            Example 1:\n
+            SUMMARY: Replaced nested loops with a hash-based lookup in UserProcessor.java.\n
+            INTENT: Improved Internal Quality, Fixed Bug\n
+            IMPACT: Reduced time complexity from O(n^2) to O(n), improving efficiency and code clarity.\n
+
+        '''
+        changes = get_github_commit_changes(query_text)
+        query = prompt + changes
+        response = main_wo_rag(query)
+        return {"response_with_cs": response}
+    else:
+        retrieved_docs = retriever.get_relevant_documents(request.query)
+        
+        chain_input = {"url": request.query, "context": retrieved_docs, "question": request.query}
+        
+        model = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-4-turbo")
+        parser = StrOutputParser()
+        if request.userag:
+            prompt = ChatPromptTemplate.from_template(template_w_rag)
+        else:
+            prompt = ChatPromptTemplate.from_template(template_wo_rag)
+
+        # prompt = ChatPromptTemplate.from_template(template_w_rag)
+        
+        chain = prompt | model | parser
+        
+        response = chain.invoke(chain_input)
+        print('Generated: ', response)
+        return {"response_with_cs": response}
 

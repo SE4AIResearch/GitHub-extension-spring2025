@@ -1,17 +1,15 @@
 package saim;
 
-import com.theokanning.openai.completion.CompletionChoice;
-import com.theokanning.openai.completion.CompletionRequest;
-import com.theokanning.openai.completion.CompletionResult;
-import com.theokanning.openai.service.OpenAiService;
-
-import java.util.Map;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Map;
+
 import org.json.JSONObject;
+
 import com.google.gson.JsonObject;
+import com.theokanning.openai.service.OpenAiService;
 
 
 public class LLM {
@@ -183,22 +181,37 @@ public class LLM {
 
     public String generateSummaryForNoRefactorings(String fullUrl, OpenAiService service) {
         System.out.println("Generating summary for no refactorings");
+        
         try {
-//            String prompt = "Act as a prompt optimizer and optimize the following prompt for summary on changes. The prompt is [Given the following url, generate a clear, concise and COMPLETE message that is 1-2 sentences that summarizes the changes in the code for people to understand. After the summary, give one line for the motivation behind these changes and then give one line on the impact of these changes. Write it in this format: SUMMARY: summary changes, INTENT: intent line, IMPACT: impact line]\n" + fullUrl;
-            String prompt = buildPromptFromURL(fullUrl);
-            System.out.println(prompt);
-            CompletionRequest completionRequest = CompletionRequest.builder()
-                    .prompt(prompt)
-                    .model("gpt-3.5-turbo-instruct")
-                    .maxTokens(600)
+            String prompt = buildPromptFromRefactorings(fullUrl);
+
+            JsonObject json = new JsonObject();
+            json.addProperty("query", fullUrl);
+            json.addProperty("userag", false);
+            String jsonRequestBody = json.toString();
+            System.out.println(jsonRequestBody);
+
+            HttpClient client = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_1_1)
                     .build();
-            CompletionResult result = service.createCompletion(completionRequest);
-            String text = result.getChoices().isEmpty() ? "" : result.getChoices().get(0).getText();
-            return text + " INSTRUCTION: No Refactoring Detected";
-        } catch (Exception exp) {
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://127.0.0.1:8000/get-response"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonRequestBody))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            JSONObject jsonResponse = new JSONObject(response.body());
+            String generatedText = jsonResponse.optString("response_with_cs", ""); 
+            return generatedText;
+
+        }catch (Exception exp) {
             System.err.println("Error generating summary: " + exp.getMessage());
             throw new RuntimeException(exp.getMessage());
-        }
+        }          
+
     }
 
     public String generateSummaryForRefactorings(String refactorings, Map<String, Integer> refactoringInstances) {
