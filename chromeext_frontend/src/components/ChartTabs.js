@@ -36,17 +36,20 @@ const ChartTabs = () => {
 
   return (
     <div className="chart-tabs-wrapper">
-      <div className="chart-tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            className={`tab-btn ${activeTab === tab ? "active" : ""}`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-          </button>
-        ))}
+      {/* Dropdown instead of buttons */}
+      <div className="chart-tab-dropdown">
+        <select
+          value={activeTab}
+          onChange={(e) => setActiveTab(e.target.value)}
+        >
+          {tabs.map((tab) => (
+            <option key={tab} value={tab}>
+              {tab}
+            </option>
+          ))}
+        </select>
       </div>
+
       <div className="chart-display">{renderChart()}</div>
     </div>
   );
