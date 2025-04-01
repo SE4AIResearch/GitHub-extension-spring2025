@@ -26,7 +26,7 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": ["pics/*","dashboard.html", "styles.css", "dashboard.js", "Settings.js", "dashboardStyles.css"],
+            "resources": ["index.html","static/"],
             "matches": ["<all_urls>"]
         }
     ]

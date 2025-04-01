@@ -70,20 +70,7 @@
   font-weight: 600;
   color: #007b5e;
 }
- 
-/* charttabs */
-.chart-tabs-wrapper .chart-tabs {
-   margin-left: 260px;
-   margin-right: 260px;
-   margin-top: 50px;
-   justify-content: center;
-}
-.chart-tabs-wrapper .chart-display{
-  margin-left: 460px;
-  margin-right: 460px;
-}
 
-/* chart table and charts */
 :root {
   --table-heading-size: 24px;
   --column-name-size: 14px;
@@ -129,30 +116,106 @@
   background-color: #fafafa;
 }
 
-/* Chart Tabs Layout */
-.chart-tabs-wrapper .chart-tabs {
+
+.chart-tabs-wrapper {
+  margin-top: 40px;
+}
+
+.chart-tab-dropdown {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin: var(--section-spacing) auto 10px auto;
+  margin: 20px 0;
+}
+
+.chart-tab-dropdown select {
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  background-color: #fff;
 }
 
 .chart-tabs-wrapper .chart-display {
   margin: 0 auto;
-  max-width: var(--table-max-width);
-  padding: 20px;
+  width: 100%;
+  max-width: 1100px;
+  padding: 30px 40px;
+  box-sizing: border-box;
 }
 
-
 .bubble-chart {
-  height: 400px;
+  width: 100%;
+  height: 500px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: 20px;
 }
 
-.bubble-chart canvas {
-  max-width: 100%;
-  height: 100%;
+
+.metrics-filter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.metrics-filter label {
+  font-size: 14px;
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.quality-metrics h2 {
+  font-size: var(--table-heading-size);
+  font-style: italic;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.quality-metrics > table:nth-of-type(1),
+.quality-metrics > table:nth-of-type(2),
+.quality-metrics > table:nth-of-type(3) {
+  display: inline-block;
+  vertical-align: top;
+  width: calc(33.3% - 14px);
+  margin-right: 20px;
+}
+
+.quality-metrics > table:nth-of-type(3) {
+  margin-right: 0;
+}
+
+.quality-metrics table {
+  border-collapse: collapse;
+}
+
+.quality-metrics th,
+.quality-metrics td {
+  padding: var(--table-padding);
+  border: 1px solid var(--table-border-color);
+  text-align: left;
+  font-size: var(--column-name-size);
+}
+
+.quality-metrics th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
+.quality-metrics tr:hover {
+  background-color: #fafafa;
+}
+
+.metrics-summary {
+  margin-top: 30px;
+  padding: 16px;
+  background: #f1f1f1;
+  border-radius: 8px;
+  font-family: "Poppins", sans-serif;
 }

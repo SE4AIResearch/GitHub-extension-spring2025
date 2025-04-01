@@ -14,9 +14,15 @@ function checkKeysAvailability() {
     chrome.storage.local.get(['appId', 'githubToken', 'openaiKey'], function(result) {
         if (result.githubToken && result.openaiKey) {
             keysAvailable = true;
-            if (button) {
+            /*if (button) {
                 button.disabled = false;
                 button.classList.remove('disabled');
+            }*/
+
+            if (button) {
+                    button.disabled = false;
+                    button.classList.remove('disabled');
+                    button.removeAttribute("title"); 
             }
             console.log("API keys available, Generate Summary button enabled");
         } else if (result.appId) {
@@ -34,13 +40,27 @@ function checkKeysAvailability() {
                         if (button) {
                             button.disabled = false;
                             button.classList.remove('disabled');
+                            button.removeAttribute("title");
                         }
                         console.log("API keys fetched from backend, Generate Summary button enabled");
                     }
                 })
                 .catch(error => {
                     console.error("Error fetching keys:", error);
+                    if (button) {
+                        button.disabled = true;
+                        button.classList.add("disabled");
+                        button.setAttribute("title", "Could not fetch API keys. Please check your settings.");
+                    }
+                    showStatusMessage("Unable to fetch keys from server.", "error");
                 });
+        }
+        else {
+            if (button) {
+                button.disabled = true;
+                button.classList.add("disabled");
+                button.setAttribute("title", "You should go to settings and add details");
+            }
         }
     });
 }
