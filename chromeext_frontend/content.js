@@ -162,7 +162,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             link.textContent = "Reprosetory Analysis";
             // Use the dashboard.html file as exposed in manifest.json.
             //link.href = chrome.runtime.getURL('index.html#/dashboard');
-            link.href = chrome.runtime.getURL('dashboard.html');
+            link.href = chrome.runtime.getURL("index.html") + "#/dashboard";// chrome.runtime.getURL('index.html');
             link.target = '_blank';
             link.style.color = 'blue';
             link.style.textDecoration = 'underline';
