@@ -141,4 +141,35 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
 
         return true;
     });
-    
+
+(function() {
+    window.addEventListener('load', () => {
+        // Locate the container element where the link should be inserted.
+        const commitTitleDiv = document.querySelector('.commit-desc')
+            || document.querySelector('.extended-commit-description-container')
+            || document.querySelector('div.commit-title.markdown-title')
+            || document.querySelector('div.CommitHeader-module__commit-message-container--nl1pf span > div');
+
+        if (commitTitleDiv) {
+            // Create a container for the link to control its positioning.
+            const linkContainer = document.createElement('span');
+            linkContainer.style.float = 'right';
+            linkContainer.style.marginLeft = '1rem';
+            linkContainer.style.marginTop = '0.2rem';
+
+            // Create the "Reprosetory Analysis" link.
+            const link = document.createElement('a');
+            link.textContent = "Reprosetory Analysis";
+            // Use the dashboard.html file as exposed in manifest.json.
+            //link.href = chrome.runtime.getURL('index.html#/dashboard');
+            link.href = chrome.runtime.getURL('dashboard.html');
+            link.target = '_blank';
+            link.style.color = 'blue';
+            link.style.textDecoration = 'underline';
+            link.style.cursor = 'pointer';
+
+            linkContainer.appendChild(link);
+            commitTitleDiv.appendChild(linkContainer);
+        }
+    });
+})();
