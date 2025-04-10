@@ -245,8 +245,8 @@ body, html, #root {
 }
 
 .lcom-legend {
-  width: 280px;
-  min-width: 240px;
+  width: 200px;
+  min-width: 200px;
   background-color: #f9f9f9;
   border: 1px solid var(--table-border-color);
   padding: 16px;
@@ -260,10 +260,12 @@ body, html, #root {
   text-align: center;
 }
 
-.legend-table {
+.LCOM-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  margin-top: 30px;
+
 }
 
 .legend-table th,

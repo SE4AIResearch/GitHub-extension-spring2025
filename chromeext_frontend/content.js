@@ -159,7 +159,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
 
             // Create the "Reprosetory Analysis" link.
             const link = document.createElement('a');
-            link.textContent = "Reprosetory Analysis";
+            link.textContent = "Repository Analysis";
             // Use the dashboard.html file as exposed in manifest.json.
             //link.href = chrome.runtime.getURL('index.html#/dashboard');
             link.href = chrome.runtime.getURL("index.html") + "#/dashboard";// chrome.runtime.getURL('index.html');

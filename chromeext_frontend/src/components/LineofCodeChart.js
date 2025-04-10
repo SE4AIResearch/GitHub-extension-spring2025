@@ -14,6 +14,8 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title)
 
 const LOCBarChart = () => {
   const [locData, setLocData] = useState([]);
+  const [selectedLocClass, setSelectLocClass] = useState("All");
+  
 
   useEffect(() => {
     fetch("/lineofCode_metrics.json")
@@ -28,14 +30,21 @@ const LOCBarChart = () => {
       .catch((err) => console.error("Failed to load LOC data:", err));
   }, []);
 
+
+  const locfilteredData = locData.filter((item) => {
+    const classMatch = selectedLocClass === "All" || item.className === selectedLocClass;
+    return classMatch;
+  });
+
+
   const data = {
-    labels: locData.map((item) => item.className),
+    labels: locfilteredData.map((item) => item.className),
     datasets: [
       {
         label: "Total LOC",
-        data: locData.map((item) => item.totalLOC),
-        backgroundColor: "rgba(30, 174, 81, 0.5)",
-        borderColor: "rgb(90, 243, 182)",
+        data: locfilteredData.map((item) => item.totalLOC),
+        backgroundColor:  "rgba(209, 236, 244, 0.5)",
+        borderColor: "rgb(16, 110, 80)",
         borderWidth: 1,
       },
     ],
@@ -65,6 +74,18 @@ const LOCBarChart = () => {
 
   return (
     <div className="loc-bar-chart">
+      <div className="loc-filter">
+        <div>
+          <label>Filter by Class</label>
+          <select value ={selectedLocClass} onChange ={(e) => setSelectLocClass(e.target.value)}>
+          <option value ="All">All</option>
+          {locData.map((item,index) =>(
+            <option key={index} value ={item.className}> {item.className}</option>
+          ))}
+          </select>
+        </div>
+      </div>
+      
       <h2>Line of Code (Total LOC per Class)</h2>
       <div style={{ height: "500px" }}>
         <Bar data={data} options={options} />

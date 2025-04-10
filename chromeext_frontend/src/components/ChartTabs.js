@@ -5,7 +5,7 @@ import QualityMetrics from "./QualityMetrics.js";
 import CouplingChart from "./CouplingChart.js";
 import LOCofMethosChart from "./LOCofMethosChart.js";
 import LineofCode from "./LineofCodeChart.js";
-//import TrendHistoryChart from "./TrendsHistory.js";
+import TrendHistoryChart from "./TrendsHistory.js";
 
 const ChartTabs = () => {
   const [activeTab, setActiveTab] = useState("Metric Summary");
@@ -16,7 +16,7 @@ const ChartTabs = () => {
     "Lack of Cohesion of Methods",
     "Line of Code",
     "Coupling Between Objects",
-    //"Trend History",
+    "Trend History",
   ];
 
   const renderChart = () => {
@@ -29,10 +29,10 @@ const ChartTabs = () => {
         return <CouplingChart />;
       case "Lack of Cohesion of Methods":
         return <LOCofMethosChart />;
-        case "Line of Code":
-          return <LineofCode />;
-      //case "Trend History":
-        //return <TrendHistoryChart />;
+      case "Line of Code":
+        return <LineofCode />;
+      case "Trend History":
+        return <TrendHistoryChart />;
       default:
         return null;
     }
@@ -40,7 +40,6 @@ const ChartTabs = () => {
 
   return (
     <div className="chart-tabs-wrapper">
-      {/* Dropdown instead of buttons */}
       <div className="chart-tab-dropdown">
         <select
           value={activeTab}

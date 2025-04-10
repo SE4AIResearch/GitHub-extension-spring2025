@@ -5,11 +5,12 @@ import Dashboard from "./Dashboard.js";
 function App() {
   console.log("Inside App js");
   return (
-    <Router>
+   <Dashboard />
+   /* <Router>
       <Routes>
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
-    </Router>
+    </Router> */
   );
 }
 
