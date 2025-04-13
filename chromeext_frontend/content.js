@@ -18,10 +18,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
                 ogMessage += additional.innerText;
                 console.log(ogMessage);
             }
-    
+            const loadingImage = chrome.runtime.getURL('pics/load_spinner.gif');
             let loading = document.createElement('img');
             loading.className = 'loading';
-            loading.src = chrome.runtime.getURL('pics/load2.gif');
+            loading.src = loadingImage
             loading.style.width = '40px';
             loading.style.height = '40px';
             loading.style.display = 'block';
@@ -159,7 +159,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
 
             // Create the "Reprosetory Analysis" link.
             const link = document.createElement('a');
-            link.textContent = "Reprosetory Analysis";
+            link.textContent = "Repository Analysis";
             // Use the dashboard.html file as exposed in manifest.json.
             //link.href = chrome.runtime.getURL('index.html#/dashboard');
             link.href = chrome.runtime.getURL("index.html") + "#/dashboard";// chrome.runtime.getURL('index.html');

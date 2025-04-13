@@ -26,7 +26,7 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": ["index.html","static/"],
+            "resources": ["index.html","static/", "pics/load_spinner.gif"],
             "matches": ["<all_urls>"]
         }
     ]
