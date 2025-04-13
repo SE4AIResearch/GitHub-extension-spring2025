@@ -214,7 +214,7 @@ public class LLM {
     }
 
 
-    public String generateSummaryForNoRefactorings(String fullUrl, OpenAiService service) {
+    public String generateSummaryForNoRefactorings(String fullUrl, OpenAiService service, String aiToken) {
         System.out.println("Generating summary for no refactorings");
         
         try {
@@ -233,6 +233,7 @@ public class LLM {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://127.0.0.1:8000/get-response"))
                     .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer "+aiToken)
                     .POST(HttpRequest.BodyPublishers.ofString(jsonRequestBody))
                     .build();
 
@@ -249,7 +250,7 @@ public class LLM {
 
     }
 
-    public String generateSummaryForRefactorings(String refactorings, Map<String, Integer> refactoringInstances) {
+    public String generateSummaryForRefactorings(String refactorings, Map<String, Integer> refactoringInstances, String aiToken) {
         System.out.println("Generating summary for refactorings");
         try {
             String prompt = buildPromptFromRefactorings(refactorings);
@@ -267,6 +268,7 @@ public class LLM {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://127.0.0.1:8000/get-response"))
                     .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer "+aiToken)
                     .POST(HttpRequest.BodyPublishers.ofString(jsonRequestBody))
                     .build();
 
@@ -286,7 +288,8 @@ public class LLM {
             return generatedText + " INSTRUCTION: " + instructions.toString();
         } catch (Exception exp) {
             System.err.println("Error generating summary: " + exp.getMessage());
-            throw new RuntimeException(exp.getMessage());
+//            throw new RuntimeException(exp.getMessage());
+            return exp.getMessage();
         }
     }
 }
