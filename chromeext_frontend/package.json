@@ -17,10 +17,11 @@
     "chart.js": "^4.4.8",
     "d3": "^7.9.0",
     "express": "^4.21.2",
+    "rc-slider": "^11.1.8",
     "react": "^19.0.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.4.1",
+    "react-router-dom": "^7.5.0",
     "react-scripts": "^5.0.1",
     "react-tooltip-bubble-chart": "^1.0.37"
   },

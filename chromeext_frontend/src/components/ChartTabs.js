@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 
 import MetricSummary from "./MetricSummary.js";
 import QualityMetrics from "./QualityMetrics.js";
@@ -7,10 +7,15 @@ import LOCofMethosChart from "./LOCofMethosChart.js";
 import LineofCode from "./LineofCodeChart.js";
 import TrendHistoryChart from "./TrendsHistory.js";
 
-const ChartTabs = () => {
-  const [activeTab, setActiveTab] = useState("Metric Summary");
+const ChartTabs = ({ activeTab: initialTab ,setActiveTabInParent }) => {
+  const [activeTab, setActiveTab] = useState(initialTab || "");
+
+  useEffect(() => {
+    setActiveTabInParent && setActiveTabInParent(activeTab);
+  }, [activeTab, setActiveTabInParent]);
 
   const tabs = [
+    "",
     "Metric Summary",
     "Quality Metrics",
     "Lack of Cohesion of Methods",
@@ -45,11 +50,18 @@ const ChartTabs = () => {
           value={activeTab}
           onChange={(e) => setActiveTab(e.target.value)}
         >
+         {/*} {tabs.map((tab) => (
+            <option key={tab} value={tab}>
+              {tab}
+            </option>
+          ))}*/}
+          <option value="">-- Select a Metric --</option>
           {tabs.map((tab) => (
             <option key={tab} value={tab}>
               {tab}
             </option>
           ))}
+
         </select>
       </div>
 
