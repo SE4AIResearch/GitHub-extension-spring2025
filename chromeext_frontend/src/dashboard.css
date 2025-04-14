@@ -129,12 +129,12 @@
 
 .chart-tab-dropdown select {
   font-family: "Poppins", sans-serif;
-  font-size: 14px;
-  padding: 8px 14px;
+  font-size: 15px;
+  padding: 10px 16px;
   border-radius: 6px;
   border: 1px solid #ccc;
-  cursor: pointer;
   background-color: #fff;
+  min-width: 220px;
 }
 
 .chart-tabs-wrapper .chart-display {
@@ -382,4 +382,41 @@ body, html, #root {
 
 .footer-bottom a:hover {
   text-decoration: underline;
+}
+
+.overview-heading {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 24px;
+  font-style: italic;
+}
+
+.overview-charts-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+  justify-content: center;
+}
+
+.overview-chart {
+  background: #fff;
+  border: 1px solid #e1e1e1;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.overview-chart:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.overview-chart-title {
+  font-size: 16px;
+  font-weight: 600;
+  font-style: italic;
+  margin-bottom: 12px;
+  text-align: center;
 }

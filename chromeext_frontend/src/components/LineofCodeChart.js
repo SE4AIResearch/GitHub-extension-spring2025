@@ -18,14 +18,18 @@ const LOCBarChart = () => {
   
 
   useEffect(() => {
-    fetch("/lineofCode_metrics.json")
+    fetch("/Java_4185549.json")
       .then((res) => {
         if (!res.ok) throw new Error("Network response was not ok");
         return res.json();
       })
       .then((data) => {
         console.log("Fetched LOC data:", data);
-        setLocData(data);
+        const LineofCodedata = data.class_metrics.map((item)=> ({
+          className: item.name,
+          totalLOC : item.line,
+        }));
+        setLocData(LineofCodedata);
       })
       .catch((err) => console.error("Failed to load LOC data:", err));
   }, []);
@@ -51,17 +55,35 @@ const LOCBarChart = () => {
   };
 
   const options = {
-    indexAxis: "y",
+    // indexAxis: "y",
     responsive: true,
     maintainAspectRatio: false,
-    scales: {
+    /*scales: {
       x: {
         title: { display: true, text: "Lines of Code" },
       },
       y: {
         title: { display: true, text: "Class Name" },
       },
+    },*/
+
+    
+    scales: {
+      x: {
+        type: "category",
+        ticks: {
+          callback: function (value, index) {
+            const label = data.labels[index];
+            return label.length > 25 ? label.slice(0, 22) + "..." : label;
+          },
+        },
+        title: { display: false },
+      },
+      y: {
+        beginAtZero: true,
+      },
     },
+    
     plugins: {
       legend: { display: false },
       tooltip: {

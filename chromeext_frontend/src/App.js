@@ -7,9 +7,11 @@ function App() {
   return (
    //<Dashboard />
     <Router>
-      <Routes>
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
+     <Routes>
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/dashboard/:metricName" element={<Dashboard />} />
+    </Routes>
     </Router> 
   );
 }
