@@ -12,19 +12,16 @@ from sklearn.metrics.pairwise import cosine_similarity
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering
 import torch
 import numpy as np
-import sys
-import time
 import re
 import string
 import pandas as pd
 from typing import Union
-from fastapi import FastAPI, Request, Header, HTTPException, Depends
+from fastapi import FastAPI, Request
 from pydantic import BaseModel, HttpUrl
 
 import requests
 from bs4 import BeautifulSoup
-from typing import Union, Optional
-
+from typing import Union
 
 load_dotenv()
 # app = FastAPI()
@@ -55,11 +52,6 @@ Context: {context}
 
 template_wo_rag = """Question: {question}"""
 
-def get_token(authorization: Optional[str] = Header(None)):
-    if authorization is None:
-        raise HTTPException(status_code=401, detail="Missing Authorization header")
-    return authorization
-
 
 def normalize_text(text):
     """Normalize text by lowercasing, removing punctuation, and extra spaces."""
@@ -82,9 +74,9 @@ def get_github_commit_changes(commit_url):
         print('Not Found')
 
 
-def main_wo_rag(query, token):
+def main_wo_rag(query):
     parser = StrOutputParser()
-    model = ChatOpenAI(api_key=token, model="gpt-4-turbo")
+    model = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-4-turbo")
     # setup = RunnableParallel(context=retriever, question=RunnablePassthrough())
     # prompt = ChatPromptTemplate.from_template(template)
     
@@ -134,42 +126,41 @@ def is_valid_url(url: str):
         return False
 
 @app.post("/get-response")
-async def process_output(request: QueryRequest, token: str = Depends(get_token)):
+async def process_output(request: QueryRequest):
     query_text = request.query.strip()
     print(query_text)
     print(is_valid_url(query_text))
-    print('token: ', token)
-    token = token.split(' ')[1]
 
     if is_valid_url(query_text):
-        # print('Fetching commit changes')
+        print('Fetching commit changes')
         prompt = '''
             You are an expert software engineer trained in commit summarization
             Given a code text extracted from Github, go through the entire changes, and extract a meaningful summary using this structure.
 
             MANDATORY FORMAT:\n
-            SUMMARY: A concise technical description of the change (1–2 lines max), 
+            SUMMARY:A in-depth technical description of the change (2-3 lines max), 
             INTENT: All the ones which apply: Fixed Bug, Improved Internal Quality, Improved External Quality, Feature Update, Code Smell Resolution, 
-            IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability.\n
+            IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability more in depth and related to the code changes, the summary generated, and the intent.\n
             \n
             You MUST include all three sections. Always use the specified keywords for INTENT.\n
             Here is example response:
             Example 1:\n
-            SUMMARY: Replaced nested loops with a hash-based lookup in UserProcessor.java.\n
-            INTENT: Improved Internal Quality, Fixed Bug\n
-            IMPACT: Reduced time complexity from O(n^2) to O(n), improving efficiency and code clarity.\n
+            SUMMARY: Replaced nested loop in UserProcessor.java with a HashMap<String, User> for O(1) user lookups.  Modified UserValidator.java to skip invalid entries early. Added testProcessUsers_withValidAndInvalidIds() in UserProcessorTest.java to validate edge behavior and ensure consistent output.\n" +
+            INTENT: Improved Internal Quality, Fixed Bug 
+            IMPACT: Eliminated redundant iterations during user reconciliation, cutting execution time in half for large datasets. Made UserProcessor deterministic and easier to reason about.\n\n
 
         '''
         changes = get_github_commit_changes(query_text)
         query = prompt + changes
-        response = main_wo_rag(query, token)
+        response = main_wo_rag(query)
+        print(response)
         return {"response_with_cs": response}
     else:
         retrieved_docs = retriever.get_relevant_documents(request.query)
         
         chain_input = {"url": request.query, "context": retrieved_docs, "question": request.query}
         
-        model = ChatOpenAI(api_key=token, model="gpt-4-turbo")
+        model = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-4-turbo")
         parser = StrOutputParser()
         if request.userag:
             prompt = ChatPromptTemplate.from_template(template_w_rag)
@@ -181,6 +172,6 @@ async def process_output(request: QueryRequest, token: str = Depends(get_token))
         chain = prompt | model | parser
         
         response = chain.invoke(chain_input)
-        # print('Generated: ', response)
+        print('Generated: ', response)
         return {"response_with_cs": response}
 
