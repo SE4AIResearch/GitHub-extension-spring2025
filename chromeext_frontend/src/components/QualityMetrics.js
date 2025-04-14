@@ -2,20 +2,28 @@ import React from "react";
 
 const QualityMetrics = () => {
   console.log("inside Quality Metrics")
-  const CyclomaticMetrics = [
+  /*const CyclomaticMetrics = [
     { name: "Total CC ", value: 120 },
     { name: "Average CC per Function", value: 6.8 },
     { name: "Max CC (Most Complex Fucntion)", value: 15},
+  ];*/
+  const LOCMMetrics = [
+    { name: "Total Lack of Cohesion", value: '25%' },
+    { name: "Average Lack of cohesion per Class", value: '7.5%' },
+    { name: "Max Lack of Cohesion", value: '15%' },
   ];
+  
   const LOCMetrics = [
-    { name: "Total LOC", value: 15004},
-    { name: "Average LOC per File", value: 750},
-    { name: "Max LOC in File", value: 2050},];
-
-  const WeightedMethodsperClass =[
-    { name: "Total WMC", value: 42},
-    { name: "Average WMC Per Class", value: 6},
+    { name: "Total LOC", value: 13045 },
+    { name: "Average LOC per Class", value: 434.83 },
+    { name: "Max LOC in Class", value: 700 },
   ];
+  
+  const WeightedMethodsperClass = [
+    { name: "Total WMC", value: 42 },
+    { name: "Average WMC Per Class", value: 6 },
+  ];
+  
 
   return (
     
@@ -28,15 +36,15 @@ const QualityMetrics = () => {
       <table>
         <thead>
           <tr>
-            <th>Cyclomatic complexity</th>
+            <th>Lack of Cohesion</th>
             <th>Value</th>
           </tr>
         </thead>
         <tbody>
-          {CyclomaticMetrics.map((CyclomaticMetrics, index) => (
+          {LOCMMetrics.map((LOCMMetrics, index) => (
             <tr key={index}>
-              <td>{CyclomaticMetrics.name}</td>
-              <td>{CyclomaticMetrics.value}</td>
+              <td>{LOCMMetrics.name}</td>
+              <td>{LOCMMetrics.value}</td>
             </tr>
           ))}
         </tbody>
