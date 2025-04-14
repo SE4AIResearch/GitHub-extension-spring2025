@@ -18,10 +18,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
                 ogMessage += additional.innerText;
                 console.log(ogMessage);
             }
-    
+            const loadingImage = chrome.runtime.getURL('pics/load_spinner.gif');
             let loading = document.createElement('img');
             loading.className = 'loading';
-            loading.src = chrome.runtime.getURL('pics/load2.gif');
+            loading.src = loadingImage
             loading.style.width = '40px';
             loading.style.height = '40px';
             loading.style.display = 'block';

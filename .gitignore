@@ -5,3 +5,6 @@ node_modules/
 *.properties
 *.class
 *.jar
+undtest/
+.DS_Store
+*.pyc

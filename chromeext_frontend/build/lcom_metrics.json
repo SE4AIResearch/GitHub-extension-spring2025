@@ -1,0 +1,122 @@
+[
+  {
+    "className": "UserController",
+    "lcom": 0.3
+  },
+  {
+    "className": "AuthService",
+    "lcom": 0.9
+  },
+  {
+    "className": "OrderProcessor",
+    "lcom": 1.5
+  },
+  {
+    "className": "EmailService",
+    "lcom": 2.1
+  },
+  {
+    "className": "PaymentGateway",
+    "lcom": 1.2
+  },
+  {
+    "className": "InventoryManager",
+    "lcom": 2.6
+  },
+  {
+    "className": "NotificationHandler",
+    "lcom": 0.7
+  },
+  {
+    "className": "ReportGenerator",
+    "lcom": 3.0
+  },
+  {
+    "className": "ProductService",
+    "lcom": 0.4
+  },
+  {
+    "className": "ShippingManager",
+    "lcom": 1.8
+  },
+  {
+    "className": "CustomerSupport",
+    "lcom": 2.3
+  },
+  {
+    "className": "DiscountCalculator",
+    "lcom": 0.6
+  },
+  {
+    "className": "TaxService",
+    "lcom": 1.4
+  },
+  {
+    "className": "AddressValidator",
+    "lcom": 0.5
+  },
+  {
+    "className": "AnalyticsCollector",
+    "lcom": 2.8
+  },
+  {
+    "className": "SessionManager",
+    "lcom": 1.1
+  },
+  {
+    "className": "Logger",
+    "lcom": 0.2
+  },
+  {
+    "className": "FileUploader",
+    "lcom": 1.9
+  },
+  {
+    "className": "CacheHandler",
+    "lcom": 0.8
+  },
+  {
+    "className": "Scheduler",
+    "lcom": 1.3
+  },
+  {
+    "className": "FeedbackManager",
+    "lcom": 2.0
+  },
+  {
+    "className": "AuditTrail",
+    "lcom": 1.6
+  },
+  {
+    "className": "ReviewService",
+    "lcom": 0.7
+  },
+  {
+    "className": "RefundProcessor",
+    "lcom": 2.4
+  },
+  {
+    "className": "SecurityPolicy",
+    "lcom": 0.9
+  },
+  {
+    "className": "ApplicationConfig",
+    "lcom": 0.4
+  },
+  {
+    "className": "FileReader",
+    "lcom": 1.7
+  },
+  {
+    "className": "AdminDashboard",
+    "lcom": 2.2
+  },
+  {
+    "className": "SearchIndexer",
+    "lcom": 1.0
+  },
+  {
+    "className": "MediaTranscoder",
+    "lcom": 2.9
+  }
+]

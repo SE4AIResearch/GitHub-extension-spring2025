@@ -147,24 +147,59 @@ public class LLM {
 
 
     public String buildPromptFromRefactorings(String refactorings) {
-        String prompt = "You are an AI software engineer trained in code refactoring analysis and commit summarization.\n" +
-                "You are given a list of refactorings extracted from a commit. Create a concise summary that includes:\n" +
-                "\n" +
-                "SUMMARY: Describe the core refactorings made (1–2 lines),\n" +
-                "INTENT: All the ones which apply: Fixed Bug, Improved Internal Quality, Improved External Quality, Feature Update, Code Smell Resolution,\n" +
-                "IMPACT: Explain how these changes improve modularity, maintainability, readability, or other software quality attributes,\n" +
+//        String prompt = "You are an AI software engineer trained in code refactoring analysis and commit summarization.\n" +
+//                "You are given a list of refactorings extracted from a commit. Create a concise summary that includes:\n" +
+//                "\n" +
+//                "SUMMARY: Describe the core refactorings made (1–2 lines),\n" +
+//                "INTENT: All the ones which apply: Fixed Bug, Improved Internal Quality, Improved External Quality, Feature Update, Code Smell Resolution,\n" +
+//                "IMPACT: Explain how these changes improve modularity, maintainability, readability, or other software quality attributes,\n" +
+//
+//                "Refactorings:\n" + refactorings;
+
+        String prompt = "You are an expert software engineer trained in commit summarization.\n" +
+                "Given a code refactorings, go through the entire changes, and extract a meaningful summary using this structure:\n" +
                 "\n" +
                 "MANDATORY FORMAT:\n" +
-                "SUMMARY: A concise technical description of the change (1–2 lines max)," +
-                "INTENT: One of: Fixed Bug, Improved Internal Quality, Improved External Quality, Feature Update, Code Smell Resolution," +
-                "IMPACT: Explain how these changes improve modularity, maintainability, readability, or other software quality attributes. And also describe how this affects performance, maintainability, readability, modularity, or usability," +
+                "SUMMARY: A concise technical description of the change (1–2 lines max), " +
+                "INTENT: All the ones which apply: Fixed Bug, Improved Internal Quality, Improved External Quality, Feature Update, Code Smell Resolution, " +
+                "IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability.\n" +
                 "\n" +
-                "Example:\n" +
-                "SUMMARY: Extracted method validateInput() and renamed CustomerDTO to ClientDTO,\n" +
-                "INTENT: Improved Internal Quality,\n" +
-                "IMPACT: Reduced time complexity from O(n^2) to O(n), improving efficiency and code clarity or Improves code modularity and naming clarity for better long-term maintainability,\n" +
+                "You MUST include all three sections. Always use the specified keywords for INTENT.\n" +
                 "\n" +
-                "Refactorings:\n" + refactorings;
+                "Here are some examples before and after your improvements:\n" +
+                "\n" +
+                "Example 1:\n" +
+                "SUMMARY: Replaced nested loops with a hash-based lookup in UserProcessor.java.\n" +
+                "INTENT: Improved Internal Quality, Fixed Bug\n" +
+                "IMPACT: Reduced time complexity from O(n^2) to O(n), improving efficiency and code clarity.\n" +
+                "\n" +
+                "Example 2:\n" +
+                "SUMMARY: Fixed null pointer exception in PaymentService.java during refund processing.\n" +
+                "INTENT: Fixed Bug\n" +
+                "IMPACT: Enhanced system stability by preventing crashes and improving error handling.\n" +
+                "\n" +
+                "Example 3:\n" +
+                "SUMMARY: Refactored the login module to adopt MVC architecture in AuthenticationController.java.\n" +
+                "INTENT: Improved Internal Quality, Code Smell Resolution\n" +
+                "IMPACT: Increased maintainability and readability by separating concerns and simplifying future modifications.\n" +
+                "\n" +
+                "Example 4:\n" +
+                "SUMMARY: Updated API endpoint to support pagination in user request listings.\n" +
+                "INTENT: Feature Update, Improved External Quality\n" +
+                "IMPACT: Improved usability and performance by reducing response times and enhancing navigation.\n" +
+                "\n" +
+                "Example 5:\n" +
+                "SUMMARY: Removed redundant code and improved variable naming in DataProcessor.java.\n" +
+                "INTENT: Code Smell Resolution, Improved Internal Quality\n" +
+                "IMPACT: Enhanced readability and maintainability by reducing code clutter and clarifying functionality.\n" +
+                "\n" +
+                "Example 6:\n" +
+                "SUMMARY: Enhanced error messages in the user interface for better clarity during failures.\n" +
+                "INTENT: Improved External Quality\n" +
+                "IMPACT: Improved user experience by providing actionable information during errors.\n" +
+                "\n" +
+                "Now, generate the structured summary for:\n" +
+               "Refactorings:\n" + refactorings;
 
         System.out.println(prompt);
 
