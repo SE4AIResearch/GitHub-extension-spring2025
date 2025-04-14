@@ -6,7 +6,7 @@ import shutil
 import os
 import sys
 import shlex
-
+# from aider.coders import Coder
 
 
 def run(cmd):
@@ -38,7 +38,7 @@ def main():
 
     print("Source Directory: ", src_dir)
     
-    # Building the aider command
+    # Build the aider command
     message = "\"give me a brief summary of the project including files\""
     aider_cmd = ["aider", "--no-gitignore", "--message", message, src_dir]
     # message = "give me a brief summary of the project including files"
@@ -51,12 +51,12 @@ def main():
     
     # print("\nProject Summary:")
     # print(summary)
-    message = "\"give me a list of all the files in this repo and one line on what they do\""
-    command_string = f"aider --no-gitignore --verbose --message {message} {src_dir}"
+    message = "\"give me a brief summary of the project including a brief list of files (not all) in a json format\""
+    command_string = f"aider --no-gitignore --reasoning-effort 2  --yes-always --message {message} {src_dir}"
     print("Full command string:", command_string)
     
     print("Executing Aider command...")
-    result = subprocess.run(command_string, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    result = subprocess.run(command_string, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=120)
     
     if result.returncode:
         print(f"ERROR executing command:\n{result.stderr}", file=sys.stderr)
