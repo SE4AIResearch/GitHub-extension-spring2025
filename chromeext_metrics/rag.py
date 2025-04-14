@@ -16,12 +16,12 @@ import re
 import string
 import pandas as pd
 from typing import Union
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Header, HTTPException, Depends
 from pydantic import BaseModel, HttpUrl
 
 import requests
 from bs4 import BeautifulSoup
-from typing import Union
+from typing import Union, Optional
 
 load_dotenv()
 # app = FastAPI()
@@ -52,6 +52,10 @@ Context: {context}
 
 template_wo_rag = """Question: {question}"""
 
+def get_token(authorization: Optional[str] = Header(None)):
+     if authorization is None:
+         raise HTTPException(status_code=401, detail="Missing Authorization header")
+     return authorization
 
 def normalize_text(text):
     """Normalize text by lowercasing, removing punctuation, and extra spaces."""
@@ -74,9 +78,9 @@ def get_github_commit_changes(commit_url):
         print('Not Found')
 
 
-def main_wo_rag(query):
+def main_wo_rag(query, token):
     parser = StrOutputParser()
-    model = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-4-turbo")
+    model = ChatOpenAI(api_key=token, model="gpt-4-turbo")
     # setup = RunnableParallel(context=retriever, question=RunnablePassthrough())
     # prompt = ChatPromptTemplate.from_template(template)
     
@@ -126,13 +130,15 @@ def is_valid_url(url: str):
         return False
 
 @app.post("/get-response")
-async def process_output(request: QueryRequest):
+async def process_output(request: QueryRequest, token: str = Depends(get_token)):
     query_text = request.query.strip()
     print(query_text)
     print(is_valid_url(query_text))
+    #print('token: ', token)
+    token = token.split(' ')[1]
 
     if is_valid_url(query_text):
-        print('Fetching commit changes')
+        #print('Fetching commit changes')
         prompt = '''
             You are an expert software engineer trained in commit summarization
             Given a code text extracted from Github, go through the entire changes, and extract a meaningful summary using this structure.
@@ -152,7 +158,7 @@ async def process_output(request: QueryRequest):
         '''
         changes = get_github_commit_changes(query_text)
         query = prompt + changes
-        response = main_wo_rag(query)
+        response = main_wo_rag(query, token)
         print(response)
         return {"response_with_cs": response}
     else:
@@ -160,7 +166,7 @@ async def process_output(request: QueryRequest):
         
         chain_input = {"url": request.query, "context": retrieved_docs, "question": request.query}
         
-        model = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-4-turbo")
+        model = ChatOpenAI(api_key=token, model="gpt-4-turbo")
         parser = StrOutputParser()
         if request.userag:
             prompt = ChatPromptTemplate.from_template(template_w_rag)
@@ -172,6 +178,6 @@ async def process_output(request: QueryRequest):
         chain = prompt | model | parser
         
         response = chain.invoke(chain_input)
-        print('Generated: ', response)
+        #print('Generated: ', response)
         return {"response_with_cs": response}
 
