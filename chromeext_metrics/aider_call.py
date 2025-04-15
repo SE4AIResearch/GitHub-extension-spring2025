@@ -22,6 +22,54 @@ def clone_repo(repo_url):
     run(["git", "clone", "--depth", "1", repo_url, tmp])
     return tmp
 
+def get_summary_from_aider(repo_url):
+    repo_url = str(repo_url)
+    is_remote = repo_url.startswith(("http://", "https://", "git@"))
+    if is_remote:
+        src_dir = clone_repo(repo_url)
+    else:
+        src_dir = os.path.abspath(repo_url)
+        if not os.path.isdir(src_dir):
+            print("ERROR: Repository path not found.", file=sys.stderr)
+            sys.exit(1)
+    
+    message = "give me a brief summary of the project including a brief list of files (not all)"
+    quoted_message = shlex.quote(message)
+    
+    command_string = f"aider --no-gitignore --reasoning-effort 2 --yes-always --message {quoted_message} {shlex.quote(src_dir)}"
+    print("Full command string:", command_string)
+    
+    print("Executing Aider command...")
+    try:
+        result = subprocess.run(
+            command_string,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=300
+        )
+    except subprocess.TimeoutExpired:
+        print("ERROR: Aider command timed out.", file=sys.stderr)
+        if is_remote:
+            shutil.rmtree(src_dir)
+        sys.exit(1)
+    
+    if result.returncode:
+        print(f"ERROR executing command:\n{result.stderr}", file=sys.stderr)
+        if is_remote:
+            shutil.rmtree(src_dir)
+        sys.exit(result.returncode)
+    else:
+        summary = result.stdout.strip()
+        print("Aider Output:\n", summary)
+    
+    if is_remote:
+        print("\nCleaning up temporary cloned repository ...")
+        shutil.rmtree(src_dir)
+    
+    return summary
+
 def main():
     parser = argparse.ArgumentParser(description="Aider Project Summary")
     parser.add_argument("repo", help="Git URL or local path of the repository")

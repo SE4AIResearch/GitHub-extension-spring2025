@@ -6,6 +6,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
+import javax.naming.StringRefAddr;
+
 import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
@@ -85,8 +87,8 @@ public class LLM {
                 "\n" +
                 "MANDATORY FORMAT:\n" +
                 "SUMMARY: A in-depth technical description of the change (2-3 lines max), " +
-                "INTENT: All the ones which apply: Fixed Bug, Improved Internal Quality, Improved External Quality, Feature Update, Code Smell Resolution, " +
-                "IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability more in depth and related to the code changes, the summary generated, and the intent.\n" +
+                "INTENT: All the ones which apply: Fixed Bug, Internal Quality Improvement, External Quality Improvement, Feature Update, Code Smell Resolution, " +
+                "IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability more in depth and related to the code changes, the summary and the intent generated, and ensure to elaborate on how the intent and impact are related.\n" +
                 "\n" +
                 "You MUST include all three sections. Always use the specified keywords for INTENT.\n" +
                 "\n" +
@@ -161,7 +163,7 @@ public class LLM {
     }
 
 
-    public String generateSummaryForNoRefactorings(String fullUrl, OpenAiService service, String aiToken) {
+    public String generateSummaryForNoRefactorings(String fullUrl, String repoUrl, OpenAiService service, String aiToken) {
         System.out.println("Generating summary for no refactorings");
         
         try {
@@ -170,6 +172,7 @@ public class LLM {
             JsonObject json = new JsonObject();
             json.addProperty("query", fullUrl);
             json.addProperty("userag", false);
+            json.addProperty("git_url", repoUrl);
             String jsonRequestBody = json.toString();
             System.out.println(jsonRequestBody);
 
@@ -197,7 +200,7 @@ public class LLM {
 
     }
 
-    public String generateSummaryForRefactorings(String refactorings, Map<String, Integer> refactoringInstances, String aiToken) {
+    public String generateSummaryForRefactorings(String refactorings, Map<String, Integer> refactoringInstances, String repoUrl, String commitUrl, String aiToken) {
         System.out.println("Generating summary for refactorings");
         try {
             String prompt = buildPromptFromRefactorings(refactorings);
@@ -205,6 +208,8 @@ public class LLM {
             JsonObject json = new JsonObject();
             json.addProperty("query", prompt);
             json.addProperty("userag", true);
+            json.addProperty("git_url", repoUrl);
+            json.addProperty("commit_url", commitUrl);
             String jsonRequestBody = json.toString();
             System.out.println(jsonRequestBody);
 

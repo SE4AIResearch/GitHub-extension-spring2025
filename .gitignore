@@ -8,3 +8,7 @@ node_modules/
 undtest/
 .DS_Store
 *.pyc
+*.db
+*.db-shm
+*.db-wal
+.aider*

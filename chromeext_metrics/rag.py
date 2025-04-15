@@ -18,6 +18,7 @@ import pandas as pd
 from typing import Union
 from fastapi import FastAPI, Request, Header, HTTPException, Depends
 from pydantic import BaseModel, HttpUrl
+from aider_call import get_summary_from_aider
 
 import requests
 from bs4 import BeautifulSoup
@@ -48,6 +49,8 @@ app = FastAPI()
 template_w_rag = """
 Question: {question}
 Context: {context}
+Project Context: {project_context}
+{commit_url_changes}
 """
 
 template_wo_rag = """Question: {question}"""
@@ -121,6 +124,8 @@ async def log_request(request: Request, call_next):
 class QueryRequest(BaseModel):
     query: Union[str, HttpUrl]
     userag: bool
+    git_url: Optional[HttpUrl] = None
+    commit_url: Optional[HttpUrl] = None
 
 def is_valid_url(url: str):
     try:
@@ -132,6 +137,11 @@ def is_valid_url(url: str):
 @app.post("/get-response")
 async def process_output(request: QueryRequest, token: str = Depends(get_token)):
     query_text = request.query.strip()
+    project_context = ''
+    if request.git_url:
+        project_context = 'Project Context: ' + get_summary_from_aider(request.git_url)
+    
+    print('Project Context: ', project_context)
     print(query_text)
     print(is_valid_url(query_text))
     #print('token: ', token)
@@ -145,9 +155,8 @@ async def process_output(request: QueryRequest, token: str = Depends(get_token))
 
             MANDATORY FORMAT:\n
             SUMMARY:A in-depth technical description of the change (2-3 lines max), 
-            INTENT: All the ones which apply: Fixed Bug, Improved Internal Quality, Improved External Quality, Feature Update, Code Smell Resolution, 
-            IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability more in depth and related to the code changes, the summary generated, and the intent.\n
-            \n
+            INTENT: All the ones which apply: Fixed Bug, Internal Quality Improvement, External Quality Improvement, Feature Update, Code Smell Resolution
+            IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability more in depth and related to the code changes, the summary and the intent generated, and ensure to elaborate on how the intent and impact are related.
             You MUST include all three sections. Always use the specified keywords for INTENT.\n
             Here is example response:
             Example 1:\n
@@ -157,14 +166,17 @@ async def process_output(request: QueryRequest, token: str = Depends(get_token))
 
         '''
         changes = get_github_commit_changes(query_text)
-        query = prompt + changes
+        query = prompt + changes + project_context
         response = main_wo_rag(query, token)
         print(response)
         return {"response_with_cs": response}
     else:
+        changes = ''
+        if request.commit_url:
+            changes = 'Commit\'s content: ' + get_github_commit_changes(request.commit_url)
         retrieved_docs = retriever.get_relevant_documents(request.query)
         
-        chain_input = {"url": request.query, "context": retrieved_docs, "question": request.query}
+        chain_input = {"url": request.query, "context": retrieved_docs, "question": request.query, "project_context": project_context, 'commit_url_changes': changes}
         
         model = ChatOpenAI(api_key=token, model="gpt-4-turbo")
         parser = StrOutputParser()
