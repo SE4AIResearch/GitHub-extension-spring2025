@@ -1,434 +1,142 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "./components/Header.js";
 import ChartTabs from "./components/ChartTabs.js";
 import Footer from "./components/Footer.js";
-//import MetricsTable from "./components/MetricsTable.js";
-//import TrendsHistory from "./components/TrendsHistory.js";
+import { useParams, useNavigate } from "react-router-dom";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+  Title,
+} from "chart.js";
 
-const backendUrl = 'http://localhost:8080/api'; // Your backend API base URL
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title);
 
-function Dashboard() {
-    const [repoUrl, setRepoUrl] = useState('');
-    const [status, setStatus] = useState('PENDING'); // PENDING, RUNNING, COMPLETED, FAILED
-    const [isLoading, setIsLoading] = useState(true); // Controls progress bar visibility
-    const [errorMessage, setErrorMessage] = useState('');
+const Dashboard = () => {
+  const { metricName } = useParams();
+  const navigate = useNavigate();
+  const decodedTab = metricName ? decodeURIComponent(metricName) : "";
 
-    // Reference to store the polling interval ID so we can track and clear it
-    const pollingIntervalRef = useRef(null);
+  const [metricData, setMetricData] = useState([]);
+  const [selectedTab, setSelectedTab] = useState(decodedTab); 
 
-    // Using useEffect to run once when the component mounts
-    useEffect(() => {
-        const appNamespace = 'github-extension-';
-        const localStorageKey = `${appNamespace}repoAnalysisUrl`;
-        const regularKey = 'repoAnalysisUrl';
-        
-        let urlFromStorage = '';
-        
-        // Fetching URL from localStorage with both keys
-        try {
-            // First trying the namespaced key
-            urlFromStorage = localStorage.getItem(localStorageKey);
-            
-            // If not found, trying the regular key (for backward compatibility)
-            if (!urlFromStorage) {
-                urlFromStorage = localStorage.getItem(regularKey);
-                if (urlFromStorage) {
-                    console.log('Retrieved repoAnalysisUrl from regular key');
-                    localStorage.removeItem(regularKey);
-                }
-            } else {
-                console.log('Retrieved repoAnalysisUrl from namespaced key');
-                localStorage.removeItem(localStorageKey);
-            }
-            
-            if (urlFromStorage) {
-                console.log('Retrieved repoAnalysisUrl from localStorage:', urlFromStorage);
-                setRepoUrl(urlFromStorage);
-                // Starting the analysis process
-                startAnalysisRequest(urlFromStorage);
-            } else {
-                // Trying to get from chrome storage as backup
-                console.log("Trying to get URL from chrome.storage.local");
-                
-                if (chrome && chrome.storage && chrome.storage.local) {
-                    chrome.storage.local.get(['repoAnalysisUrl'], function(result) {
-                        if (result && result.repoAnalysisUrl) {
-                            console.log('Retrieved repoAnalysisUrl from chrome.storage:', result.repoAnalysisUrl);
-                            setRepoUrl(result.repoAnalysisUrl);
-                            chrome.storage.local.remove('repoAnalysisUrl');
-                            startAnalysisRequest(result.repoAnalysisUrl);
-                        } else {
-                            // Still not found, showing error
-                            console.error("Could not find repoAnalysisUrl in any storage.");
-                            setErrorMessage('Repository URL not found. Please navigate from a GitHub repository page using the "Repository Analysis" link.');
-                            setStatus('FAILED');
-                            setIsLoading(false);
-                        }
-                    });
-                } else {
-                    // No chrome.storage available
-                    console.error("Could not find repoAnalysisUrl in localStorage and chrome.storage is not available.");
-                    setErrorMessage('Repository URL not found. Please navigate from a GitHub repository page using the "Repository Analysis" link.');
-                    setStatus('FAILED');
-                    setIsLoading(false);
-                }
-            }
-        } catch (e) {
-            console.error("Error accessing storage:", e);
-            setErrorMessage('Error accessing browser storage. Please ensure cookies/localStorage are enabled and try again.');
-            setStatus('FAILED');
-            setIsLoading(false);
-        }
+  useEffect(() => {
+    fetch("/Java_4185549.json")
+      .then((res) => res.json())
+      .then((data) => {
+        const extracted = data.class_metrics.map((item) => ({
+          className: item.name,
+          totalLOC: item.line,
+          lackOfCohesion: item.metrics.PercentLackOfCohesion,
+          coupling: item.metrics.CountClassCoupled,
+          cyclomatic: item.metrics.SumCyclomatic,
+        }));
+        setMetricData(extracted);
+      })
+      .catch((err) => console.error("Error loading JSON:", err));
+  }, []);
 
-        // Cleanup function to stop polling if the component unmounts
-        return () => {
-            if (pollingIntervalRef.current) {
-                clearInterval(pollingIntervalRef.current);
-            }
-        };
-    }, []); // Empty dependency array means this runs only once on mount
+  const getTopRecords = (key, limit = 5) => {
+    return [...metricData]
+      .sort((a, b) => b[key] - a[key])
+      .slice(0, limit);
+  };
 
-    // --- API Call Functions ---
+  const createBarChartData = (records, key) => ({
+    labels: records.map((item) => item.className),
+    datasets: [
+      {
+        label: key,
+        data: records.map((item) => item[key]),
+        backgroundColor: "rgba(209, 236, 244, 0.5)",
+        borderColor: "rgb(16, 110, 80)",
+        borderWidth: 1,
+      },
+    ],
+  });
 
-    // Checking if backend is available
-    const checkBackendAvailability = async () => {
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 5000);
-            
-            // Using the correct endpoint with trailing slash for the health check
-            const response = await fetch(`${backendUrl}/`, {
-                method: 'GET',
-                signal: controller.signal,
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                mode: 'cors'
-            });
-            
-            clearTimeout(timeoutId);
-            console.log("Backend health check successful");
-            return true; // The server is responding
-        } catch (networkError) {
-            console.warn("Health check failed, trying alternative method:", networkError);
-            
-            // If the health check fails, trying the status endpoint
-            try {
-                // Trying to use the status endpoint with a dummy check parameter
-                const statusResponse = await fetch(`${backendUrl}/status?check=true`, {
-                    method: 'GET',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                });
-                
-                console.log("Status check returned:", statusResponse.status);
-                // Even if we get a 400 Bad Request, the server is available
-                return statusResponse.status !== 404 && statusResponse.status !== 503;
-            } catch (error) {
-                console.error("Backend availability check failed:", error);
-                return false;
-            }
-        }
-    };
+  const overviewCharts = [
+    { title: "Line of Code", key: "totalLOC", route: "Line of Code" },
+    { title: "Lack of Cohesion (LCOM)", key: "lackOfCohesion", route: "Lack of Cohesion of Methods" },
+    { title: "Coupling Between Objects (CBO)", key: "coupling", route: "Coupling Between Objects" },
+    { title: "Cyclomatic Complexity", key: "cyclomatic", route: "Quality Metrics" },
+  ];
 
-    const startAnalysisRequest = async (urlToAnalyze) => {
-        if (!urlToAnalyze || typeof urlToAnalyze !== 'string' || !urlToAnalyze.startsWith('https://github.com/')) {
-            setErrorMessage(`Invalid repository URL: ${urlToAnalyze}. URL must be a valid GitHub repository URL.`);
-            setStatus('FAILED');
-            setIsLoading(false);
-            return;
-        }
+  const handleChartClick = (route) => {
+    navigate(`/dashboard/${encodeURIComponent(route)}`);
+  };
 
-        setIsLoading(true);
-        setStatus('RUNNING');
-        setErrorMessage(''); // Clearing previous errors
-        console.log('Starting analysis for:', urlToAnalyze);
-
-        // Checking backend availability first
-        const isBackendAvailable = await checkBackendAvailability();
-        if (!isBackendAvailable) {
-            setErrorMessage(`Cannot connect to backend server at ${backendUrl}. Please ensure the server is running and accessible.`);
-            setStatus('FAILED');
-            setIsLoading(false);
-            return;
-        }
-
-        try {
-            // First trying with CORS mode
-            const analyzeEndpoint = `${backendUrl}/analyze`;
-            console.log(`Sending POST request to ${analyzeEndpoint}`);
-            
-            const response = await fetch(analyzeEndpoint, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ repoUrl: urlToAnalyze }),
-                mode: 'cors'
-            });
-
-            console.log('Response received with status:', response.status);
-            
-            if (response.status === 202) { // Accepted
-                console.log('Analysis request accepted.');
-                // Starting polling after a delay
-                setTimeout(() => {
-                    pollingIntervalRef.current = setInterval(() => checkStatus(urlToAnalyze), 5000); // Checking every 5 seconds
-                }, 1000); // Waiting 1 second before first poll
-                return; // Success case
-            }
-            
-            // Handle immediate errors from the backend
-            const errorText = await response.text();
-            throw new Error(`Backend error: ${response.status} ${response.statusText} - ${errorText}`);
-        } catch (error) {
-            console.error('Error starting analysis:', error);
-            
-            // If the request failed due to CORS, trying using the background page
-            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                try {
-                    console.log('Attempting to use chrome.runtime.sendMessage as fallback');
-                    
-                    if (chrome && chrome.runtime && chrome.runtime.sendMessage) {
-                        chrome.runtime.sendMessage(
-                            { 
-                                action: 'proxyFetch', 
-                                url: `${backendUrl}/analyze`, 
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ repoUrl: urlToAnalyze })
-                            },
-                            (response) => {
-                                if (chrome.runtime.lastError) {
-                                    console.error('Chrome runtime error:', chrome.runtime.lastError);
-                                    setErrorMessage(`Chrome extension error: ${chrome.runtime.lastError.message}`);
-                                    setStatus('FAILED');
-                                    setIsLoading(false);
-                                    return;
-                                }
-                                
-                                if (response && response.success) {
-                                    console.log('Analysis request accepted via background page.');
-                                    // Starting polling after a delay
-                                    setTimeout(() => {
-                                        pollingIntervalRef.current = setInterval(() => checkStatus(urlToAnalyze), 5000);
-                                    }, 1000);
-                                } else {
-                                    setErrorMessage(`Failed to start analysis via background page: ${response ? response.error : 'Unknown error'}`);
-                                    setStatus('FAILED');
-                                    setIsLoading(false);
-                                }
-                            }
-                        );
-                        return; // Waiting for the callback
-                    }
-                } catch (proxyError) {
-                    console.error('Error using chrome.runtime.sendMessage:', proxyError);
-                }
-            }
-            
-            setErrorMessage(`Failed to start analysis: ${error.message}. Is the backend running? (${backendUrl})`);
-            setStatus('FAILED');
-            setIsLoading(false);
-        }
-    };
-
-    const checkStatus = async (urlToAnalyze) => {
-        console.log("Polling status for:", urlToAnalyze);
-        
-        // Adding error handling for invalid URL parameter
-        if (!urlToAnalyze) {
-            console.error("Missing repository URL for status check");
-            setErrorMessage("Cannot check status: Missing repository URL");
-            setStatus('FAILED');
-            setIsLoading(false);
-            if (pollingIntervalRef.current) {
-                clearInterval(pollingIntervalRef.current);
-            }
-            return;
-        }
-        
-        try {
-            // Trying direct fetch first
-            const statusUrl = `${backendUrl}/status?repoUrl=${encodeURIComponent(urlToAnalyze)}`;
-            console.log(`Fetching status from: ${statusUrl}`);
-            
-            const response = await fetch(statusUrl, {
-                method: 'GET',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                mode: 'cors'
-            });
-            
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Backend status error: ${response.status} - ${errorText}`);
-            }
-            
-            const data = await response.json();
-            handleStatusResponse(data);
-        } catch (error) {
-            console.error('Error checking status:', error);
-            
-            // If the direct fetch failed, trying using the background proxy
-            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                console.log('Trying to fetch status via background script');
-                
-                try {
-                    if (chrome && chrome.runtime && chrome.runtime.sendMessage) {
-                        chrome.runtime.sendMessage(
-                            { 
-                                action: 'proxyFetch', 
-                                url: `${backendUrl}/status?repoUrl=${encodeURIComponent(urlToAnalyze)}`, 
-                                method: 'GET'
-                            },
-                            (response) => {
-                                if (chrome.runtime.lastError) {
-                                    console.error('Chrome runtime error:', chrome.runtime.lastError);
-                                    // Continue polling despite the error
-                                    return;
-                                }
-                                
-                                if (response && response.success && response.data) {
-                                    console.log('Status received via background page:', response.data);
-                                    handleStatusResponse(response.data);
-                                } else {
-                                    console.warn(`Polling Error via proxy: ${response ? response.error : 'Unknown error'}. Will retry.`);
-                                }
-                            }
-                        );
-                    }
-                } catch (proxyError) {
-                    console.error('Error using chrome.runtime.sendMessage for status:', proxyError);
-                }
-                return;
-            }
-            
-            // For non-network errors, logging and continuing polling
-            console.warn(`Polling Error: ${error.message}. Will retry.`);
-        }
-    };
-
-    // Helper function to handle status response data
-    const handleStatusResponse = (data) => {
-        console.log("Status received:", data);
-        
-        // Validating data structure
-        if (!data || typeof data.status === 'undefined') {
-            console.error("Invalid status response format from backend");
-            return;
-        }
-        
-        setStatus(data.status); // Updating status based on backend response
-        
-        // Updating message if provided
-        if (data.message) {
-            console.log("Status message:", data.message);
-        }
-
-        if (data.status === 'COMPLETED') {
-            clearInterval(pollingIntervalRef.current); // Stopping polling
-            setIsLoading(false); // Turning off general loading indicator
-            console.log("Analysis completed successfully (results handled elsewhere).");
-            
-            // Checking if this is a partial success (only latest or only previous)
-            if (data.message && data.message.includes("only")) {
-                // This is a partial success - displaying as note, not error
-                setErrorMessage(`${data.message}`);
-            } else {
-                // Clearing any error messages
-                setErrorMessage('');
-            }
-        } else if (data.status === 'FAILED') {
-            clearInterval(pollingIntervalRef.current); // Stopping polling
-            setErrorMessage(`Analysis failed: ${data.message || 'Unknown backend error'}`);
-            setIsLoading(false);
-        } else if (data.status === 'RUNNING' || data.status === 'PENDING') {
-            setIsLoading(true); // Ensuring loading indicator stays on
-            
-            // Showing intermediate messages if available
-            if (data.message) {
-                setErrorMessage(`${data.message}`);
-            } else {
-                setErrorMessage(''); // Clearing any previous messages
-            }
-        } else {
-            // Handling unknown status values
-            console.warn(`Received unexpected status value: ${data.status}`);
-            setIsLoading(true); // Keeping loading indicator on for unknown states
-            
-            if (data.message) {
-                setErrorMessage(`Status (${data.status}): ${data.message}`);
-            }
-        }
-    };
-
-    // Render Logic 
-
-    const renderProgressBar = () => {
-        // Simple animated progress bar 
-        return (
-            <div style={{ margin: '20px auto', width: '80%', textAlign: 'center' }}>
-                <p><strong>Status: {status}</strong></p>
-                <div style={{ width: '100%', backgroundColor: '#eee', border: '1px solid #ccc', borderRadius: '5px', overflow: 'hidden' }}>
-                    <div style={{
-                        width: '100%', // Simple full bar for indeterminate progress
-                        height: '25px',
-                        backgroundColor: '#4CAF50',
-                        backgroundImage: 'linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent)',
-                        backgroundSize: '40px 40px',
-                        animation: 'progress-bar-stripes 1s linear infinite',
-                        textAlign: 'center',
-                        lineHeight: '25px',
-                        color: 'white'
-                     }}>
-                        {status === 'RUNNING' ? 'Analyzing Repository... Please wait.' : 
-                         status === 'PENDING' ? 'Waiting to start analysis...' : 
-                         'Processing...'}
-                    </div>
-                </div>
-                {/* CSS for animation */}
-                <style>{`
-                    @keyframes progress-bar-stripes {
-                      from { background-position: 40px 0; }
-                      to { background-position: 0 0; }
-                    }
-                `}</style>
-                
-                <p style={{ marginTop: '15px', fontSize: '14px', color: '#666' }}>
-                    Analysis typically takes 2-5 minutes depending on repository size.
-                </p>
-            </div>
-        );
-    };
-
-    // Render an info or warning box
-    const renderStatusMessage = (message) => {
-        // Only rendering if there's a message and it's not a serious error
-        if (!message || message.startsWith('Error:') || message.startsWith('Analysis failed:')) {
-            return null;
-        }
-        
-        const isWarning = message.includes('failed');
-        
   return (
-            <div style={{ 
-                margin: '15px auto', 
-                padding: '10px 15px', 
-                backgroundColor: isWarning ? '#fff8e1' : '#e8f4fd', 
-                border: `1px solid ${isWarning ? '#ffe082' : '#bbdefb'}`,
-                borderRadius: '4px',
-                color: isWarning ? '#ff8f00' : '#0277bd',
-                maxWidth: '80%'
-            }}>
-                <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>{isWarning ? 'Warning:' : 'Note:'}</p>
-                <p style={{ margin: 0 }}>{message}</p>
+    <div className="dashboard-container">
+      <Header />
+
+      <ChartTabs activeTab={decodedTab} setActiveTabInParent={setSelectedTab} />
+
+      {!selectedTab && (
+        <div className="overview-charts-section">
+          <h2 className="overview-heading">Metric Overviews</h2>
+          <div className="overview-charts-container">
+            {overviewCharts.map((metric, index) => {
+              const topData = getTopRecords(metric.key);
+              const chartData = createBarChartData(topData, metric.key);
+              const options = {
+                onClick: () => handleChartClick(metric.route),
+                responsive: true,
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    callbacks: {
+                      label: (context) =>
+                        `${context.dataset.label}: ${context.raw}`,
+                    },
+                  },
+                },
+                /*scales: {
+                  x: {
+                    type: "category",
+                    title: { display: false },
+                  },
+                  y: { beginAtZero: true },
+                }, */
+
+                scales: {
+                  x: {
+                    type: "category",
+                    ticks: {
+                      callback: function (value, index) {
+                        const label = chartData.labels[index];
+                        return label.length > 25 ? label.slice(0, 22) + "..." : label;
+                      },
+                    },
+                    title: { display: false },
+                  },
+                  y: {
+                    beginAtZero: true,
+                  },
+                },
+                
+              };
+
+              return (
+                <div
+                  key={index}
+                  className="overview-chart"
+                  onClick={() => handleChartClick(metric.route)}
+                >
+                  <h4 className="overview-chart-title">{metric.title} (Top 5)</h4>
+                  <Bar data={chartData} options={options} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <Footer />
     </div>
   );
 };
