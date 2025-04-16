@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 import MetricSummary from "./MetricSummary.js";
 import QualityMetrics from "./QualityMetrics.js";
@@ -6,8 +6,9 @@ import CouplingChart from "./CouplingChart.js";
 import LOCofMethosChart from "./LOCofMethosChart.js";
 import LineofCode from "./LineofCodeChart.js";
 import TrendHistoryChart from "./TrendsHistory.js";
+import CBOHistogram from "./CBOHistogram.js";
 
-const ChartTabs = ({ activeTab: initialTab ,setActiveTabInParent }) => {
+const ChartTabs = ({ activeTab: initialTab, setActiveTabInParent }) => {
   const [activeTab, setActiveTab] = useState(initialTab || "");
 
   useEffect(() => {
@@ -20,8 +21,9 @@ const ChartTabs = ({ activeTab: initialTab ,setActiveTabInParent }) => {
     "Quality Metrics",
     "Lack of Cohesion of Methods",
     "Line of Code",
-    "Coupling Between Objects",
-    "Trend History",
+    "Coupling Between Objects Coupling",
+    "Coupling Between Objects Histogram",
+    "Trend History"
   ];
 
   const renderChart = () => {
@@ -30,14 +32,17 @@ const ChartTabs = ({ activeTab: initialTab ,setActiveTabInParent }) => {
         return <MetricSummary />;
       case "Quality Metrics":
         return <QualityMetrics />;
-      case "Coupling Between Objects":
+      case "Coupling Between Objects Coupling":
         return <CouplingChart />;
+        case "Coupling Between Objects Histogram":
+        return <CBOHistogram />;
       case "Lack of Cohesion of Methods":
         return <LOCofMethosChart />;
       case "Line of Code":
         return <LineofCode />;
       case "Trend History":
         return <TrendHistoryChart />;
+      
       default:
         return null;
     }
