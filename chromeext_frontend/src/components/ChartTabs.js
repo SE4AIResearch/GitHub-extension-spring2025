@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo, useCallback } from "react";
 
 import MetricSummary from "./MetricSummary.js";
 import QualityMetrics from "./QualityMetrics.js";
@@ -8,11 +8,13 @@ import LineofCode from "./LineofCodeChart.js";
 import TrendHistoryChart from "./TrendsHistory.js";
 import CBOHistogram from "./CBOHistogram.js";
 
-const ChartTabs = ({ activeTab: initialTab, setActiveTabInParent }) => {
+const ChartTabs = ({ activeTab: initialTab, setActiveTabInParent, metricData = [] }) => {
   const [activeTab, setActiveTab] = useState(initialTab || "");
 
   useEffect(() => {
-    setActiveTabInParent && setActiveTabInParent(activeTab);
+    if (setActiveTabInParent) {
+      setActiveTabInParent(activeTab);
+    }
   }, [activeTab, setActiveTabInParent]);
 
   const tabs = [
@@ -26,47 +28,44 @@ const ChartTabs = ({ activeTab: initialTab, setActiveTabInParent }) => {
     "Trend History"
   ];
 
-  const renderChart = () => {
+  const renderChart = useCallback(() => {
     switch (activeTab) {
       case "Metric Summary":
-        return <MetricSummary />;
+        return <MetricSummary metricData={metricData} />;
       case "Quality Metrics":
-        return <QualityMetrics />;
+        return <QualityMetrics metricData={metricData} />;
       case "Coupling Between Objects Coupling":
-        return <CouplingChart />;
+        return <CouplingChart metricData={metricData} />;
         case "Coupling Between Objects Histogram":
         return <CBOHistogram />;
       case "Lack of Cohesion of Methods":
-        return <LOCofMethosChart />;
+        return <LOCofMethosChart metricData={metricData} />;
       case "Line of Code":
-        return <LineofCode />;
+        return <LineofCode metricData={metricData} />;
       case "Trend History":
-        return <TrendHistoryChart />;
-      
+        return <TrendHistoryChart metricData={metricData} />;
       default:
         return null;
     }
-  };
+  }, [activeTab, metricData]);
+
+  const handleTabChange = useCallback((e) => {
+    setActiveTab(e.target.value);
+  }, []);
 
   return (
     <div className="chart-tabs-wrapper">
       <div className="chart-tab-dropdown">
         <select
           value={activeTab}
-          onChange={(e) => setActiveTab(e.target.value)}
+          onChange={handleTabChange}
         >
-         {/*} {tabs.map((tab) => (
-            <option key={tab} value={tab}>
-              {tab}
-            </option>
-          ))}*/}
           <option value="">-- Select a Metric --</option>
           {tabs.map((tab) => (
             <option key={tab} value={tab}>
               {tab}
             </option>
           ))}
-
         </select>
       </div>
 
@@ -75,4 +74,4 @@ const ChartTabs = ({ activeTab: initialTab, setActiveTabInParent }) => {
   );
 };
 
-export default ChartTabs;
+export default memo(ChartTabs);

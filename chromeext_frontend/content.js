@@ -135,41 +135,103 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             // Update the HTML content
             commitProText.innerHTML = summary;
             
-            
             commitTitleDiv.appendChild(commitProText);
+            
+            // Now add the Repository Analysis link after summary is loaded
+            addRepositoryAnalysisLink(commitTitleDiv);
         }
 
         return true;
     });
 
-(function() {
-    window.addEventListener('load', () => {
-        // Locate the container element where the link should be inserted.
-        const commitTitleDiv = document.querySelector('.commit-desc')
-            || document.querySelector('.extended-commit-description-container')
-            || document.querySelector('div.commit-title.markdown-title')
-            || document.querySelector('div.CommitHeader-module__commit-message-container--nl1pf span > div');
+// Function to add the Repository Analysis link
+function addRepositoryAnalysisLink(parentElement) {
+    // Check if link already exists to avoid duplicates
+    if (document.querySelector('.repo-analysis-link')) {
+        return;
+    }
+    
+    // Create a container for the link to control its positioning.
+    const linkContainer = document.createElement('span');
+    linkContainer.style.float = 'right';
+    linkContainer.style.marginLeft = '1rem';
+    linkContainer.style.marginTop = '0.5rem';
+    linkContainer.className = 'repo-analysis-link-container';
 
-        if (commitTitleDiv) {
-            // Create a container for the link to control its positioning.
-            const linkContainer = document.createElement('span');
-            linkContainer.style.float = 'right';
-            linkContainer.style.marginLeft = '1rem';
-            linkContainer.style.marginTop = '0.2rem';
+    // Create the "Repository Analysis" link.
+    const link = document.createElement('a');
+    link.textContent = "Repository Analysis";
+    link.className = 'repo-analysis-link';
 
-            // Create the "Reprosetory Analysis" link.
-            const link = document.createElement('a');
-            link.textContent = "Repository Analysis";
-            // Use the dashboard.html file as exposed in manifest.json.
-            //link.href = chrome.runtime.getURL('index.html#/dashboard');
-            link.href = chrome.runtime.getURL("index.html") + "#/dashboard";// chrome.runtime.getURL('index.html');
-            link.target = '_blank';
-            link.style.color = 'blue';
-            link.style.textDecoration = 'underline';
-            link.style.cursor = 'pointer';
+    // Get the current repository URL
+    let repoUrl = '';
+    // First try to get repo URL from the current page URL
+    const repoMatch = window.location.href.match(/https?:\/\/github\.com\/([^\/]+)\/([^\/]+)/);
+    if (repoMatch) {
+        // Extract just the base repository URL (e.g., https://github.com/username/repository)
+        repoUrl = repoMatch[0];
+        console.log("Extracted repository URL:", repoUrl);
+    }
 
-            linkContainer.appendChild(link);
-            commitTitleDiv.appendChild(linkContainer);
-        }
-    });
-})();
+    // Configure the link 
+    if (!repoUrl) {
+        console.warn("Could not automatically determine repository URL from:", window.location.href);
+        link.style.color = 'grey';
+        link.style.cursor = 'not-allowed';
+        link.title = 'Could not determine repository URL';
+        // Prevent navigation if URL is missing
+        link.addEventListener('click', (event) => event.preventDefault());
+    } else {
+        // Incorporating the existing logic of the link opening
+        link.href = chrome.runtime.getURL("index.html") + "#/dashboard?forceReanalysis=true";
+        link.target = '_blank'; // Open in a new tab
+        link.style.color = 'blue';
+        link.style.textDecoration = 'underline';
+        link.style.cursor = 'pointer';
+
+        // Add listener to save repoUrl to localStorage just before navigation
+        link.addEventListener('click', () => {
+            try {
+                const appNamespace = 'github-extension-';
+                
+                // Check if there's an active analysis by looking for a different URL in localStorage
+                const existingUrl = localStorage.getItem(`${appNamespace}repoAnalysisUrl`);
+                
+                // Skip the confirmation dialog and proceed directly with the new repository
+                if (existingUrl && existingUrl !== repoUrl) {
+                    console.log('Switching analysis from:', existingUrl, 'to:', repoUrl);
+                }
+                
+                // Save to localStorage directly - this is critical for the analysis to work
+                localStorage.setItem(`${appNamespace}repoAnalysisUrl`, repoUrl);
+                console.log('Saved repoAnalysisUrl to localStorage:', repoUrl);
+                
+                // Add flag to indicate user explicitly requested analysis
+                localStorage.setItem(`${appNamespace}forceReanalysis`, 'true');
+                console.log('Set forceReanalysis flag in localStorage');
+                
+                // Also try to set it to chrome.storage as a backup, but don't wait for response
+                try {
+                    // Don't use the response callback to avoid issues with message channel closing
+                    chrome.runtime.sendMessage({
+                        action: 'repoUrlSaved',
+                        repoUrl: repoUrl
+                    });
+                    console.log("Sent repository URL to background script");
+                } catch (storageErr) {
+                    // If message sending fails, still continue since we saved to localStorage
+                    console.error("Error sending message to background script:", storageErr);
+                }
+                
+                // Debug message to verify link is working
+                console.log("Repository Analysis link clicked with URL:", repoUrl);
+            } catch (e) {
+                console.error("Error saving repo URL to localStorage:", e);
+                alert("Error saving repository URL. Your browser may have localStorage disabled.");
+            }
+        });
+    }
+
+    linkContainer.appendChild(link);
+    parentElement.appendChild(linkContainer);
+}

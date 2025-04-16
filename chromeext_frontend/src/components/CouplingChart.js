@@ -14,7 +14,7 @@ import "rc-slider/assets/index.css";
 
 ChartJS.register(Tooltip, Legend, PointElement, LinearScale, CategoryScale, Title);
 
-const CouplingChart = () => {
+const CouplingChart = ({ metricData = [] }) => {
   const [allData, setAllData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,38 +22,19 @@ const CouplingChart = () => {
   const [selectedClass, setSelectedClass] = useState("All");
 
   useEffect(() => {
-    fetch("/Java_4185549.json")
-      .then((res) => {
-        if (!res.ok) throw new Error("Network response was not ok: " + res.status);
-        return res.json();
-      })
-      .then((data) => {
-        const classMetrics = data.class_metrics || [];
-        setAllData(classMetrics);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Failed to load CBO data:", error);
-        setLoading(false);
-      });
-  }, []);
-
-  useEffect(() => {
-    const filtered = allData.filter((cls) => {
-      const cbo = cls.metrics?.CountClassCoupled ?? 0;
-      const inRange = cbo >= range[0] && cbo <= range[1];
-      const matchesClass = selectedClass === "All" || cls.name === selectedClass;
-      return inRange && matchesClass;
-    });
-
-    const parsed = filtered.map((cls, index) => ({
-      x: cls.name || `Class ${index + 1}`,
-      y: index + 1,
-      r: cls.metrics?.CountClassCoupled || 0,
-      label: cls.name || `Class ${index + 1}`,
-    }));
-    setFilteredData(parsed);
-  }, [allData, range, selectedClass]);
+    // Process metricData from props instead of fetching
+    if (metricData && metricData.length > 0) {
+      const parsed = metricData.map((cls, index) => ({
+        x: cls.className || `Class ${index + 1}`,
+        y: index + 1,
+        r: cls.coupling || 0,
+        label: cls.className || `Class ${index + 1}`,
+      }));
+      console.log("Parsed bubble data:", parsed);
+      setChartData(parsed);
+    }
+    setLoading(false);
+  }, [metricData]);
 
   const dataConfig = {
     datasets: [

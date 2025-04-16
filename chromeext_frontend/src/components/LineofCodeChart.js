@@ -12,27 +12,21 @@ import { Bar } from "react-chartjs-2";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title);
 
-const LOCBarChart = () => {
+const LOCBarChart = ({ metricData = [] }) => {
   const [locData, setLocData] = useState([]);
   const [selectedLocClass, setSelectLocClass] = useState("All");
   
 
   useEffect(() => {
-    fetch("/Java_4185549.json")
-      .then((res) => {
-        if (!res.ok) throw new Error("Network response was not ok");
-        return res.json();
-      })
-      .then((data) => {
-        console.log("Fetched LOC data:", data);
-        const LineofCodedata = data.class_metrics.map((item)=> ({
-          className: item.name,
-          totalLOC : item.line,
-        }));
-        setLocData(LineofCodedata);
-      })
-      .catch((err) => console.error("Failed to load LOC data:", err));
-  }, []);
+    if (metricData && metricData.length > 0) {
+      // Process metricData directly instead of fetching
+      const lineOfCodeData = metricData.map(item => ({
+        className: item.className,
+        totalLOC: item.totalLOC || 0
+      }));
+      setLocData(lineOfCodeData);
+    }
+  }, [metricData]);
 
 
   const locfilteredData = locData.filter((item) => {
