@@ -24,7 +24,6 @@ const LOCBarChart = ({ metricData = [] }) => {
 
   useEffect(() => {
     if (metricData && metricData.length > 0) {
-      // Process metricData directly instead of fetching
       const lineOfCodeData = metricData.map(item => ({
         className: item.className,
         totalLOC: item.totalLOC || 0
