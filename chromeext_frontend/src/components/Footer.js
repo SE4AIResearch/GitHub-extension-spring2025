@@ -2,11 +2,11 @@ import React from "react";
 
 const Footer = () => {
   const team = [
-    { name: "Ali Vaziri ", id: "20019007" },
-    { name: "Ishan Garg", id: "20021177" },
-    { name: "Meghna Agrawal", id: "20021843" },
-    { name: "Priyanshi Yadav", id: ".." },
-    { name: "Vaibhavi Shah", id: "20021313" },
+    { name: "Ali Vaziri " },
+    { name: "Ishan Garg" },
+    { name: "Meghna Agrawal" },
+    { name: "Priyanshi Yadav"},
+    { name: "Vaibhavi Shah" },
   ];
 
   return (
@@ -17,7 +17,6 @@ const Footer = () => {
           {team.map((member, index) => (
             <div key={index} className="team-member">
             <strong>{member.name}</strong>
-            <span>({member.id})</span>
             </div>
           ))}
         </div>

@@ -236,7 +236,6 @@ const Dashboard = () => {
     navigate(`/dashboard/${encodeURIComponent(route)}`);
   };
 
-  // Render charts only if we have data
   const renderCharts = () => {
     if (loadingMetrics) {
       return <div className="loading-metrics">Loading metrics data...</div>;
