@@ -32,6 +32,15 @@ const Header = () => {
       })
     : "Loading...";
 
+  // Function to handle force reanalysis when refresh button is clicked
+  const handleForceReanalysis = () => {
+    const appNamespace = 'github-extension-';
+    localStorage.setItem(`${appNamespace}forceReanalysis`, 'true');
+    console.log('Force reanalysis requested - flag set in localStorage');
+    
+    // Reload the page to trigger the reanalysis
+    window.location.reload();
+  };
 
   return (
     <header className="dashboard-header">
@@ -45,7 +54,7 @@ const Header = () => {
         <button id="download-btn">
           <img src={downloadicon} height={24} alt="download" />
         </button>
-        <button id="refresh-btn">
+        <button id="refresh-btn" onClick={handleForceReanalysis}>
           <img src={refreshicon} height={24} alt="refresh" />
         </button>
         <button id="edit-btn">

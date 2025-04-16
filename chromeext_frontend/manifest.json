@@ -9,7 +9,7 @@
         "default_title": "GitHub Commit Suggestor",
         "default_icon": "file.png"
     },
-    "host_permissions": ["http://*/*", "https://*/*"],
+    "host_permissions": ["http://localhost:8080/*", "http://*/*", "https://*/*"],
     "background": {
         "service_worker": "background.js"
     },
@@ -26,7 +26,7 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": ["index.html","static/", "pics/load_spinner.gif"],
+            "resources": ["index.html","static/*", "pics/load_spinner.gif"],
             "matches": ["<all_urls>"]
         }
     ]

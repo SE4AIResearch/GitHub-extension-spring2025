@@ -22,9 +22,11 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*")
+                        .allowedOrigins("*") // This is more permissive but required for extensions
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
+                        .exposedHeaders("*")
+                        .allowCredentials(false) // Must be false when using '*' for origins
                         .maxAge(3600);
             }
         };

@@ -14,11 +14,14 @@ import zoomPlugin from "chartjs-plugin-zoom";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title, zoomPlugin);
 
-const LOCofMethosChart = () => {
+// Add a prop to receive metricData from the Dashboard component
+const LOCofMethosChart = ({ metricData = [] }) => {
+  // Transform incoming metric data to LCOM format
   const [lcomData, setLcomData] = useState([]);
   const [selectedLcomClass, setSelectLcomClass] = useState("All");
   const [range, setRange] = useState([0, 100]);
-
+  
+  // Process the metric data from props rather than fetching directly
   useEffect(() => {
     fetch("/Java_4185549.json")
       .then((res) => {

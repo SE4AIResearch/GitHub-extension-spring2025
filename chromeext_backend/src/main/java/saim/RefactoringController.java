@@ -82,9 +82,9 @@ public class RefactoringController {
 
         OpenAiService service = new OpenAiService(aiToken);
         if (refactoringMessages.toString().trim().isEmpty()) {
-            return llm.generateSummaryForNoRefactorings(fullUrl, service);
+            return llm.generateSummaryForNoRefactorings(fullUrl, repoUrl, service, aiToken);
         } else {
-            return llm.generateSummaryForRefactorings(refactoringMessages.toString(), refactoringInstances);
+            return llm.generateSummaryForRefactorings(refactoringMessages.toString(), refactoringInstances, repoUrl, fullUrl, aiToken);
         }
     }
 
