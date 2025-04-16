@@ -22,6 +22,9 @@ from fastapi import FastAPI, Request
 from pydantic import BaseModel
 import requests
 from bs4 import BeautifulSoup
+from fastapi import Header, HTTPException, Depends
+from typing import Union, Optional
+
 
 load_dotenv()
 # app = FastAPI()
@@ -116,6 +119,11 @@ prompt = '''
 #         sys.stdout.flush()     
 #         time.sleep(delay) 
 #     print()
+
+def get_token(authorization: Optional[str] = Header(None)):
+    if authorization is None:
+        raise HTTPException(status_code=401, detail="Missing Authorization header")
+    return authorization
 
 def normalize_text(text):
     """Normalize text by lowercasing, removing punctuation, and extra spaces."""

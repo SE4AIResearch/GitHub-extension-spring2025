@@ -12,18 +12,17 @@ from sklearn.metrics.pairwise import cosine_similarity
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering
 import torch
 import numpy as np
-import sys
-import time
 import re
 import string
 import pandas as pd
 from typing import Union
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Header, HTTPException, Depends
 from pydantic import BaseModel, HttpUrl
+from aider_call import get_summary_from_aider
 
 import requests
 from bs4 import BeautifulSoup
-from typing import Union
+from typing import Union, Optional
 
 load_dotenv()
 # app = FastAPI()
@@ -50,10 +49,16 @@ app = FastAPI()
 template_w_rag = """
 Question: {question}
 Context: {context}
+Project Context: {project_context}
+{commit_url_changes}
 """
 
 template_wo_rag = """Question: {question}"""
 
+def get_token(authorization: Optional[str] = Header(None)):
+     if authorization is None:
+         raise HTTPException(status_code=401, detail="Missing Authorization header")
+     return authorization
 
 def normalize_text(text):
     """Normalize text by lowercasing, removing punctuation, and extra spaces."""
@@ -64,7 +69,7 @@ def normalize_text(text):
 def get_github_commit_changes(commit_url):
     response = requests.get(commit_url)
     soup = BeautifulSoup(response.text, 'html.parser')
-    print(soup.text)
+    # print(soup.text)
 
     changes = []
     files = soup.find_all('div', class_='file')
@@ -76,9 +81,9 @@ def get_github_commit_changes(commit_url):
         print('Not Found')
 
 
-def main_wo_rag(query):
+def main_wo_rag(query, token):
     parser = StrOutputParser()
-    model = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-4-turbo")
+    model = ChatOpenAI(api_key=token, model="gpt-4-turbo")
     # setup = RunnableParallel(context=retriever, question=RunnablePassthrough())
     # prompt = ChatPromptTemplate.from_template(template)
     
@@ -119,6 +124,8 @@ async def log_request(request: Request, call_next):
 class QueryRequest(BaseModel):
     query: Union[str, HttpUrl]
     userag: bool
+    git_url: Optional[HttpUrl] = None
+    commit_url: Optional[HttpUrl] = None
 
 def is_valid_url(url: str):
     try:
@@ -128,40 +135,50 @@ def is_valid_url(url: str):
         return False
 
 @app.post("/get-response")
-async def process_output(request: QueryRequest):
+async def process_output(request: QueryRequest, token: str = Depends(get_token)):
     query_text = request.query.strip()
+    project_context = ''
+    if request.git_url:
+        project_context = 'Project Context: ' + get_summary_from_aider(request.git_url)
+    
+    print('Project Context: ', project_context)
     print(query_text)
     print(is_valid_url(query_text))
+    #print('token: ', token)
+    token = token.split(' ')[1]
 
     if is_valid_url(query_text):
-        print('Fetching commit changes')
+        #print('Fetching commit changes')
         prompt = '''
             You are an expert software engineer trained in commit summarization
             Given a code text extracted from Github, go through the entire changes, and extract a meaningful summary using this structure.
 
             MANDATORY FORMAT:\n
-            SUMMARY: A concise technical description of the change (1–2 lines max), 
-            INTENT: All the ones which apply: Fixed Bug, Improved Internal Quality, Improved External Quality, Feature Update, Code Smell Resolution, 
-            IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability.\n
-            \n
+            SUMMARY:A in-depth technical description of the change (2-3 lines max), 
+            INTENT: All the ones which apply: Fixed Bug, Internal Quality Improvement, External Quality Improvement, Feature Update, Code Smell Resolution
+            IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability more in depth and related to the code changes, the summary and the intent generated, and ensure to elaborate on how the intent and impact are related.
             You MUST include all three sections. Always use the specified keywords for INTENT.\n
             Here is example response:
             Example 1:\n
-            SUMMARY: Replaced nested loops with a hash-based lookup in UserProcessor.java.\n
-            INTENT: Improved Internal Quality, Fixed Bug\n
-            IMPACT: Reduced time complexity from O(n^2) to O(n), improving efficiency and code clarity.\n
+            SUMMARY: Replaced nested loop in UserProcessor.java with a HashMap<String, User> for O(1) user lookups.  Modified UserValidator.java to skip invalid entries early. Added testProcessUsers_withValidAndInvalidIds() in UserProcessorTest.java to validate edge behavior and ensure consistent output.\n" +
+            INTENT: Improved Internal Quality, Fixed Bug 
+            IMPACT: Eliminated redundant iterations during user reconciliation, cutting execution time in half for large datasets. Made UserProcessor deterministic and easier to reason about.\n\n
 
         '''
         changes = get_github_commit_changes(query_text)
-        query = prompt + changes
-        response = main_wo_rag(query)
+        query = prompt + changes + project_context
+        response = main_wo_rag(query, token)
+        print(response)
         return {"response_with_cs": response}
     else:
+        changes = ''
+        if request.commit_url:
+            changes = 'Commit\'s content: ' + get_github_commit_changes(request.commit_url)
         retrieved_docs = retriever.get_relevant_documents(request.query)
         
-        chain_input = {"url": request.query, "context": retrieved_docs, "question": request.query}
+        chain_input = {"url": request.query, "context": retrieved_docs, "question": request.query, "project_context": project_context, 'commit_url_changes': changes}
         
-        model = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-4-turbo")
+        model = ChatOpenAI(api_key=token, model="gpt-4-turbo")
         parser = StrOutputParser()
         if request.userag:
             prompt = ChatPromptTemplate.from_template(template_w_rag)
@@ -173,6 +190,6 @@ async def process_output(request: QueryRequest):
         chain = prompt | model | parser
         
         response = chain.invoke(chain_input)
-        print('Generated: ', response)
+        #print('Generated: ', response)
         return {"response_with_cs": response}
 
