@@ -51,7 +51,7 @@ def main():
     
     # print("\nProject Summary:")
     # print(summary)
-    message = "\"give me a brief summary of the project including a brief list of files (not all) in a json format\""
+    message = "\"give me a brief summary of the project including a brief list of files (not all)\""
     command_string = f"aider --no-gitignore --reasoning-effort 2  --yes-always --message {message} {src_dir}"
     print("Full command string:", command_string)
     
