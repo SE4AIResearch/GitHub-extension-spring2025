@@ -15,6 +15,7 @@
     "bubble-chart": "^0.1.0",
     "chart": "^0.1.2",
     "chart.js": "^4.4.8",
+    "chartjs-plugin-zoom": "^2.2.0",
     "d3": "^7.9.0",
     "express": "^4.21.2",
     "rc-slider": "^11.1.8",

@@ -7,12 +7,12 @@ import {
   CategoryScale,
   Tooltip,
   Legend,
-  Title
+  Title,
 } from "chart.js";
 import Slider from "rc-slider";
-import "rc-slider/assets/index.css";
+import zoomPlugin from "chartjs-plugin-zoom";
 
-ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title);
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title, zoomPlugin);
 
 const LOCofMethosChart = () => {
   const [lcomData, setLcomData] = useState([]);
@@ -21,7 +21,10 @@ const LOCofMethosChart = () => {
 
   useEffect(() => {
     fetch("/Java_4185549.json")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Network response was not ok");
+        return res.json()
+      })
       .then((data) => {
         const mapped = data.class_metrics.map((item) => ({
           className: item.name,
@@ -29,7 +32,7 @@ const LOCofMethosChart = () => {
         }));
         setLcomData(mapped);
       })
-      .catch((err) => console.error("Error loading JSON:", err));
+      .catch((err) => console.error("Failed to load LCOM data", err));
   }, []);
 
   const filteredData = lcomData.filter((item) => {
@@ -54,25 +57,6 @@ const LOCofMethosChart = () => {
   const options = {
     responsive: true,
     maintainAspectRatio: false,
-    /*scales: {
-      x: {
-        type: "category",
-        ticks: {
-          maxRotation: 0,
-          minRotation: 0,
-          callback: function (label) {
-            return label.length > 25 ? label.slice(0, 22) + "..." : label;
-          },
-        },
-        title: { display: true, text: "Classes" },
-      },
-      y: {
-        beginAtZero: true,
-        title: { display: true, text: "Lack Cohesion Score" },
-      },
-    }, */
-
-    
     scales: {
       x: {
         type: "category",
@@ -82,10 +66,11 @@ const LOCofMethosChart = () => {
             return label.length > 25 ? label.slice(0, 22) + "..." : label;
           },
         },
-        title: { display: false },
+        title: { display: true, text: "Classes" },
       },
       y: {
         beginAtZero: true,
+        title: { display: true, text: "Lack Cohesion Score" },
       },
     },
     plugins: {
@@ -111,42 +96,53 @@ const LOCofMethosChart = () => {
           </select>
         </label>
       </div>
+      
+      <h2>Lack of Cohesion per Method Metric</h2>
 
-      <div style={{ marginBottom: "30px", padding: "0 40px" }}>
-        <label style={{ fontFamily: "Poppins, sans-serif" }}>
-          Filter by LCOM Range: {range[0]} – {range[1]}
-        </label>
-        <Slider
-          range
-          min={0}
-          max={100}
-          defaultValue={[0, 100]}
-          value={range}
-          onChange={setRange}
-          allowCross={false}
-          trackStyle={[{ backgroundColor: "#007b5e" }]}
-          handleStyle={[{ borderColor: "#007b5e" }, { borderColor: "#007b5e" }]}
-        />
-      </div>
+      <div className="lcom-top-section horizontal-layout">
+        <div className="vertical-slider-container">
+          <div className="slider-wrapper">
+          <div className="slider-text">
+              LCOM Range: {range[0]} – {range[1]}
+            </div>
+            <div>100</div>
+            <Slider
+              range
+              vertical
+              min={0}
+              max={100}
+              value={range}
+              onChange={setRange}
+              allowCross={false}
+              trackStyle={[{ backgroundColor: "#007b5e" }]}
+              handleStyle={[
+                { borderColor: "#007b5e", backgroundColor: "#fff" },
+                { borderColor: "#007b5e", backgroundColor: "#fff" }
+              ]}
+            />
+             <div>0</div>
 
-      <div className="lcom-top-section">
-        <div className="bubble-chart" style={{ overflowX: "auto", width: "100%" }}>
+          </div>
+
+        </div>
+
+        <div className="bubble-chart">
           <Bar data={chartData} options={options} />
         </div>
+      </div>
 
-        <div className="lcom-legend">
-          <h4>LCOM Interpretation</h4>
-          <table className="LCOM-table">
-            <thead>
-              <tr><th>LCOM Value</th><th>Interpretation</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>0</td><td>Perfect cohesion</td></tr>
-              <tr><td>0 &lt; LCOM ≤ 1</td><td>Good cohesion</td></tr>
-              <tr><td>&gt; 1</td><td style={{ color: "#cc0000" }}>Low cohesion</td></tr>
-            </tbody>
-          </table>
-        </div>
+      <div className="lcom-legend">
+        <h4>LCOM Interpretation</h4>
+        <table className="LCOM-table">
+          <thead>
+            <tr><th>LCOM Value</th><th>Interpretation</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>0</td><td>Perfect cohesion</td></tr>
+            <tr><td>0 &lt; LCOM ≤ 1</td><td>Good cohesion</td></tr>
+            <tr><td>&gt; 1</td><td style={{ color: "#cc0000" }}>Low cohesion</td></tr>
+          </tbody>
+        </table>
       </div>
 
       <div className="metrics-table">
