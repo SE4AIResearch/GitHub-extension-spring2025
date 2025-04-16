@@ -14,23 +14,23 @@ import "rc-slider/assets/index.css";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title);
 
-const LOCofMethosChart = () => {
+// Add a prop to receive metricData from the Dashboard component
+const LOCofMethosChart = ({ metricData = [] }) => {
+  // Transform incoming metric data to LCOM format
   const [lcomData, setLcomData] = useState([]);
   const [selectedLcomClass, setSelectLcomClass] = useState("All");
   const [range, setRange] = useState([0, 100]);
-
+  
+  // Process the metric data from props rather than fetching directly
   useEffect(() => {
-    fetch("/Java_4185549.json")
-      .then((res) => res.json())
-      .then((data) => {
-        const mapped = data.class_metrics.map((item) => ({
-          className: item.name,
-          lcom: item.metrics.PercentLackOfCohesion,
-        }));
-        setLcomData(mapped);
-      })
-      .catch((err) => console.error("Error loading JSON:", err));
-  }, []);
+    if (metricData && metricData.length > 0) {
+      const mapped = metricData.map(item => ({
+        className: item.className,
+        lcom: item.lackOfCohesion || 0
+      }));
+      setLcomData(mapped);
+    }
+  }, [metricData]);
 
   const filteredData = lcomData.filter((item) => {
     const classMatch = selectedLcomClass === "All" || item.className === selectedLcomClass;
@@ -131,7 +131,11 @@ const LOCofMethosChart = () => {
 
       <div className="lcom-top-section">
         <div className="bubble-chart" style={{ overflowX: "auto", width: "100%" }}>
-          <Bar data={chartData} options={options} />
+          {lcomData.length > 0 ? (
+            <Bar data={chartData} options={options} />
+          ) : (
+            <div className="no-data-message">No cohesion data available</div>
+          )}
         </div>
 
         <div className="lcom-legend">

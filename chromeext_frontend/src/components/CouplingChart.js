@@ -92,40 +92,24 @@ import {
 
 ChartJS.register(Tooltip, Legend, PointElement, LinearScale, CategoryScale, Title);
 
-const CouplingChart = () => {
+const CouplingChart = ({ metricData = [] }) => {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch the JSON file from the public folder.
-    fetch("/Java_4185549.json")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Network response was not ok: " + res.status);
-        }
-        return res.json();
-      })
-      .then((data) => {
-        console.log("Fetched JSON:", data);
-        const classMetrics = data.class_metrics || [];
-        if (classMetrics.length === 0) {
-          console.warn("No class metrics found in the JSON.");
-        }
-        const parsed = classMetrics.map((cls, index) => ({
-          x: cls.name || `Class ${index + 1}`,
-          y: index + 1,
-          r: cls.metrics?.CountClassCoupled || 0,
-          label: cls.name || `Class ${index + 1}`,
-        }));
-        console.log("Parsed bubble data:", parsed);
-        setChartData(parsed);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Failed to load CBO data:", error);
-        setLoading(false);
-      });
-  }, []);
+    // Process metricData from props instead of fetching
+    if (metricData && metricData.length > 0) {
+      const parsed = metricData.map((cls, index) => ({
+        x: cls.className || `Class ${index + 1}`,
+        y: index + 1,
+        r: cls.coupling || 0,
+        label: cls.className || `Class ${index + 1}`,
+      }));
+      console.log("Parsed bubble data:", parsed);
+      setChartData(parsed);
+    }
+    setLoading(false);
+  }, [metricData]);
 
   const dataConfig = {
     datasets: [

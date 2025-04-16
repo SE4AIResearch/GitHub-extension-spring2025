@@ -5,17 +5,31 @@ public class UnderstandStatus {
     public UnderstandStatusValue status;
     public String message; // Optional: for error messages
     public String[] outputFiles; // Optional: paths or names of result files
+    public int progress; // Progress percentage (0-100)
 
     // Default constructor for frameworks like Jackson (JSON serialization)
     public UnderstandStatus() {}
 
     public UnderstandStatus(UnderstandStatusValue status) {
         this.status = status;
+        this.progress = 0;
     }
 
     public UnderstandStatus(UnderstandStatusValue status, String message) {
         this.status = status;
         this.message = message;
+        this.progress = 0;
+    }
+    
+    public UnderstandStatus(UnderstandStatusValue status, int progress) {
+        this.status = status;
+        this.progress = progress;
+    }
+
+    public UnderstandStatus(UnderstandStatusValue status, String message, int progress) {
+        this.status = status;
+        this.message = message;
+        this.progress = progress;
     }
 
     // Getters and setters might be needed depending on JSON library or usage
@@ -41,5 +55,13 @@ public class UnderstandStatus {
 
     public void setOutputFiles(String[] outputFiles) {
         this.outputFiles = outputFiles;
+    }
+
+    public int getProgress() {
+        return progress;
+    }
+    
+    public void setProgress(int progress) {
+        this.progress = progress;
     }
 }

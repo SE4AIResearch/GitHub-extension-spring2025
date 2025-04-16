@@ -1,3 +1,8 @@
+/*
+ * Standalone java file 
+ * now deprecated, as we are using the UnderstandService.java file
+ */
+
 package saim;
 
 import java.io.BufferedReader;

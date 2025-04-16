@@ -63,7 +63,9 @@ public class UnderstandService {
     public CompletableFuture<Void> startAnalysis(String repoUrl) {
         String analysisId = generateAnalysisId(repoUrl);
         log.info("Starting analysis for ID: {} URL: {}", analysisId, repoUrl);
+        System.out.println("STARTED ANALYSIS: " + repoUrl);
         updateJobStatus(analysisId, UnderstandStatusValue.RUNNING, "Initializing analysis...");
+        updateJobProgress(analysisId, 5);
 
         File projectRoot = null;
         File metricsDir = null;
@@ -78,10 +80,12 @@ public class UnderstandService {
             metricsDir = locateMetricsDirectory(projectRoot);
             log.info("Using project root: {}", projectRoot.getAbsolutePath());
             log.info("Located metrics directory: {}", metricsDir.getAbsolutePath());
+            updateJobProgress(analysisId, 10);
 
             // 2. Cloning Repository
             repoDir = prepareRepository(repoUrl, projectRoot);
             cleanupNeeded = true; // Mark for cleanup if cloning/copying succeeds
+            updateJobProgress(analysisId, 25);
 
             // 3. Identifying Commits
             git = Git.open(repoDir);
@@ -105,6 +109,8 @@ public class UnderstandService {
 
         } catch (Exception e) {
             log.error("Critical analysis error for ID: {} - {}", analysisId, e.getMessage(), e);
+            System.err.println("ANALYSIS ERROR: " + e.getMessage());
+            e.printStackTrace();
             updateJobStatus(analysisId, UnderstandStatusValue.FAILED, "Critical error: " + e.getMessage());
             // For ensuring that cleanup doesn't run if setup failed before repo dir was set
             if (repoDir == null) {
@@ -298,6 +304,13 @@ public class UnderstandService {
 
         log.info("--- Analyzing Commit {} (Suffix: {}) ---", commitId.getName(), fileSuffix);
         updateJobStatus(analysisId, UnderstandStatusValue.RUNNING, "Analyzing commits...");
+        
+        // Set progress based on which commit we're analyzing
+        if (fileSuffix.equals("_previous")) {
+            updateJobProgress(analysisId, 40);
+        } else if (fileSuffix.equals("_latest")) {
+            updateJobProgress(analysisId, 65);
+        }
 
         boolean success = false;
         String jsonOutput = null; // Will hold the actual json output
@@ -327,6 +340,13 @@ public class UnderstandService {
             errorMessage = "Error processing commit " + commitId.getName() + ": " + e.getMessage();
             log.error(errorMessage, e);
             success = false; // Mark as failed due to exception
+        }
+
+        // Update progress after commit analysis is complete
+        if (fileSuffix.equals("_previous")) {
+            updateJobProgress(analysisId, 55);
+        } else if (fileSuffix.equals("_latest")) {
+            updateJobProgress(analysisId, 85);
         }
 
         // Only save the result if the script succeeded and produced output
@@ -468,20 +488,41 @@ public class UnderstandService {
     }
 
     private void handleMetricsResult(File projectRoot, String repoPath, String jsonOutput, String suffix, List<String> resultFiles) throws IOException {
-        String repoBaseName = new File(repoPath).getName();
-        String outputFileName = repoBaseName + suffix + ".json";
+        if (jsonOutput == null || jsonOutput.isEmpty()) {
+            log.warn("Empty JSON output, skipping metrics file creation");
+            return;
+        }
 
-        Path outputDirPath = Paths.get(projectRoot.getAbsolutePath(), "chromeext_backend", outputDirName);
-        Files.createDirectories(outputDirPath); // Ensure output directory exists
-        Path outputFilePath = outputDirPath.resolve(outputFileName);
-
-        try (FileWriter writer = new FileWriter(outputFilePath.toFile())) {
-            writer.write(jsonOutput.trim());
-            log.info("Successfully wrote metrics JSON ({}) to: {}", suffix.substring(1), outputFilePath);
-            resultFiles.add(outputFileName); // Add successful file to results list
+        // Extract repository name from repo path
+        String repoName = new File(repoPath).getName();
+        
+        // Create output directory if it doesn't exist
+        File outputDir = new File(projectRoot, outputDirName);
+        log.debug("Checking output directory: {}", outputDir.getAbsolutePath());
+        if (!outputDir.exists() && !outputDir.mkdirs()) {
+            throw new IOException("Failed to create output directory: " + outputDir.getAbsolutePath());
+        }
+        
+        // Create output file with repository name and suffix
+        String outputFileName = repoName + suffix + ".json";
+        File outputFile = new File(outputDir, outputFileName);
+        log.info("Creating metrics output file: {}", outputFile.getAbsolutePath());
+        
+        // Write the JSON to the output file
+        try (FileWriter writer = new FileWriter(outputFile)) {
+            writer.write(jsonOutput);
+            log.info("Successfully wrote {} bytes to metrics file: {}", jsonOutput.length(), outputFile.getAbsolutePath());
+            
+            // Verify file was created
+            if (outputFile.exists() && outputFile.length() > 0) {
+                log.debug("Verified metrics file exists with size: {} bytes", outputFile.length());
+                resultFiles.add(outputFileName);
+            } else {
+                log.error("Failed to verify metrics file was created properly: {}", outputFile.getAbsolutePath());
+            }
         } catch (IOException e) {
-            log.error("Failed to write metrics JSON ({}) to file: {}", suffix.substring(1), outputFilePath, e);
-            throw e; // Re-throw to indicate failure
+            log.error("Error writing metrics to file: {}", e.getMessage(), e);
+            throw e;
         }
     }
 
@@ -500,6 +541,17 @@ public class UnderstandService {
             return currentStatus;
         });
          log.info("Status updated for ID {}: {} - {}", analysisId, status, message);
+    }
+
+     private void updateJobProgress(String analysisId, int progress) {
+        analysisJobs.compute(analysisId, (id, currentStatus) -> {
+            if (currentStatus == null) {
+                return new UnderstandStatus(UnderstandStatusValue.RUNNING, progress);
+            }
+            currentStatus.setProgress(progress);
+            return currentStatus;
+        });
+        log.info("Progress updated for ID {}: {}%", analysisId, progress);
     }
 
      private void setFinalAnalysisStatus(String analysisId, boolean previousSucceeded, boolean latestSucceeded, List<String> resultFiles) {
@@ -521,6 +573,7 @@ public class UnderstandService {
          }
          
          finalStatus.setOutputFiles(resultFiles.toArray(new String[0]));
+         finalStatus.setProgress(100); // Set progress to 100% when completed
          analysisJobs.put(analysisId, finalStatus); // Overwrite with final status
          log.info("Final status set for ID {}: {} - {}", analysisId, finalStatus.getStatus(), finalStatus.getMessage());
      }

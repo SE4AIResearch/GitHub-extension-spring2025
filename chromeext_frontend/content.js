@@ -183,7 +183,7 @@ function addRepositoryAnalysisLink(parentElement) {
         link.addEventListener('click', (event) => event.preventDefault());
     } else {
         // Incorporating the existing logic of the link opening
-        link.href = chrome.runtime.getURL("index.html") + "#/dashboard";
+        link.href = chrome.runtime.getURL("index.html") + "#/dashboard?forceReanalysis=true";
         link.target = '_blank'; // Open in a new tab
         link.style.color = 'blue';
         link.style.textDecoration = 'underline';
@@ -193,17 +193,38 @@ function addRepositoryAnalysisLink(parentElement) {
         link.addEventListener('click', () => {
             try {
                 const appNamespace = 'github-extension-';
+                
+                // Check if there's an active analysis by looking for a different URL in localStorage
+                const existingUrl = localStorage.getItem(`${appNamespace}repoAnalysisUrl`);
+                
+                // Skip the confirmation dialog and proceed directly with the new repository
+                if (existingUrl && existingUrl !== repoUrl) {
+                    console.log('Switching analysis from:', existingUrl, 'to:', repoUrl);
+                }
+                
+                // Save to localStorage directly - this is critical for the analysis to work
                 localStorage.setItem(`${appNamespace}repoAnalysisUrl`, repoUrl);
                 console.log('Saved repoAnalysisUrl to localStorage:', repoUrl);
                 
-                // Also try to set it to chrome.storage as a backup
+                // Add flag to indicate user explicitly requested analysis
+                localStorage.setItem(`${appNamespace}forceReanalysis`, 'true');
+                console.log('Set forceReanalysis flag in localStorage');
+                
+                // Also try to set it to chrome.storage as a backup, but don't wait for response
                 try {
-                    chrome.storage.local.set({ 'repoAnalysisUrl': repoUrl }, function() {
-                        console.log('Saved repoAnalysisUrl to chrome.storage.local');
+                    // Don't use the response callback to avoid issues with message channel closing
+                    chrome.runtime.sendMessage({
+                        action: 'repoUrlSaved',
+                        repoUrl: repoUrl
                     });
+                    console.log("Sent repository URL to background script");
                 } catch (storageErr) {
-                    console.error("Error saving to chrome.storage:", storageErr);
+                    // If message sending fails, still continue since we saved to localStorage
+                    console.error("Error sending message to background script:", storageErr);
                 }
+                
+                // Debug message to verify link is working
+                console.log("Repository Analysis link clicked with URL:", repoUrl);
             } catch (e) {
                 console.error("Error saving repo URL to localStorage:", e);
                 alert("Error saving repository URL. Your browser may have localStorage disabled.");

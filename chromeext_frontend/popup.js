@@ -75,6 +75,36 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Check if keys are available when popup opens
     checkKeysAvailability();
+
+    // Check if active tab contains a GitHub repository
+    const errorMessage = document.getElementById('error-message');
+    const repoInfo = document.getElementById('repo-info');
+    const analyzeButton = document.getElementById('analyze-repo');
+    const settingsButton = document.getElementById('go-to-settings');
+    
+    // Check for existing repository URL in localStorage
+    try {
+        const appNamespace = 'github-extension-';
+        const storedRepoUrl = localStorage.getItem(`${appNamespace}repoAnalysisUrl`);
+        
+        if (storedRepoUrl) {
+            console.log("Found existing repository URL in localStorage:", storedRepoUrl);
+            
+            // Sync with chrome.storage to ensure consistency
+            chrome.runtime.sendMessage({
+                action: 'syncRepoUrl',
+                repoUrl: storedRepoUrl
+            }, (response) => {
+                if (chrome.runtime.lastError) {
+                    console.error("Error syncing repository URL:", chrome.runtime.lastError);
+                } else if (response && response.success) {
+                    console.log("Successfully synced repository URL with background script");
+                }
+            });
+        }
+    } catch (e) {
+        console.error("Error checking localStorage:", e);
+    }
 });
 
 // Listen for messages from the settings page or background script
