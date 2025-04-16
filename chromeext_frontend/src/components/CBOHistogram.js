@@ -15,55 +15,65 @@ import "rc-slider/assets/index.css";
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title);
 
 const CBOHistogram = () => {
+  const [allData, setAllData] = useState([]);
   const [histData, setHistData] = useState(null);
   const [loading, setLoading] = useState(true);
   const chartRef = useRef(null);
 
+  const [range, setRange] = useState([0, 10]); // Adjust max value as per your dataset
+  const [selectedClass, setSelectedClass] = useState("All");
+
   useEffect(() => {
     fetch("/hadoop_5427775_latest.json")
       .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+        if (!res.ok) {
+          throw new Error(`HTTP error: ${res.status}`);
+        }
         return res.json();
       })
       .then((data) => {
         const classMetrics = data.class_metrics || [];
-        // Build a frequency map: keys are CBO values
-        const freqMap = {};
-        classMetrics.forEach((cls) => {
-          const cbo = cls.metrics?.CountClassCoupled ?? 0;
-          if (!freqMap[cbo]) {
-            freqMap[cbo] = { count: 0, details: [] };
-          }
-          freqMap[cbo].count += 1;
-          freqMap[cbo].details.push({
-            className: cls.name || "Unnamed Class",
-            file: cls.file || "N/A",
-          });
-        });
-        // Sort bins numerically
-        const bins = Object.keys(freqMap).map(Number).sort((a, b) => a - b);
-        const labels = bins.map((bin) => `${bin}`);
-        const counts = bins.map((bin) => freqMap[bin].count);
-        const detailsPerBin = bins.map((bin) => freqMap[bin].details);
-
-        // Compute overall average CBO
-        const totalClasses = classMetrics.length;
-        const totalCbo = classMetrics.reduce(
-          (sum, cls) => sum + (cls.metrics?.CountClassCoupled ?? 0),
-          0
-        );
-        const avgCbo = totalClasses ? (totalCbo / totalClasses).toFixed(2) : 0;
-
-        setHistData({ labels, counts, detailsPerBin, bins, avgCbo });
+        setAllData(classMetrics);
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Error fetching histogram data:", err);
+        console.error("Error fetching JSON:", err);
         setLoading(false);
       });
   }, []);
 
-  // Conditional coloring: bins with CBO value >= threshold get red color.
+  useEffect(() => {
+    if (allData.length === 0) return;
+    
+    // Filter data based on selected range and class.
+    const filtered = allData.filter((cls) => {
+      const cbo = cls.metrics?.CountClassCoupled ?? 0;
+      const inRange = cbo >= range[0] && cbo <= range[1];
+      const classMatch = selectedClass === "All" || cls.name === selectedClass;
+      return inRange && classMatch;
+    });
+
+    const freqMap = {};
+    filtered.forEach((cls) => {
+      const cbo = cls.metrics?.CountClassCoupled ?? 0;
+      if (!freqMap[cbo]) {
+        freqMap[cbo] = { count: 0, details: [] };
+      }
+      freqMap[cbo].count += 1;
+      freqMap[cbo].details.push({
+        className: cls.name || "Unnamed Class",
+        file: cls.file || "N/A",
+      });
+    });
+
+    const bins = Object.keys(freqMap).map(Number).sort((a, b) => a - b);
+    const labels = bins.map((bin) => `${bin}`);
+    const counts = bins.map((bin) => freqMap[bin].count);
+    const detailsPerBin = bins.map((bin) => freqMap[bin].details);
+
+    setHistData({ bins, labels, counts, detailsPerBin, filteredCount: filtered.length });
+  }, [allData, range, selectedClass]);
+
   const threshold = 2;
   const backgroundColors = histData
     ? histData.bins.map((bin) =>
@@ -72,15 +82,13 @@ const CBOHistogram = () => {
     : [];
 
   const dataConfig = {
-    labels: histData ? histData.labels : [],
+    labels: histData?.labels || [],
     datasets: [
       {
         label: "Number of Classes",
-        data: histData ? histData.counts : [],
+        data: histData?.counts || [],
         backgroundColor: backgroundColors,
-        borderColor: backgroundColors.map((color) =>
-          color.replace("0.5", "1")
-        ),
+        borderColor: backgroundColors.map((color) => color.replace("0.5", "1")),
         borderWidth: 1,
       },
     ],
@@ -110,7 +118,7 @@ const CBOHistogram = () => {
       },
       subtitle: {
         display: true,
-        text: histData ? `Average CBO: ${histData.avgCbo}` : "",
+        text: histData ? `Total Filtered Classes: ${histData.filteredCount}` : "",
         font: { size: 14 },
       },
     },
@@ -126,7 +134,7 @@ const CBOHistogram = () => {
     },
     maintainAspectRatio: false,
     onClick: (event) => {
-      if (chartRef.current) {
+      if (chartRef.current && histData) {
         const chart = chartRef.current;
         const elements = chart.getElementsAtEventForMode(
           event,
@@ -147,14 +155,67 @@ const CBOHistogram = () => {
     },
   };
 
+  // Generate unique class names for the dropdown.
+  const allClassNames = Array.from(
+    new Set(allData.map((cls) => cls.name || "Unnamed Class"))
+  );
+
   return (
-    <div style={{ width: "80%", height: "500px", margin: "0 auto" }}>
+    <div style={{ width: "80%", margin: "0 auto" }}>
       {loading ? (
-        <p>Loading histogram data...</p>
-      ) : histData && histData.labels.length > 0 ? (
-        <Bar data={dataConfig} options={options} ref={chartRef} />
+        <p>Loading data...</p>
       ) : (
-        <p>No histogram data available.</p>
+        <>
+          {/* FILTERS SECTION */}
+          <div style={{ display: "flex", gap: "50px", marginBottom: "20px" }}>
+            {/* Range Slider Filter */}
+            <div style={{ width: "250px" }}>
+              <label style={{ fontFamily: "Poppins" }}>
+                Filter by CBO Range: {range[0]} – {range[1]}
+              </label>
+              <Slider
+                range
+                min={0}
+                max={100} 
+                step={1}
+                value={range}
+                onChange={setRange}
+                allowCross={false}
+                style={{ marginTop: "0.5rem" }}
+                trackStyle={[{ backgroundColor: "#007b83" }]}
+                handleStyle={[
+                  { borderColor: "#007b83" },
+                  { borderColor: "#007b83" },
+                ]}
+              />
+            </div>
+            {/* Class Dropdown Filter */}
+            <div style={{ width: "250px" }}>
+              <label style={{ fontFamily: "Poppins" }}>Filter by Class:</label>
+              <select
+                style={{ width: "100%", padding: "6px", fontFamily: "Poppins" }}
+                value={selectedClass}
+                onChange={(e) => setSelectedClass(e.target.value)}
+              >
+                <option value="All">All</option>
+                {allClassNames.map((clsName, idx) => (
+                  <option key={idx} value={clsName}>
+                    {clsName}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* HISTOGRAM */}
+          <div style={{ width: "100%", height: "500px" }}>
+            {histData && histData.labels.length > 0 ? (
+              <Bar data={dataConfig} options={options} ref={chartRef} />
+            ) : (
+              <p>No data matches your filter selection.</p>
+            )}
+          </div>
+        </>
       )}
     </div>
   );
