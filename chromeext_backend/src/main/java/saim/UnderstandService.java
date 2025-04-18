@@ -41,6 +41,17 @@ public class UnderstandService {
 
     @Value("${repos.directory.name}")
     private String reposDirName;
+    
+    /***************
+    * Development mode variables needs to be added here
+    ****************/
+    @Value("${development.mode:false}")
+    private boolean developmentMode;
+
+    /**************
+    * Above value is only need to be set if 
+    * running in development mode(i.e., Dashboard development) 
+    ***************/
 
     private final Map<String, UnderstandStatus> analysisJobs = new ConcurrentHashMap<>();
 
@@ -66,6 +77,11 @@ public class UnderstandService {
         System.out.println("STARTED ANALYSIS: " + repoUrl);
         updateJobStatus(analysisId, UnderstandStatusValue.RUNNING, "Initializing analysis...");
         updateJobProgress(analysisId, 5);
+        
+        // Adding for checking if in development mode
+        if (developmentMode) {
+            return handleDevelopmentMode(analysisId, repoUrl);
+        }
 
         File projectRoot = null;
         File metricsDir = null;
@@ -152,9 +168,37 @@ public class UnderstandService {
     private File determineProjectRoot() throws IOException {
         File cwd = new File(System.getProperty("user.dir"));
         log.info("Detected Current Working Directory (CWD): {}", cwd.getAbsolutePath());
+        
+        // Check if current directory is valid
         if (!cwd.exists() || !cwd.isDirectory()) {
             throw new IOException("Current working directory is invalid: " + cwd.getAbsolutePath());
         }
+        
+        // Check if the metrics directory exists directly in the current working directory
+        File metricsDir = new File(cwd, "chromeext_metrics");
+        if (metricsDir.exists() && metricsDir.isDirectory()) {
+            log.info("Found metrics directory at same level as CWD: {}", metricsDir.getAbsolutePath());
+            return cwd;
+        }
+        
+        // If metrics directory is not found in the current working directory
+        // check in the parent directory
+        File parentDir = cwd.getParentFile();
+        if (parentDir != null && cwd.getName().equals("chromeext_backend")) {
+            log.info("Detected launch from chromeext_backend directory, using parent as project root: {}", parentDir.getAbsolutePath());
+            File parentMetricsDir = new File(parentDir, "chromeext_metrics");
+            if (parentMetricsDir.exists() && parentMetricsDir.isDirectory()) {
+                return parentDir;
+            }
+        }
+        
+        // Adding log to help debugging if metrics directory is not found
+        log.error("Could not locate metrics directory. CWD: {}, Parent: {}", 
+                 cwd.getAbsolutePath(), 
+                 (parentDir != null ? parentDir.getAbsolutePath() : "null"));
+        
+        // Fallback to current directory with warning
+        log.warn("Falling back to current directory as project root, but metrics directory may not be found");
         return cwd;
     }
 
@@ -423,9 +467,21 @@ public class UnderstandService {
         if (scitoolsDir != null && !scitoolsDir.isEmpty()) {
             env.put("SCITOOLS_DIR", scitoolsDir);
             String currentPath = env.get("PATH");
-            String scitoolsBinPath = Paths.get(scitoolsDir, "bin", "pc-win64").toString(); // for Windows
-            // String scitoolsBinPath = Paths.get(scitoolsDir, "bin", "linux64").toString(); // for Linux
-            // String scitoolsBinPath = Paths.get(scitoolsDir, "bin", "macosx").toString(); // for MacOS
+            
+            // Detect OS and set the appropriate bin path
+            String osName = System.getProperty("os.name").toLowerCase();
+            String scitoolsBinPath;
+            
+            if (osName.contains("win")) {
+                scitoolsBinPath = Paths.get(scitoolsDir, "bin", "pc-win64").toString();
+                log.info("Detected Windows OS, using bin path: {}", scitoolsBinPath);
+            } else if (osName.contains("mac") || osName.contains("darwin")) {
+                scitoolsBinPath = Paths.get(scitoolsDir, "bin", "macosx").toString();
+                log.info("Detected macOS, using bin path: {}", scitoolsBinPath);
+            } else {
+                scitoolsBinPath = Paths.get(scitoolsDir, "bin", "linux64").toString();
+                log.info("Detected Linux/Unix OS, using bin path: {}", scitoolsBinPath);
+            }
 
             if (currentPath == null || currentPath.isEmpty()) {
                  env.put("PATH", scitoolsBinPath);
@@ -690,6 +746,83 @@ public class UnderstandService {
         PythonExecutionResult(int exitCode, String stdOut) {
             this.exitCode = exitCode;
             this.stdOut = stdOut == null ? "" : stdOut; // Ensure stdout is never null
+        }
+    }
+
+    /**************
+     * Handles the analysis in development mode using sample data
+     ***************/
+    private CompletableFuture<Void> handleDevelopmentMode(String analysisId, String repoUrl) {
+        log.info("DEVELOPMENT MODE: Using existing metrics files for {}", repoUrl);
+        
+        try {
+            // Simulate progress for UI development
+            updateJobProgress(analysisId, 10);
+            Thread.sleep(500);
+            updateJobProgress(analysisId, 25);
+            Thread.sleep(500);
+            updateJobProgress(analysisId, 50);
+            Thread.sleep(500);
+            updateJobProgress(analysisId, 75);
+            Thread.sleep(500);
+            
+            // Determine project root and locate output directory
+            File projectRoot = determineProjectRoot();
+            File outputDir = new File(projectRoot, outputDirName);
+            if (!outputDir.exists() && !outputDir.mkdirs()) {
+                throw new IOException("Failed to create output directory: " + outputDir.getAbsolutePath());
+            }
+            
+            // Extract repository name from repo URL
+            String repoName = repoUrl.substring(repoUrl.lastIndexOf('/') + 1);
+            if (repoName.endsWith(".git")) {
+                repoName = repoName.substring(0, repoName.length() - 4);
+            }
+            
+            // Check for existing files
+            String previousFileName = repoName + "_previous.json";
+            String latestFileName = repoName + "_latest.json";
+            
+            File previousFile = new File(outputDir, previousFileName);
+            File latestFile = new File(outputDir, latestFileName);
+            
+            List<String> resultFiles = new ArrayList<>();
+            
+            // Add existing files to results if they exist, otherwise log a warning
+            if (previousFile.exists()) {
+                log.info("Using existing previous metrics file: {}", previousFile.getAbsolutePath());
+                resultFiles.add(previousFileName);
+            } else {
+                log.warn("Previous metrics file not found: {}", previousFile.getAbsolutePath());
+            }
+            
+            if (latestFile.exists()) {
+                log.info("Using existing latest metrics file: {}", latestFile.getAbsolutePath());
+                resultFiles.add(latestFileName);
+            } else {
+                log.warn("Latest metrics file not found: {}", latestFile.getAbsolutePath());
+            }
+            
+            // If neither file exists, throw an exception
+            if (resultFiles.isEmpty()) {
+                throw new IOException("No existing metrics files found for repository: " + repoName);
+            }
+            
+            // Set progress to 100% and mark as completed
+            updateJobProgress(analysisId, 100);
+            UnderstandStatus finalStatus = new UnderstandStatus(UnderstandStatusValue.COMPLETED);
+            finalStatus.setMessage("Development mode: Using existing metrics files");
+            finalStatus.setOutputFiles(resultFiles.toArray(new String[0]));
+            finalStatus.setProgress(100);
+            analysisJobs.put(analysisId, finalStatus);
+            
+            log.info("DEVELOPMENT MODE: Completed for {}", repoUrl);
+            return CompletableFuture.completedFuture(null);
+            
+        } catch (Exception e) {
+            log.error("Error in development mode for {}: {}", repoUrl, e.getMessage(), e);
+            updateJobStatus(analysisId, UnderstandStatusValue.FAILED, "Development mode error: " + e.getMessage());
+            return CompletableFuture.failedFuture(e);
         }
     }
 }
