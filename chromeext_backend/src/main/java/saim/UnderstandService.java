@@ -778,31 +778,42 @@ public class UnderstandService {
             if (repoName.endsWith(".git")) {
                 repoName = repoName.substring(0, repoName.length() - 4);
             }
-            
-            // Check for existing files
-            String previousFileName = repoName + "_previous.json";
-            String latestFileName = repoName + "_latest.json";
-            
-            File previousFile = new File(outputDir, previousFileName);
-            File latestFile = new File(outputDir, latestFileName);
-            
+
+            // Define regex patterns for the filenames
+            String previousFilePattern = repoName + "_\\d+_previous\\.json";
+            String latestFilePattern = repoName + "_\\d+_latest\\.json";
+
             List<String> resultFiles = new ArrayList<>();
-            
-            // Add existing files to results if they exist, otherwise log a warning
-            if (previousFile.exists()) {
-                log.info("Using existing previous metrics file: {}", previousFile.getAbsolutePath());
-                resultFiles.add(previousFileName);
-            } else {
-                log.warn("Previous metrics file not found: {}", previousFile.getAbsolutePath());
+
+            // Search for files matching the patterns in the output directory
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(outputDir.toPath())) {
+                for (Path entry : stream) {
+                    String fileName = entry.getFileName().toString();
+                    if (fileName.matches(previousFilePattern)) {
+                        log.info("Using existing previous metrics file: {}", entry.toAbsolutePath());
+                        resultFiles.add(fileName);
+                    } else if (fileName.matches(latestFilePattern)) {
+                        log.info("Using existing latest metrics file: {}", entry.toAbsolutePath());
+                        resultFiles.add(fileName);
+                    }
+                }
+            } catch (IOException e) {
+                 log.error("Error reading output directory {}: {}", outputDir.getAbsolutePath(), e.getMessage(), e);
+                 throw new IOException("Error searching for metrics files in " + outputDir.getAbsolutePath(), e);
             }
-            
-            if (latestFile.exists()) {
-                log.info("Using existing latest metrics file: {}", latestFile.getAbsolutePath());
-                resultFiles.add(latestFileName);
-            } else {
-                log.warn("Latest metrics file not found: {}", latestFile.getAbsolutePath());
+
+
+            // Logs if files not found
+            boolean foundPrevious = resultFiles.stream().anyMatch(name -> name.matches(previousFilePattern));
+            boolean foundLatest = resultFiles.stream().anyMatch(name -> name.matches(latestFilePattern));
+
+            if (!foundPrevious) {
+                log.warn("Previous metrics file matching pattern '{}' not found in {}", previousFilePattern, outputDir.getAbsolutePath());
             }
-            
+            if (!foundLatest) {
+                 log.warn("Latest metrics file matching pattern '{}' not found in {}", latestFilePattern, outputDir.getAbsolutePath());
+            }
+
             // If neither file exists, throw an exception
             if (resultFiles.isEmpty()) {
                 throw new IOException("No existing metrics files found for repository: " + repoName);
