@@ -1,15 +1,19 @@
 import React, { useState, useEffect, memo, useCallback } from "react";
 
 import MetricSummary from "./MetricSummary.js";
-import QualityMetrics from "./QualityMetrics.js";
-import CouplingChart from "./CouplingChart.js";
 import LOCofMethosChart from "./LOCofMethosChart.js";
 import LineofCode from "./LineofCodeChart.js";
 import TrendHistoryChart from "./TrendsHistory.js";
 import CBOHistogram from "./CBOHistogram.js";
+import { useNavigate } from "react-router-dom";
 
 const ChartTabs = ({ activeTab: initialTab, setActiveTabInParent, metricData = [] }) => {
   const [activeTab, setActiveTab] = useState(initialTab || "");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (initialTab) setActiveTab(initialTab);
+  }, [initialTab]);
 
   useEffect(() => {
     if (setActiveTabInParent) {
@@ -18,12 +22,9 @@ const ChartTabs = ({ activeTab: initialTab, setActiveTabInParent, metricData = [
   }, [activeTab, setActiveTabInParent]);
 
   const tabs = [
-    "",
     "Metric Summary",
-    "Quality Metrics",
     "Lack of Cohesion of Methods",
     "Line of Code",
-    "Coupling Between Objects Coupling",
     "Coupling Between Objects Histogram",
     "Trend History"
   ];
@@ -32,11 +33,7 @@ const ChartTabs = ({ activeTab: initialTab, setActiveTabInParent, metricData = [
     switch (activeTab) {
       case "Metric Summary":
         return <MetricSummary metricData={metricData} />;
-      case "Quality Metrics":
-        return <QualityMetrics metricData={metricData} />;
-      case "Coupling Between Objects Coupling":
-        return <CouplingChart metricData={metricData} />;
-        case "Coupling Between Objects Histogram":
+      case "Coupling Between Objects Histogram":
         return <CBOHistogram />;
       case "Lack of Cohesion of Methods":
         return <LOCofMethosChart metricData={metricData} />;
@@ -50,8 +47,14 @@ const ChartTabs = ({ activeTab: initialTab, setActiveTabInParent, metricData = [
   }, [activeTab, metricData]);
 
   const handleTabChange = useCallback((e) => {
-    setActiveTab(e.target.value);
-  }, []);
+    const selected = e.target.value;
+    setActiveTab(selected);
+    if (selected === "") {
+      navigate("/dashboard");
+    } else {
+      navigate(`/dashboard/${encodeURIComponent(selected)}`);
+    }
+  }, [navigate]);
 
   return (
     <div className="chart-tabs-wrapper">

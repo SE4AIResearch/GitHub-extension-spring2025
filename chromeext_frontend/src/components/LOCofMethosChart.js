@@ -11,6 +11,8 @@ import {
 } from "chart.js";
 import Slider from "rc-slider";
 import zoomPlugin from "chartjs-plugin-zoom";
+import { useLocation } from "react-router-dom";
+
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title, zoomPlugin);
 
@@ -18,7 +20,18 @@ const LOCofMethosChart = ({ metricData = [] }) => {
   const [lcomData, setLcomData] = useState([]);
   const [selectedLcomClass, setSelectLcomClass] = useState("All");
   const [range, setRange] = useState([0, 100]);
+  const location = useLocation();
+  const highlightClasses = location.state?.highlightClasses || [];
   
+
+  const shortenClassName = (fullName) => {
+    const parts = fullName.split(".");
+    if (parts.length >= 2) {
+      return `${parts[parts.length - 2]}.${parts[parts.length - 1]}`;
+    }
+    return fullName;
+  };  
+
   useEffect(() => {
     fetch("/Java_4185549.json")
       .then((res) => {
@@ -26,11 +39,13 @@ const LOCofMethosChart = ({ metricData = [] }) => {
         return res.json()
       })
       .then((data) => {
-        const mapped = data.class_metrics.map((item) => ({
+        const mapped = data.class_metrics
+        .filter(item => item.metrics.PercentLackOfCohesion !== null)
+        .map((item) => ({
           className: item.name,
-          lcom: item.metrics.PercentLackOfCohesion,
+          lcom: item.metrics.PercentLackOfCohesion ?? 0,
         }));
-        setLcomData(mapped);
+      setLcomData(mapped);
       })
       .catch((err) => console.error("Failed to load LCOM data", err));
   }, []);
@@ -47,13 +62,17 @@ const LOCofMethosChart = ({ metricData = [] }) => {
       {
         label: "Lack of Cohesion Method",
         data: filteredData.map((item) => item.lcom),
-        backgroundColor: "rgba(209, 236, 244, 0.5)",
-        borderColor: "rgb(16, 110, 80)",
+        backgroundColor: filteredData.map((item) =>
+          highlightClasses.includes(item.className) ? "#cc0000" : "rgba(209, 236, 244, 0.5)"
+        ),
+        borderColor: filteredData.map((item) =>
+          highlightClasses.includes(item.className) ? "#cc0000" : "rgb(16, 110, 80)"
+        ),
         borderWidth: 1,
       },
     ],
   };
-
+  
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -63,7 +82,9 @@ const LOCofMethosChart = ({ metricData = [] }) => {
         ticks: {
           callback: function (value, index) {
             const label = chartData.labels[index];
-            return label.length > 25 ? label.slice(0, 22) + "..." : label;
+            //return label.length > 25 ? label.slice(0, 22) + "..." : label;
+            const shortLabel = shortenClassName(label);
+            return shortLabel.length > 25 ? shortLabel.slice(0, 22) + "..." : shortLabel;
           },
         },
         title: { display: true, text: "Classes" },
@@ -76,7 +97,18 @@ const LOCofMethosChart = ({ metricData = [] }) => {
     plugins: {
       tooltip: {
         callbacks: {
-          label: (ctx) => `${ctx.dataset.label}: LCOM = ${ctx.raw}`,
+          label: (ctx) => //`${ctx.dataset.label}: LCOM = ${ctx.raw}`,
+          {
+            const originalLabel = chartData.labels[context.dataIndex];
+            const shortLabel = shortenClassName(originalLabel);
+            const rawScore = ctx.raw;
+            let interpretation = "";
+            if (rawScore === 0) interpretation = "Perfect cohesion";
+            else if (rawScore > 0 && rawScore <= 1) interpretation = "Good cohesion";
+            else interpretation = "Low cohesion";
+      
+            return `${context.dataset.label}: ${context.raw} | Class: ${shortLabel}`;
+          }
         },
       },
       legend: { display: false },

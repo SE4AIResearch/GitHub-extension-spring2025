@@ -512,4 +512,54 @@ body, html, #root {
 }
 
 
+/* Summary Cards */
+.summary-cards-container {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 30px 20px;
+  margin-bottom: 30px;
+  flex-wrap: nowrap; 
+  overflow-x: auto;
+}
+
+.summary-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  width: 220px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  flex: 1 1 200px;
+  max-width: 240px;
+}
+
+.summary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.summary-card h3 {
+  font-size: 1.1rem;
+  color: #444;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.summary-card p {
+  font-size: 1.0rem;
+  font-weight: 600;
+  color: #0d0d0d;
+  margin: 0;
+}
+
+.overview-chart canvas {
+  pointer-events: none;
+}
+
+
 
