@@ -1,94 +1,133 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const QualityMetrics = () => {
-  console.log("inside Quality Metrics")
-  /*const CyclomaticMetrics = [
-    { name: "Total CC ", value: 120 },
-    { name: "Average CC per Function", value: 6.8 },
-    { name: "Max CC (Most Complex Fucntion)", value: 15},
-  ];*/
-  const LOCMMetrics = [
-    { name: "Total Lack of Cohesion", value: '25%' },
-    { name: "Average Lack of cohesion per Class", value: '7.5%' },
-    { name: "Max Lack of Cohesion", value: '15%' },
-  ];
-  
-  const LOCMetrics = [
-    { name: "Total LOC", value: 13045 },
-    { name: "Average LOC per Class", value: 434.83 },
-    { name: "Max LOC in Class", value: 700 },
-  ];
-  
-  const WeightedMethodsperClass = [
-    { name: "Total WMC", value: 42 },
-    { name: "Average WMC Per Class", value: 6 },
-  ];
-  
+const QualityMetrics = ({ metricData = [] }) => {
+  const navigate = useNavigate();
+
+  const [metrics, setMetrics] = useState({
+    totalLOC: 0,
+    maxLOC: 0,
+    maxLOCClass: "",
+    avgCyclomatic: 0,
+    maxCyclomatic: 0,
+    maxCyclomaticClass: "",
+    cohesionBest: {},
+    cohesionWorst: {},
+    couplingBest: {},
+    couplingWorst: {},
+  });
+
+  useEffect(() => {
+    if (!metricData.length) return;
+
+    const totalLOC = metricData.reduce((acc, cls) => acc + cls.totalLOC, 0);
+    const maxLOCObj = metricData.reduce((max, cls) =>
+      cls.totalLOC > max.totalLOC ? cls : max
+    );
+    const maxLOC = maxLOCObj.totalLOC;
+    const maxLOCClass = maxLOCObj.className;
+
+    const avgCyclomatic = (
+      metricData.reduce((sum, cls) => sum + cls.cyclomatic, 0) / metricData.length
+    ).toFixed(2);
+
+    const maxCyclomaticObj = metricData.reduce((max, cls) =>
+      cls.cyclomatic > max.cyclomatic ? cls : max
+    );
+    const maxCyclomatic = maxCyclomaticObj.cyclomatic;
+    const maxCyclomaticClass = maxCyclomaticObj.className;
+
+    const cohesionBest = metricData.reduce((min, cls) =>
+      cls.lackOfCohesion < min.lackOfCohesion ? cls : min
+    );
+    const cohesionWorst = metricData.reduce((max, cls) =>
+      cls.lackOfCohesion > max.lackOfCohesion ? cls : max
+    );
+
+    const couplingBest = metricData.reduce((min, cls) =>
+      cls.coupling < min.coupling ? cls : min
+    );
+    const couplingWorst = metricData.reduce((max, cls) =>
+      cls.coupling > max.coupling ? cls : max
+    );
+
+    setMetrics({
+      totalLOC,
+      maxLOC,
+      maxLOCClass,
+      avgCyclomatic,
+      maxCyclomatic,
+      maxCyclomaticClass,
+      cohesionBest,
+      cohesionWorst,
+      couplingBest,
+      couplingWorst,
+    });
+  }, [metricData]);
+
+  const shortenClassName = (fullName) => {
+    if (!fullName || typeof fullName !== "string") return "";
+    const parts = fullName.split(".");
+    return parts.slice(-2).join(".");
+  };
+
+  /*const interpretCyclomatic = (value) => {
+    if (value <= 10) return "Low Risk";
+    if (value <= 20) return "Moderate Risk";
+    return "High Risk";
+  }; */
+
+  const handleRedirect = (path) => {
+    navigate(`/dashboard/${encodeURIComponent(path)}`);
+  };
+
+  const cardStyle = (isPositive) => ({
+    color: isPositive ? '#007b5e' : '#cc0000',
+    fontWeight: 600,
+  });
 
   return (
-    
-    <div className="quality-metrics">
-
-      <div className="metrics-filter">
-        <input type="text" placeholder="Filter metrics..." />
-      </div>
-      <h2>Quality Metrics</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Lack of Cohesion</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          {LOCMMetrics.map((LOCMMetrics, index) => (
-            <tr key={index}>
-              <td>{LOCMMetrics.name}</td>
-              <td>{LOCMMetrics.value}</td>
-            </tr>
-          ))}
-        </tbody>
-          </table>
-          <table>
-        <thead>
-          <tr>
-            <th>Line Of Code Metrics</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          {LOCMetrics.map((LOCMetrics, index) => (
-            <tr key={index}>
-              <td>{LOCMetrics.name}</td>
-              <td>{LOCMetrics.value}</td>
-            </tr>
-          ))}
-        </tbody>
-    </table>
-    <table>    
-        <thead>
-          <tr>
-            <th>Weighted Methods per Class</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          {WeightedMethodsperClass.map((WeightedMethodsperClass, index) => (
-            <tr key={index}>
-              <td>{WeightedMethodsperClass.name}</td>
-              <td>{WeightedMethodsperClass.value}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="metrics-summary">
-        <h4>Summary</h4>
+    <div className="summary-cards-container">
+      <div className="summary-card" onClick={() => handleRedirect("Line of Code")}>
+        <h3>Total LOC</h3>
+        <p>{metrics.totalLOC.toLocaleString()}</p>
+        <h4>Max LOC Class</h4>
         <p>
-          These metrics show an overall healthy structure. While cyclomatic complexity is manageable,
-          consider refactoring the most complex functions and monitoring LOC in outlier files.
+          {shortenClassName(metrics.maxLOCClass)} ({metrics.maxLOC})
         </p>
       </div>
 
+      {/*<div className="summary-card" onClick={() => handleRedirect("Quality Metrics")}>
+        <h3>Avg. Cyclomatic Complexity</h3>
+        <p>{metrics.avgCyclomatic}</p>
+        <h4>Max</h4>
+        <p>
+          {shortenClassName(metrics.maxCyclomaticClass)} ({metrics.maxCyclomatic}) –{" "}
+          {interpretCyclomatic(metrics.maxCyclomatic)}
+        </p>
+      </div> */}
+
+      <div className="summary-card" onClick={() => handleRedirect("Lack of Cohesion of Methods")}>
+        <h3>Best Cohesive Class</h3>
+        <p style={cardStyle(true)}>
+          {shortenClassName(metrics.cohesionBest.className)} ({metrics.cohesionBest.lackOfCohesion}%)
+        </p>
+        <h4>Worst</h4>
+        <p style={cardStyle(false)}>
+          {shortenClassName(metrics.cohesionWorst.className)} ({metrics.cohesionWorst.lackOfCohesion}%)
+        </p>
+      </div>
+
+      <div className="summary-card" onClick={() => handleRedirect("Coupling Between Objects")}>
+        <h3>Most Coupled Class</h3>
+        <p style={cardStyle(false)}>
+          {shortenClassName(metrics.couplingWorst.className)} ({metrics.couplingWorst.coupling})
+        </p>
+        <h4>Least Coupled</h4>
+        <p style={cardStyle(true)}>
+          {shortenClassName(metrics.couplingBest.className)} ({metrics.couplingBest.coupling})
+        </p>
+      </div>
     </div>
   );
 };
