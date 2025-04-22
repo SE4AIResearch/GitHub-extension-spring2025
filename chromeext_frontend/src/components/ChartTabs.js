@@ -5,6 +5,7 @@ import LOCofMethosChart from "./LOCofMethosChart.js";
 import LineofCode from "./LineofCodeChart.js";
 import TrendHistoryChart from "./TrendsHistory.js";
 import CBOHistogram from "./CBOHistogram.js";
+import HighRiskClassesChart from "./HighRiskClassesChart.js";
 import { useNavigate } from "react-router-dom";
 
 const ChartTabs = ({ activeTab: initialTab, setActiveTabInParent, metricData = [] }) => {
@@ -26,7 +27,8 @@ const ChartTabs = ({ activeTab: initialTab, setActiveTabInParent, metricData = [
     "Lack of Cohesion of Methods",
     "Line of Code",
     "Coupling Between Objects Histogram",
-    "Trend History"
+    "Trend History",
+    "High Risk Classes Chart"
   ];
 
   const renderChart = useCallback(() => {
@@ -41,6 +43,8 @@ const ChartTabs = ({ activeTab: initialTab, setActiveTabInParent, metricData = [
         return <LineofCode metricData={metricData} />;
       case "Trend History":
         return <TrendHistoryChart metricData={metricData} />;
+      case "High Risk Classes Chart" :
+          return < HighRiskClassesChart metricData={metricData}/>
       default:
         return null;
     }

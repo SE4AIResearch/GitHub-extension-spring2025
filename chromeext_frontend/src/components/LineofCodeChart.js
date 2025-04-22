@@ -8,6 +8,7 @@ import {
   Legend,
   Title,
 } from "chart.js";
+import Select from "react-select";
 import { Bar } from "react-chartjs-2";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
@@ -17,8 +18,9 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title)
 
 const LOCBarChart = ({ metricData = [] }) => {
   const [locData, setLocData] = useState([]);
-  const [selectedLocClass, setSelectLocClass] = useState("All");
+  const [selectedLocClasses, setSelectedLocClasses] = useState([]);
   const [range, setRange] = useState([0, 100]);
+  const [sortOrder, setSortOrder] = useState("default");
 
   const location = useLocation();
   const highlightClasses = location.state?.highlightClasses || [];
@@ -41,11 +43,17 @@ const LOCBarChart = ({ metricData = [] }) => {
     }
   }, [metricData]);
 
-  const locfilteredData = locData.filter((item) => {
-    const classMatch = selectedLocClass === "All" || item.className === selectedLocClass;
-    const rangeMatch = item.totalLOC >= range[0] && item.totalLOC <= range[1];
-    return classMatch && rangeMatch;
-  });
+  let locfilteredData = locData.filter((item) => {
+        const classMatch = selectedLocClasses.length === 0 || selectedLocClasses.some(sel => sel.value === item.className);
+        const rangeMatch = item.totalLOC >= range[0] && item.totalLOC <= range[1];
+        return classMatch && rangeMatch;
+      });
+
+      if (sortOrder === "asc") {
+        locfilteredData.sort((a, b) => a.totalLOC - b.totalLOC);
+      } else if (sortOrder === "desc") {
+        locfilteredData.sort((a, b) => b.totalLOC - a.totalLOC);
+}
 
   const data = {
     labels: locfilteredData.map((item) => item.className),
@@ -87,12 +95,17 @@ const LOCBarChart = ({ metricData = [] }) => {
     plugins: {
       tooltip: {
         callbacks: {
-          label: (context) => {
-            const originalLabel = data.labels[context.dataIndex];
+          label: (ctx) => {
+            const originalLabel = chartData.labels[ctx.dataIndex];
             const shortLabel = shortenClassName(originalLabel);
-            const isHighlighted = highlightClasses.includes(originalLabel);
-            return `${context.dataset.label}: ${context.raw} | Class: ${shortLabel}${isHighlighted ? " 🔥" : ""}`;
+            const rawScore = ctx.raw;
+            let interpretation = "";
+            if (rawScore === 0) interpretation = "Perfect cohesion";
+            else if (rawScore > 0 && rawScore <= 1) interpretation = "Good cohesion";
+            else interpretation = "Low cohesion";
+            return `${ctx.dataset.label}: ${ctx.raw} | Class: ${shortLabel} | ${interpretation}`;
           }
+          
         },
       },
       legend: { display: false },
@@ -104,13 +117,26 @@ const LOCBarChart = ({ metricData = [] }) => {
       <div className="loc-filter">
         <div>
           <label>Filter by Class</label>
-          <select value={selectedLocClass} onChange={(e) => setSelectLocClass(e.target.value)}>
-            <option value="All">All</option>
-            {locData.map((item, index) => (
-              <option key={index} value={item.className}>{item.className}</option>
-            ))}
+          <Select
+              isMulti
+              options={locData.map((item) => ({
+                label: item.className,
+                value: item.className,
+              }))}
+              value={selectedLocClasses}
+              onChange={setSelectedLocClasses}
+              placeholder="Select classes..."
+            />
+        </div>
+        <div>
+          <label>Sort by LOC</label>
+          <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+            <option value="default">Default</option>
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
           </select>
         </div>
+
       </div>
 
       <h2>Line of Code (Total LOC per Class)</h2>
