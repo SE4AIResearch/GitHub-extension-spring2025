@@ -309,6 +309,13 @@ body, html, #root {
   margin-bottom: 20px;
 }
 
+.loc-filter select {
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
 
 
 /* footer */
@@ -561,5 +568,74 @@ body, html, #root {
   pointer-events: none;
 }
 
+.high-risk-bubble-wrapper {
+  height: 500px;
+  width: 100%;
+  padding: 20px;
+  font-family: "Poppins", sans-serif;
+}
 
 
+.lcom-bar-chart {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px 40px;
+  font-family: "Poppins", sans-serif;
+}
+
+.lcom-bar-chart h2 {
+  font-size: 22px;
+  font-style: italic;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.lcom-filter label {
+  font-size: 14px;
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lcom-chart {
+  flex-grow: 1;
+  height: 500px;
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.lcom-vertical-slider-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 350px;
+  min-width: 100px;
+  padding: 10px;
+}
+
+.lcom-slider-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.lcom-slider-text {
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.lcom-filter select {
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}

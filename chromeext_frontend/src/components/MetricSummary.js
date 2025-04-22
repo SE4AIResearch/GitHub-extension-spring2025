@@ -58,3 +58,4 @@ const MetricsTable = ({ metricData = [] }) => {
 };
 
 export default MetricsTable;
+  
