@@ -71,11 +71,11 @@ const QualityMetrics = ({ metricData = [] }) => {
     return parts.slice(-2).join(".");
   };
 
-  /*const interpretCyclomatic = (value) => {
+  const interpretCyclomatic = (value) => {
     if (value <= 10) return "Low Risk";
     if (value <= 20) return "Moderate Risk";
     return "High Risk";
-  }; */
+  }; 
 
   const handleRedirect = (path) => {
     navigate(`/dashboard/${encodeURIComponent(path)}`);
@@ -97,22 +97,12 @@ const QualityMetrics = ({ metricData = [] }) => {
         </p>
       </div>
 
-      {/*<div className="summary-card" onClick={() => handleRedirect("Quality Metrics")}>
-        <h3>Avg. Cyclomatic Complexity</h3>
-        <p>{metrics.avgCyclomatic}</p>
-        <h4>Max</h4>
-        <p>
-          {shortenClassName(metrics.maxCyclomaticClass)} ({metrics.maxCyclomatic}) –{" "}
-          {interpretCyclomatic(metrics.maxCyclomatic)}
-        </p>
-      </div> */}
-
       <div className="summary-card" onClick={() => handleRedirect("Lack of Cohesion of Methods")}>
         <h3>Best Cohesive Class</h3>
         <p style={cardStyle(true)}>
           {shortenClassName(metrics.cohesionBest.className)} ({metrics.cohesionBest.lackOfCohesion}%)
         </p>
-        <h4>Worst</h4>
+        <h4>Worst Cohesive Class</h4>
         <p style={cardStyle(false)}>
           {shortenClassName(metrics.cohesionWorst.className)} ({metrics.cohesionWorst.lackOfCohesion}%)
         </p>
@@ -123,11 +113,22 @@ const QualityMetrics = ({ metricData = [] }) => {
         <p style={cardStyle(false)}>
           {shortenClassName(metrics.couplingWorst.className)} ({metrics.couplingWorst.coupling})
         </p>
-        <h4>Least Coupled</h4>
+        <h4>Least Coupled Class</h4>
         <p style={cardStyle(true)}>
           {shortenClassName(metrics.couplingBest.className)} ({metrics.couplingBest.coupling})
         </p>
       </div>
+
+      <div className="summary-card" onClick={() => handleRedirect("Quality Metrics")}>
+        <h3>Avg. Weighted Methods Per Class </h3>
+        <p>{metrics.avgCyclomatic}</p>
+        <h4>Max Weighted Methods Per Class </h4>
+        <p style={cardStyle(false)}>
+          {shortenClassName(metrics.maxCyclomaticClass)} ({metrics.maxCyclomatic}) –{" "}
+          {interpretCyclomatic(metrics.maxCyclomatic)}
+        </p>
+      </div> 
+
     </div>
   );
 };
