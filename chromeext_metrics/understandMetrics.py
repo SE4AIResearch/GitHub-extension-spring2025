@@ -1,5 +1,5 @@
 #
-# Sample Understand Python API program 
+# Based on Sample Understand Python API program (Written by Jason Quinn)
 #
 # Synopsis: Outputs metrics for specified kinds of entities
 #
@@ -7,7 +7,7 @@
 #
 # Languages: Ada, Fortran, C/C++, Java
 #
-# Written by Jason Quinn
+# Written by Priyanshi Yadav
 #
 
 # 1/22/21

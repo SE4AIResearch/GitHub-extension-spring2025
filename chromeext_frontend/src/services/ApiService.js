@@ -199,17 +199,28 @@ export const AnalysisManager = {
         }
       }
       
-      if (data && data.class_metrics) {
-        console.log("Processing class_metrics data with", data.class_metrics.length, "items");
-        const extracted = data.class_metrics.map((item) => ({
-          className: item.name,
-          totalLOC: item.line,
-          lackOfCohesion: item.metrics.PercentLackOfCohesion || 0,
-          coupling: item.metrics.CountClassCoupled || 0,
-          cyclomatic: item.metrics.SumCyclomatic || 0,
-        }));
-        console.log("Extracted metrics:", extracted.length, "items");
-        return extracted;
+      // Return the full metrics data, including both class_metrics and cyclomatic_metrics
+      if (data) {
+        console.log("Received metrics data:", {
+          hasClassMetrics: !!data.class_metrics,
+          classMetricsCount: data.class_metrics?.length || 0,
+          hasCyclomaticMetrics: !!data.cyclomatic_metrics,
+          cyclomaticMetricsCount: data.cyclomatic_metrics?.length || 0
+        });
+        
+        // Process class metrics for backward compatibility
+        if (data.class_metrics) {
+          console.log("Processing class_metrics data with", data.class_metrics.length, "items");
+          data.class_metrics.forEach(item => {
+            item.className = item.name;
+            item.totalLOC = item.line;
+            item.lackOfCohesion = item.metrics?.PercentLackOfCohesion || 0;
+            item.coupling = item.metrics?.CountClassCoupled || 0;
+            item.cyclomatic = item.metrics?.SumCyclomatic || 0;
+          });
+        }
+        
+        return data;
       } else {
         console.error("Invalid metrics data format");
         throw new Error("Invalid metrics data format");
