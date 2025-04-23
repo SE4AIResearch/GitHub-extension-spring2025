@@ -4,6 +4,8 @@ import ChartTabs from "./components/ChartTabs.js";
 import Footer from "./components/Footer.js";
 import RepoAnalysis from "./components/RepoAnalysis.js";
 import QualityMetrics from "./components/QualityMetrics.js";
+import LargestClassesChart from "./components/LargestClassesChart.js";
+import MostComplexFunctionsChart from "./components/MostComplexFunctionsChart.js";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Bar } from "react-chartjs-2";
 import {
@@ -152,8 +154,16 @@ const Dashboard = () => {
   }, []);
 
   const getMostImpactedRecords = (limit = 5) => {
-    if (!metricData || metricData.length === 0) return [];
-    return [...metricData]
+    if (!metricData) return [];
+    
+    // If metricData is the full object with class_metrics
+    const classMetricsArray = Array.isArray(metricData.class_metrics) 
+      ? metricData.class_metrics 
+      : metricData;
+      
+    if (!classMetricsArray || classMetricsArray.length === 0) return [];
+    
+    return [...classMetricsArray]
       .map(cls => ({
         ...cls,
         impactScore: cls.totalLOC * 0.6 + cls.cyclomatic * 0.4
@@ -266,6 +276,13 @@ const Dashboard = () => {
                   </div>
                 );
               })}
+            </div>
+            
+            {/*Adding the charts for the largest classes and functions*/}
+            <h2 className="overview-heading" style={{ marginTop: "30px" }}>Largest Code Entities</h2>
+            <div className="overview-charts-container">
+              <LargestClassesChart metricsData={metricData} />
+              <MostComplexFunctionsChart metricsData={metricData} />
             </div>
           </div>
         )}

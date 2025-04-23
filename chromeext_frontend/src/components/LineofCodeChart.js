@@ -34,10 +34,17 @@ const LOCBarChart = ({ metricData = [] }) => {
   };
 
   useEffect(() => {
-    if (metricData && metricData.length > 0) {
-      const lineOfCodeData = metricData.map(item => ({
-        className: item.className,
-        totalLOC: item.totalLOC || 0
+    if (!metricData) return;
+    
+    // Changing the json data handling
+    const classMetricsArray = Array.isArray(metricData.class_metrics) 
+      ? metricData.class_metrics 
+      : Array.isArray(metricData) ? metricData : [];
+    
+    if (classMetricsArray.length > 0) {
+      const lineOfCodeData = classMetricsArray.map(item => ({
+        className: item.className || item.name,
+        totalLOC: item.totalLOC || item.line || item.metrics?.CountLineCode || 0
       }));
       setLocData(lineOfCodeData);
     }
@@ -96,16 +103,10 @@ const LOCBarChart = ({ metricData = [] }) => {
       tooltip: {
         callbacks: {
           label: (ctx) => {
-            const originalLabel = chartData.labels[ctx.dataIndex];
-            const shortLabel = shortenClassName(originalLabel);
-            const rawScore = ctx.raw;
-            let interpretation = "";
-            if (rawScore === 0) interpretation = "Perfect cohesion";
-            else if (rawScore > 0 && rawScore <= 1) interpretation = "Good cohesion";
-            else interpretation = "Low cohesion";
-            return `${ctx.dataset.label}: ${ctx.raw} | Class: ${shortLabel} | ${interpretation}`;
+            const className = data.labels[ctx.dataIndex];
+            const shortLabel = shortenClassName(className);
+            return `${ctx.dataset.label}: ${ctx.raw} | Class: ${shortLabel}`;
           }
-          
         },
       },
       legend: { display: false },

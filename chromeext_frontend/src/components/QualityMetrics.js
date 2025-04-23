@@ -18,37 +18,53 @@ const QualityMetrics = ({ metricData = [] }) => {
   });
 
   useEffect(() => {
-    if (!metricData.length) return;
+    if (!metricData) return;
+    
+    // Changing the json data handling
+    const classMetricsArray = Array.isArray(metricData.class_metrics) 
+      ? metricData.class_metrics 
+      : Array.isArray(metricData) ? metricData : [];
+    
+    if (!classMetricsArray.length) return;
 
-    const totalLOC = metricData.reduce((acc, cls) => acc + cls.totalLOC, 0);
-    const maxLOCObj = metricData.reduce((max, cls) =>
-      cls.totalLOC > max.totalLOC ? cls : max
+    // Extracting the data in a standard format for processing
+    const classMetricsData = classMetricsArray.map(cls => ({
+      className: cls.className || cls.name || "",
+      totalLOC: cls.totalLOC || cls.line || cls.metrics?.CountLineCode || 0,
+      cyclomatic: cls.cyclomatic || cls.metrics?.SumCyclomatic || 0,
+      lackOfCohesion: cls.lackOfCohesion || cls.metrics?.PercentLackOfCohesion || 0,
+      coupling: cls.coupling || cls.metrics?.CountClassCoupled || 0
+    }));
+
+    const totalLOC = classMetricsData.reduce((acc, cls) => acc + cls.totalLOC, 0);
+    const maxLOCObj = classMetricsData.reduce((max, cls) =>
+      cls.totalLOC > max.totalLOC ? cls : max, classMetricsData[0]
     );
     const maxLOC = maxLOCObj.totalLOC;
     const maxLOCClass = maxLOCObj.className;
 
     const avgCyclomatic = (
-      metricData.reduce((sum, cls) => sum + cls.cyclomatic, 0) / metricData.length
+      classMetricsData.reduce((sum, cls) => sum + cls.cyclomatic, 0) / classMetricsData.length
     ).toFixed(2);
 
-    const maxCyclomaticObj = metricData.reduce((max, cls) =>
-      cls.cyclomatic > max.cyclomatic ? cls : max
+    const maxCyclomaticObj = classMetricsData.reduce((max, cls) =>
+      cls.cyclomatic > max.cyclomatic ? cls : max, classMetricsData[0]
     );
     const maxCyclomatic = maxCyclomaticObj.cyclomatic;
     const maxCyclomaticClass = maxCyclomaticObj.className;
 
-    const cohesionBest = metricData.reduce((min, cls) =>
-      cls.lackOfCohesion < min.lackOfCohesion ? cls : min
+    const cohesionBest = classMetricsData.reduce((min, cls) =>
+      cls.lackOfCohesion < min.lackOfCohesion ? cls : min, classMetricsData[0]
     );
-    const cohesionWorst = metricData.reduce((max, cls) =>
-      cls.lackOfCohesion > max.lackOfCohesion ? cls : max
+    const cohesionWorst = classMetricsData.reduce((max, cls) =>
+      cls.lackOfCohesion > max.lackOfCohesion ? cls : max, classMetricsData[0]
     );
 
-    const couplingBest = metricData.reduce((min, cls) =>
-      cls.coupling < min.coupling ? cls : min
+    const couplingBest = classMetricsData.reduce((min, cls) =>
+      cls.coupling < min.coupling ? cls : min, classMetricsData[0]
     );
-    const couplingWorst = metricData.reduce((max, cls) =>
-      cls.coupling > max.coupling ? cls : max
+    const couplingWorst = classMetricsData.reduce((max, cls) =>
+      cls.coupling > max.coupling ? cls : max, classMetricsData[0]
     );
 
     setMetrics({

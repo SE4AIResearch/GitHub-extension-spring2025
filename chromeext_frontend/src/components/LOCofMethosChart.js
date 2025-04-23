@@ -36,13 +36,20 @@ const LOCofMethosChart = ({ metricData = [] }) => {
   };
 
   useEffect(() => {
-   if (metricData && metricData.length > 0) {
-      const mapped = metricData.map(item => ({
-        className: item.className,
-        lcom: item.lackOfCohesion || 0
-      }));
-      setLcomData(mapped);
-    }
+   if (!metricData) return;
+   
+   // Changing the json data handling
+   const classMetricsArray = Array.isArray(metricData.class_metrics) 
+     ? metricData.class_metrics 
+     : Array.isArray(metricData) ? metricData : [];
+   
+   if (classMetricsArray.length > 0) {
+     const mapped = classMetricsArray.map(item => ({
+       className: item.className || item.name,
+       lcom: item.lackOfCohesion || item.metrics?.PercentLackOfCohesion || 0
+     }));
+     setLcomData(mapped);
+   }
   }, [metricData]);
   
 
