@@ -1,3 +1,158 @@
+
+# Corrective Changes
+Purpose: Fixing defects or bugs in the system.
+
+INTENT: Bug Fix
+IMPACT: Correctness, reliability, and aligns with regression prevention and test-driven development (TDD).
+
+INTENT: Security Patch
+IMPACT: Addresses confidentiality, integrity, and availability based on security standards such as OWASP.
+
+INTENT: Crash Fix
+IMPACT: Enhances system resilience, ensures fail-safe design, and improves robustness.
+
+INTENT: Logic Error Correction
+IMPACT: Ensures functional correctness and logical validity using predicate logic.
+
+INTENT: Regression Fix
+IMPACT: Prevents the reintroduction of old bugs through regression testing and disciplined version control.
+
+INTENT: UI/UX Bug Fix
+IMPACT: Improves interface consistency and accessibility based on usability heuristics and design standards.
+
+INTENT: Performance Bug Fix
+IMPACT: Optimizes efficiency, reduces latency, and enhances resource utilization.
+
+# Perfective Changes
+Purpose: Improving performance, readability, or usability without altering core functionality.
+
+INTENT: Code Refactoring
+IMPACT: Follows clean code practices and software design principles like SRP, reducing coupling and improving cohesion.
+
+INTENT: Code Smell Resolution
+IMPACT: Eliminates bad design patterns, improves maintainability, and reduces technical debt.
+
+INTENT: Internal Quality Improvement
+IMPACT: Enhances software modularity, reduces cyclomatic complexity, and increases abstraction clarity.
+
+INTENT: External Quality Improvement
+IMPACT: Improves responsiveness, user satisfaction, and interface behavior without changing internal logic.
+
+INTENT: Documentation Update
+IMPACT: Enhances knowledge transfer, supports maintainability, and provides better developer onboarding.
+
+INTENT: Logging Improvements
+IMPACT: Increases observability, improves system debuggability, and aids in post-mortem analysis.
+
+INTENT: Improving Test Coverage
+IMPACT: Boosts defect detection rate and confidence in system behavior through line and branch coverage.
+
+INTENT: Optimization (Speed, Memory, etc.)
+IMPACT: Enhances algorithmic efficiency using profiling tools and performance tuning.
+
+# Adaptive Changes
+Purpose: Modifying software to support new or evolving environments.
+
+INTENT: Platform Migration
+IMPACT: Improves portability and supports abstraction across heterogeneous systems.
+
+INTENT: Library/Dependency Update
+IMPACT: Ensures up-to-date security and semantic version compatibility.
+
+INTENT: Framework Upgrade
+IMPACT: Increases maintainability and unlocks new features through backward-compatible evolution.
+
+INTENT: OS Compatibility Update
+IMPACT: Aligns software with platform-specific runtime behavior and optimizations.
+
+INTENT: Hardware Adaptation
+IMPACT: Supports embedded constraints and optimizes for device-specific performance.
+
+INTENT: Cloud/Container Adaptation
+IMPACT: Implements 12-factor app principles and improves scalability via infrastructure as code.
+
+INTENT: Feature Addition
+IMPACT: Expands functional completeness and meets new business requirements.
+
+INTENT: Feature Update/Improvement
+IMPACT: Enhances existing functionality and incorporates user feedback or usability data.
+
+INTENT: New Module Integration
+IMPACT: Improves modularity, enables plugin architectures, and supports better separation of concerns.
+
+INTENT: Enhancement of Existing Functionality
+IMPACT: Refines usability and performance while preserving backward compatibility.
+
+INTENT: API Addition/Modification
+IMPACT: Defines clean contracts using OpenAPI or equivalent standards and improves extensibility.
+
+INTENT: UI Feature Expansion
+IMPACT: Supports advanced UX and component reuse through design system integration.
+
+# Preventive Changes
+Purpose: Enhancing maintainability and reducing long-term risks.
+
+INTENT: Removing Dead Code
+IMPACT: Simplifies the codebase, reduces risk, and improves readability through cleaner logic.
+
+INTENT: Automated Test Addition
+IMPACT: Strengthens the feedback loop, ensures coverage, and supports CI/CD pipelines.
+
+INTENT: Static Analysis Fixes
+IMPACT: Enforces linting rules and contract-based verification for early error detection.
+
+INTENT: Upgrade Build Scripts / CI/CD
+IMPACT: Streamlines release pipelines and ensures consistent builds through DevOps automation.
+
+INTENT: Security Hardening
+IMPACT: Mitigates vulnerabilities and improves system integrity using secure defaults and access controls.
+
+INTENT: Tech Debt Cleanup
+IMPACT: Reduces long-term maintenance costs and aligns code with architectural standards.
+
+INTENT: Architecture Refactoring
+IMPACT: Supports scalability and maintainability by re-aligning system structure with layered or service-based architecture.
+
+# Refactoring-Guru Based Enhancements
+
+INTENT: Extract Method
+IMPACT: Increases cohesion and modularity by isolating sub-procedures into independent functions.
+
+INTENT: Inline Method
+IMPACT: Simplifies structure by removing unnecessary delegation and improving flow readability.
+
+INTENT: Replace Temp with Query
+IMPACT: Eliminates temporary state and reduces duplication to conform with DRY principle.
+
+INTENT: Move Method/Field
+IMPACT: Improves cohesion and reduces inappropriate intimacy between classes.
+
+INTENT: Extract Class
+IMPACT: Resolves Large Class smell and aligns with SRP by redistributing responsibilities.
+
+INTENT: Inline Class
+IMPACT: Simplifies object hierarchies by eliminating unnecessary abstraction layers.
+
+INTENT: Replace Conditional with Polymorphism
+IMPACT: Reduces branching complexity and promotes extensibility through polymorphic dispatch.
+
+INTENT: Introduce Null Object
+IMPACT: Improves robustness by avoiding null reference checks and supporting predictable defaults.
+
+INTENT: Encapsulate Collection
+IMPACT: Ensures controlled access and integrity for mutable list-based fields.
+
+INTENT: Encapsulate Field
+IMPACT: Promotes encapsulation by mediating access to class internals.
+
+INTENT: Rename Method/Parameter
+IMPACT: Improves readability, reduces ambiguity, and aligns naming with domain semantics.
+
+INTENT: Replace Type Code with Subclasses
+IMPACT: Promotes OO design by encapsulating behavior within specialized types.
+
+
+-------------------------------------------------------------------------------------
 I. I NTRODUCTION
 The success of a software system depends on its ability to
 retain high-quality design in the face of continuous change.
