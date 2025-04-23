@@ -23,7 +23,7 @@ public class LLM {
                 "\n" +
                 "MANDATORY FORMAT:\n" +
                 "SUMMARY: A concise technical description of the change (1–2 lines max), " +
-                "INTENT: All the ones which apply: Fixed Bug, Improved Internal Quality, Improved External Quality, Feature Update, Code Smell Resolution, " +
+                "INTENT: All the ones which apply: Fixed Bug, Improved Internal Quality, Improved External Quality, Feature Update, and Code Smell Resolution.  You can also find other intenets in the code. Also point out the reason for the intent in the code." +
                 "IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability.\n" +
                 "\n" +
                 "You MUST include all three sections. Always use the specified keywords for INTENT.\n" +
@@ -34,12 +34,12 @@ public class LLM {
                 "\n" +
                 "Example 1:\n" +
                 "SUMMARY: Replaced nested loops with a hash-based lookup in UserProcessor.java.\n" +
-                "INTENT: Improved Internal Quality, Fixed Bug\n" +
+                "INTENT: Improved Internal Quality, Fixed Bug(in the UserProcessor.java line 12)\n" +
                 "IMPACT: Reduced time complexity from O(n^2) to O(n), improving efficiency and code clarity.\n" +
                 "\n" +
                 "Example 2:\n" +
                 "SUMMARY: Fixed null pointer exception in PaymentService.java during refund processing.\n" +
-                "INTENT: Fixed Bug\n" +
+                "INTENT: Fixed Bug (in PaymentService.java line 127)\n" +
                 "IMPACT: Enhanced system stability by preventing crashes and improving error handling.\n" +
                 "\n" +
                 "Example 3:\n" +
@@ -54,7 +54,7 @@ public class LLM {
                 "\n" +
                 "Example 5:\n" +
                 "SUMMARY: Removed redundant code and improved variable naming in DataProcessor.java.\n" +
-                "INTENT: Code Smell Resolution, Improved Internal Quality\n" +
+                "INTENT: Code Smell Resolution (due the update method in DataProcessor.java), Improved Internal Quality\n" +
                 "IMPACT: Enhanced readability and maintainability by reducing code clutter and clarifying functionality.\n" +
                 "\n" +
                 "Example 6:\n" +
@@ -87,8 +87,8 @@ public class LLM {
                 "\n" +
                 "MANDATORY FORMAT:\n" +
                 "SUMMARY: A in-depth technical description of the change (2-3 lines max), " +
-                "INTENT: All the ones which apply: Fixed Bug, Internal Quality Improvement, External Quality Improvement, Feature Update, Code Smell Resolution, " +
-                "IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability more in depth and related to the code changes, the summary and the intent generated, and ensure to elaborate on how the intent and impact are related.\n" +
+                "INTENT: Give a software change classification such as Fixed Bug, Internal Quality Improvement, External Quality Improvement, Feature Update, Code Smell Resolution, Refactoring, Performance Optimization, Security Patch, Test Addition, Test Update, Test Removal, Logging Improvement, Dependency Update, Documentation Update, UI/UX Enhancement. Don't be limited to this list. You can also find other classification in the code." +
+                "IMPACT: Explain how the change affects the codebase. Use software engineering concepts to justify the impact in terms of maintainability, readability, modularity, usability, performance, or reliability. Relate the impact directly to the INTENT and specific code changes using precise terminology (e.g., increased cohesion, reduced coupling, improved abstraction, lowered cyclomatic complexity).\n" +
                 "\n" +
                 "You MUST include all three sections. Always use the specified keywords for INTENT.\n" +
                 "\n" +
@@ -98,7 +98,7 @@ public class LLM {
                 "SUMMARY: Replaced nested loop in UserProcessor.java with a HashMap<String, User> for O(1) user lookups. " +
                 "Modified UserValidator.java to skip invalid entries early. Added testProcessUsers_withValidAndInvalidIds() " +
                 "in UserProcessorTest.java to validate edge behavior and ensure consistent output.\n" +
-                "INTENT: Improved Internal Quality, Fixed Bug\n" +
+                "INTENT: Improved Internal Quality, Fixed Bug (in the UserProcessor.java line 12)\n" +
                 "IMPACT: Eliminated redundant iterations during user reconciliation, cutting execution time in half for large datasets. " +
                 "Made UserProcessor deterministic and easier to reason about.\n\n" +
 
@@ -130,7 +130,7 @@ public class LLM {
                 "SUMMARY: Removed deprecated normalizeData() and oldTransform() from DataProcessor.java. " +
                 "Renamed cryptic variables like x1 → rawInputLine in DataParser.java. " +
                 "Added testCleanDataTransformation() in DataProcessorTest.java to validate outputs.\n" +
-                "INTENT: Code Smell Resolution, Improved Internal Quality\n" +
+                "INTENT: Code Smell Resolution (due the update method in DataProcessor.java), Improved Internal Quality\n" +
                 "IMPACT: Improved comprehension and maintainability by eliminating misleading code paths. " +
                 "Refactor reduced onboarding time for new devs and lowered risk of reintroducing legacy bugs.\n\n" +
 
@@ -144,7 +144,7 @@ public class LLM {
                 "\n" +
                 "Example 6:\n" +
                 "SUMMARY: Enhanced error messages in the user interface for better clarity during failures.\n" +
-                "INTENT: Improved External Quality\n" +
+                "INTENT: Improved External Quality (The API error message displayed in JSON)\n" +
                 "IMPACT: Improved user experience by providing actionable information during errors.\n" +
                 "\n" +
                 "Now, generate the structured summary for:\n" +
