@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+/*  CBOHistogram.js  */
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -14,203 +15,162 @@ import "rc-slider/assets/index.css";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title);
 
-const CBOHistogram = () => {
-  const [allData, setAllData] = useState([]);
-  const [histData, setHistData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const chartRef = useRef(null);
+const BIN_SIZE = 1;                // 0-0.99, 1-1.99, …
 
-  const [range, setRange] = useState([0, 10]); // Adjust max value as per your dataset
-  const [selectedClass, setSelectedClass] = useState("All");
+export default function CBOHistogram({ metricData = [] }) {
+  /* ---------- normalise the prop (sometimes object, sometimes array) */
+  const rows = useMemo(() => {
+    if (Array.isArray(metricData)) return metricData;
+    if (metricData && Array.isArray(metricData.class_metrics))
+      return metricData.class_metrics;
+    return [];                            // nothing yet / wrong shape
+  }, [metricData]);
 
+  /* ---------- UI state --------------------------------------------- */
+  const [range,    setRange]    = useState([0, 10]);   // slider
+  const [selected, setSelected] = useState("All");     // dropdown
+  const [hist,     setHist]     = useState(null);      // labels, counts …
+  const chartRef               = useRef(null);
+
+  /* ---------- rebuild histogram whenever filters OR data change ---- */
   useEffect(() => {
-    fetch("/hadoop_5427775_latest.json")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then((data) => {
-        const classMetrics = data.class_metrics || [];
-        setAllData(classMetrics);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching JSON:", err);
-        setLoading(false);
-      });
-  }, []);
+    if (!rows.length) { setHist(null); return; }
 
-  useEffect(() => {
-    if (allData.length === 0) return;
-    
-    // Filter data based on selected range and class.
-    const filtered = allData.filter((cls) => {
-      const cbo = cls.metrics?.CountClassCoupled ?? 0;
-      const inRange = cbo >= range[0] && cbo <= range[1];
-      const classMatch = selectedClass === "All" || cls.name === selectedClass;
-      return inRange && classMatch;
+    /* --- 1. adapt the slider max once the data arrive -------------- */
+    const maxCbo = Math.max(0, ...rows.map(r => r.metrics?.CountClassCoupled ?? 0));
+    setRange(r => (r[1] < maxCbo ? [0, Math.max(maxCbo, 10)] : r));
+
+    /* --- 2. filter -------------------------------------------------- */
+    const filtered = rows.filter(r => {
+      const cbo = r.metrics?.CountClassCoupled ?? 0;
+      const ok1 = cbo >= range[0] && cbo <= range[1];
+      const ok2 = selected === "All" || r.name === selected;
+      return ok1 && ok2;
     });
 
-    const freqMap = {};
-    filtered.forEach((cls) => {
-      const cbo = cls.metrics?.CountClassCoupled ?? 0;
-      if (!freqMap[cbo]) {
-        freqMap[cbo] = { count: 0, details: [] };
-      }
-      freqMap[cbo].count += 1;
-      freqMap[cbo].details.push({
-        className: cls.name || "Unnamed Class",
-        file: cls.file || "N/A",
-      });
+    /* --- 3. fixed-width binning ------------------------------------ */
+    const binCnt  = Math.floor(maxCbo / BIN_SIZE) + 1;
+    const counts  = Array.from({ length: binCnt }, _ => 0);
+    const details = Array.from({ length: binCnt }, _ => []);
+
+    filtered.forEach(r => {
+      const cbo = r.metrics?.CountClassCoupled ?? 0;
+      const b   = Math.floor(cbo / BIN_SIZE);
+      counts[b] += 1;
+      details[b].push(r.name);
     });
 
-    const bins = Object.keys(freqMap).map(Number).sort((a, b) => a - b);
-    const labels = bins.map((bin) => `${bin}`);
-    const counts = bins.map((bin) => freqMap[bin].count);
-    const detailsPerBin = bins.map((bin) => freqMap[bin].details);
+    const labels = counts.map((_, i) => `${i * BIN_SIZE}`);
 
-    setHistData({ bins, labels, counts, detailsPerBin, filteredCount: filtered.length });
-  }, [allData, range, selectedClass]);
+    setHist({ labels, counts, details, filtered: filtered.length });
+  }, [rows, range, selected]);
 
-  const threshold = 2;
-  const backgroundColors = histData
-    ? histData.bins.map((bin) =>
-        bin >= threshold ? "rgba(255, 99, 132, 0.5)" : "rgba(75, 192, 192, 0.5)"
-      )
+  /* ---------- chart-js config -------------------------------------- */
+  const colours = hist
+    ? hist.labels.map((_, i) =>
+        i >= 3 ? "rgba(255,99,132,0.6)" : "rgba(75,192,192,0.6)")
     : [];
 
-  const dataConfig = {
-    labels: histData?.labels || [],
-    datasets: [
-      {
-        label: "Number of Classes",
-        data: histData?.counts || [],
-        backgroundColor: backgroundColors,
-        borderColor: backgroundColors.map((color) => color.replace("0.5", "1")),
-        borderWidth: 1,
-      },
-    ],
-  };
+  const data = hist
+    ? {
+        labels: hist.labels,
+        datasets: [
+          {
+            label: "Number of classes",
+            data: hist.counts,
+            backgroundColor: colours,
+            borderWidth: 0,
+            categoryPercentage: 1,
+            barPercentage: 1,
+          },
+        ],
+      }
+    : { labels: [], datasets: [] };
 
   const options = {
+    maintainAspectRatio: false,
+    scales: {
+      x: { title: { display: true, text: "CBO value (bin centre)" } },
+      y: {
+        beginAtZero: true,
+        ticks: { stepSize: 1 },
+        title: { display: true, text: "Number of classes" },
+      },
+    },
     plugins: {
+      legend:   { display: false },
+      title:    { display: true, text: "CBO Histogram", font: { size: 20 } },
+      subtitle: {
+        display: !!hist,
+        text: hist ? `Total filtered classes: ${hist.filtered}` : "",
+        font: { size: 14 },
+      },
       tooltip: {
         callbacks: {
-          label: (ctx) => {
+          label: ctx => {
             const idx = ctx.dataIndex;
-            const count = ctx.dataset.data[idx];
-            const details = histData.detailsPerBin[idx] || [];
-            let tooltipLines = [`Count: ${count}`];
-            details.forEach((item) => {
-              tooltipLines.push(`- ${item.className}`);
-            });
-            return tooltipLines;
+            const list = hist.details[idx] || [];
+            return [`Count: ${ctx.raw}`, ...list];
           },
         },
       },
-      legend: { display: false },
-      title: {
-        display: true,
-        text: "CBO Histogram",
-        font: { size: 20 },
-      },
-      subtitle: {
-        display: true,
-        text: histData ? `Total Filtered Classes: ${histData.filteredCount}` : "",
-        font: { size: 14 },
-      },
-    },
-    scales: {
-      x: {
-        title: { display: true, text: "CBO Value" },
-      },
-      y: {
-        beginAtZero: true,
-        title: { display: true, text: "Number of Classes" },
-        ticks: { stepSize: 1 },
-      },
-    },
-    maintainAspectRatio: false,
-    onClick: (event) => {
-      if (chartRef.current && histData) {
-        const chart = chartRef.current;
-        const elements = chart.getElementsAtEventForMode(
-          event,
-          "nearest",
-          { intersect: true },
-          false
-        );
-        if (elements.length) {
-          const index = elements[0].index;
-          const details = histData.detailsPerBin[index] || [];
-          let message = `Classes with CBO = ${histData.labels[index]}:\n`;
-          details.forEach((item) => {
-            message += `\nClass: ${item.className}\nFile: ${item.file}\n`;
-          });
-          alert(message);
-        }
-      }
     },
   };
 
-  // Generate unique class names for the dropdown.
-  const allClassNames = Array.from(
-    new Set(allData.map((cls) => cls.name || "Unnamed Class"))
+  /* ---------- dropdown list --------------------------------------- */
+  const classNames = useMemo(
+    () => Array.from(new Set(rows.map(r => r.name))).sort(),
+    [rows]
   );
 
+  /* ---------- render ---------------------------------------------- */
   return (
     <div style={{ width: "80%", margin: "0 auto" }}>
-      {loading ? (
-        <p>Loading data...</p>
+      {!rows.length ? (
+        <p>Loading data…</p>
       ) : (
         <>
-          {/* FILTERS SECTION */}
-          <div style={{ display: "flex", gap: "50px", marginBottom: "20px" }}>
-            {/* Range Slider Filter */}
-            <div style={{ width: "250px" }}>
+          {/*  filters  */}
+          <div style={{ display: "flex", gap: 40, marginBottom: 20 }}>
+            {/*  range slider  */}
+            <div style={{ width: 260 }}>
               <label style={{ fontFamily: "Poppins" }}>
-                Filter by CBO Range: {range[0]} – {range[1]}
+                Latest CBO range: {range[0]} – {range[1]}
               </label>
               <Slider
                 range
                 min={0}
-                max={100} 
-                step={1}
+                max={range[1]}
                 value={range}
                 onChange={setRange}
                 allowCross={false}
-                style={{ marginTop: "0.5rem" }}
-                trackStyle={[{ backgroundColor: "#007b83" }]}
+                trackStyle={[{ background: "#007b5e" }]}
                 handleStyle={[
-                  { borderColor: "#007b83" },
-                  { borderColor: "#007b83" },
+                  { borderColor: "#007b5e" },
+                  { borderColor: "#007b5e" },
                 ]}
               />
             </div>
-            {/* Class Dropdown Filter */}
-            <div style={{ width: "250px" }}>
-              <label style={{ fontFamily: "Poppins" }}>Filter by Class:</label>
+            {/*  class dropdown  */}
+            <div style={{ width: 260 }}>
+              <label style={{ fontFamily: "Poppins" }}>Filter by class:</label>
               <select
-                style={{ width: "100%", padding: "6px", fontFamily: "Poppins" }}
-                value={selectedClass}
-                onChange={(e) => setSelectedClass(e.target.value)}
+                style={{ width: "100%", padding: 6, fontFamily: "Poppins" }}
+                value={selected}
+                onChange={e => setSelected(e.target.value)}
               >
                 <option value="All">All</option>
-                {allClassNames.map((clsName, idx) => (
-                  <option key={idx} value={clsName}>
-                    {clsName}
-                  </option>
+                {classNames.map(c => (
+                  <option key={c}>{c}</option>
                 ))}
               </select>
             </div>
           </div>
 
-          {/* HISTOGRAM */}
-          <div style={{ width: "100%", height: "500px" }}>
-            {histData && histData.labels.length > 0 ? (
-              <Bar data={dataConfig} options={options} ref={chartRef} />
+          {/*  histogram  */}
+          <div style={{ width: "100%", height: 500 }}>
+            {hist && hist.filtered ? (
+              <Bar ref={chartRef} data={data} options={options} />
             ) : (
               <p>No data matches your filter selection.</p>
             )}
@@ -219,6 +179,4 @@ const CBOHistogram = () => {
       )}
     </div>
   );
-};
-
-export default CBOHistogram;
+}

@@ -26,7 +26,7 @@ const ChartTabs = ({ activeTab: initialTab, setActiveTabInParent, metricData = [
     "Metric Summary",
     "Lack of Cohesion of Methods",
     "Line of Code",
-    "Coupling Between Objects Histogram",
+    "Coupling Between Objects",
     "Trend History",
     "High Risk Classes Chart"
   ];
@@ -36,7 +36,7 @@ const ChartTabs = ({ activeTab: initialTab, setActiveTabInParent, metricData = [
       case "Metric Summary":
         return <MetricSummary metricData={metricData} />;
       case "Coupling Between Objects Histogram":
-        return <CBOHistogram />;
+        return <CBOHistogram metricData={metricData} />; // Ali change this line
       case "Lack of Cohesion of Methods":
         return <LOCofMethosChart metricData={metricData} />;
       case "Line of Code":
