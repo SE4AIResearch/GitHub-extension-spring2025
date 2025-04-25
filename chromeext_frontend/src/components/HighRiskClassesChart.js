@@ -22,6 +22,7 @@ const RISK_LEVELS = {
 const HighRiskClassesChart = ({ metricData = [] }) => {
   const [chartData, setChartData] = useState([]);
   const [classMetricsArray, setClassMetricsArray] = useState([]);
+  const [selectedBubbleIndex, setSelectedBubbleIndex] = useState(null);
   const [riskFilter, setRiskFilter] = useState(RISK_LEVELS.ALL);
   const [processedData, setProcessedData] = useState([]);
 
@@ -200,6 +201,8 @@ const HighRiskClassesChart = ({ metricData = [] }) => {
 
   return (
     <div className="high-risk-bubble-wrapper">
+        <h1>High Risk CLasses Metric</h1>
+        <p>Click on the bubble to get more details</p>
       <div className="risk-filter-controls" style={{ marginBottom: "10px", display: "flex", justifyContent: "center" }}>
         <select
           value={riskFilter}
@@ -228,7 +231,19 @@ const HighRiskClassesChart = ({ metricData = [] }) => {
               : `No ${riskFilter} classes found.`}
           </div>
         ) : (
-          <Bubble data={data} options={options} />
+          <Bubble
+            data={data}
+            options={{
+              ...options,
+              onClick: (event, elements) => {
+                if (elements.length > 0) {
+                  const idx = elements[0].index;
+                  setSelectedBubbleIndex(idx);
+                }
+              },
+            }}
+          />
+
         )}
       </div>
     </div>
