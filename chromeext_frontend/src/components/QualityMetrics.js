@@ -136,9 +136,9 @@ const QualityMetrics = ({ metricData = [] }) => {
       </div>
 
       <div className="summary-card" onClick={() => handleRedirect("Quality Metrics")}>
-        <h3>Avg. Weighted Methods Per Class </h3>
+        <h3>Avg. cyclomatic complexity Per Class</h3>
         <p>{metrics.avgCyclomatic}</p>
-        <h4>Max Weighted Methods Per Class </h4>
+        <h4>Max cyclomatic complexity Per Class </h4>
         <p style={cardStyle(false)}>
           {shortenClassName(metrics.maxCyclomaticClass)} ({metrics.maxCyclomatic}) –{" "}
           {interpretCyclomatic(metrics.maxCyclomatic)}

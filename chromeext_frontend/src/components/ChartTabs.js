@@ -4,7 +4,7 @@ import MetricSummary from "./MetricSummary.js";
 import LOCofMethosChart from "./LOCofMethosChart.js";
 import LineofCode from "./LineofCodeChart.js";
 import TrendHistoryChart from "./TrendsHistory.js";
-import CBOHistogram from "./CBOHistogram.js";
+import CBOChart from "./CouplingBetweenObjectChart.js";
 import HighRiskClassesChart from "./HighRiskClassesChart.js";
 import { useNavigate } from "react-router-dom";
 
@@ -24,8 +24,8 @@ const ChartTabs = ({ activeTab: initialTab, setActiveTabInParent, metricData = [
 
   const tabs = [
     "Metric Summary",
-    "Lack of Cohesion of Methods",
     "Line of Code",
+    "Lack of Cohesion of Methods",
     "Coupling Between Objects",
     "Trend History",
     "High Risk Classes Chart"
@@ -35,12 +35,12 @@ const ChartTabs = ({ activeTab: initialTab, setActiveTabInParent, metricData = [
     switch (activeTab) {
       case "Metric Summary":
         return <MetricSummary metricData={metricData} />;
-      case "Coupling Between Objects Histogram":
-        return <CBOHistogram metricData={metricData} />; // Ali change this line
-      case "Lack of Cohesion of Methods":
-        return <LOCofMethosChart metricData={metricData} />;
       case "Line of Code":
         return <LineofCode metricData={metricData} />;
+      case "Lack of Cohesion of Methods":
+        return <LOCofMethosChart metricData={metricData} />;
+      case "Coupling Between Objects":
+          return <CBOChart metricData={metricData} />;  
       case "Trend History":
         return <TrendHistoryChart metricData={metricData} />;
       case "High Risk Classes Chart" :

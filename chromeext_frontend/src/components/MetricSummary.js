@@ -7,15 +7,23 @@ const shortenClassName = (fullName) => {
 };
 
 const getTopImportantClasses = (data, limit = 5) => {
-  if (!data || data.length === 0) return [];
+  if (!Array.isArray(data) || data.length === 0) return [];
 
-  const maxLOC = Math.max(...data.map((d) => d.totalLOC || 0));
-  const maxCyclo = Math.max(...data.map((d) => d.cyclomatic || 0));
+  const parsedData = data.map(cls => ({
+    className: cls.className || cls.name || "Unnamed",
+    totalLOC: cls.totalLOC || cls.line || cls.metrics?.CountLineCode || 0,
+    cyclomatic: cls.cyclomatic || cls.metrics?.SumCyclomatic || 0,
+  })).filter(cls =>
+    (cls.totalLOC || 0) > 0 || (cls.cyclomatic || 0) > 0
+  );
 
-  return [...data]
+  const maxLOC = Math.max(...parsedData.map((d) => d.totalLOC || 0), 1);
+  const maxCyclo = Math.max(...parsedData.map((d) => d.cyclomatic || 0), 1);
+
+  return parsedData
     .map((item) => {
-      const normalizedLOC = (item.totalLOC || 0) / (maxLOC || 1);
-      const normalizedCyclo = (item.cyclomatic || 0) / (maxCyclo || 1);
+      const normalizedLOC = (item.totalLOC || 0) / maxLOC;
+      const normalizedCyclo = (item.cyclomatic || 0) / maxCyclo;
       return {
         ...item,
         impactScore: (normalizedLOC + normalizedCyclo).toFixed(2),
@@ -26,7 +34,11 @@ const getTopImportantClasses = (data, limit = 5) => {
 };
 
 const MetricsTable = ({ metricData = [] }) => {
-  const topClasses = getTopImportantClasses(metricData);
+  const safeData = Array.isArray(metricData.class_metrics)
+    ? metricData.class_metrics
+    : Array.isArray(metricData) ? metricData : [];
+
+  const topClasses = getTopImportantClasses(safeData);
 
   return (
     <div className="metrics-table">
@@ -58,4 +70,3 @@ const MetricsTable = ({ metricData = [] }) => {
 };
 
 export default MetricsTable;
-  

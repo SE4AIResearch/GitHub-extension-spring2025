@@ -12,23 +12,23 @@ const Footer = () => {
   return (
     <footer className="dashboard-footer">
       
-      <div className="footer-center">
-        <div className="footer-ids">
+     {/* <div className="footer-center">
+         <div className="footer-ids">
           {team.map((member, index) => (
             <div key={index} className="team-member">
             <strong>{member.name}</strong>
             </div>
           ))}
         </div>
-      </div>
-      <div className="footer-left">
+      </div> */}
+     {/*  <div className="footer-left">
         <p>SSW 695<br />Software Engineering Capstone Studio</p>
       </div>
 
       <div className="footer-right">
         <p>Stevens Institute of Technology</p>
       </div>
-
+ */}
       <div className="footer-bottom">
         <a
           href="https://github.com/SE4AIResearch/GitHub-extension-spring2025"
