@@ -94,7 +94,7 @@
   font-style: italic;
   margin-bottom: 20px;
 }
-/*
+
 .metrics-table table {
   width: 100%;
   border-collapse: collapse;
@@ -115,7 +115,7 @@
 
 .metrics-table tr:hover {
   background-color: #fafafa;
-}*/
+}
 
 
 .chart-tabs-wrapper {
@@ -603,6 +603,9 @@ body, html, #root {
   width: 100%;
   padding: 20px;
   font-family: "Poppins", sans-serif;
+  max-height: 100vh;
+  overflow-y: auto;
+  padding-bottom: 20px;
 }
 
 
@@ -835,6 +838,7 @@ body, html, #root {
   margin-left: auto;
   margin-right: auto;
   text-align: left;
+  overflow-x: auto; 
 }
 
 .bubble-details-card h3 {
@@ -865,6 +869,8 @@ body, html, #root {
   list-style: none;
   padding-left: 0;
   margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .bubble-details-card li {

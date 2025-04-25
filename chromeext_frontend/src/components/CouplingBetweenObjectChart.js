@@ -3,17 +3,18 @@ import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   BarElement,
-  CategoryScale,
   LinearScale,
   Tooltip,
   Legend,
   Title,
+  PointElement,
+  CategoryScale
 } from "chart.js";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import Select from "react-select";
 
-ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title);
+ChartJS.register(BarElement, LinearScale, Tooltip, Legend, Title, CategoryScale);
 
 const BIN_SIZE = 1;
 
@@ -30,12 +31,12 @@ export default function CBOHistogram({ metricData = [] }) {
       ? metricData
       : [];
 
-      const mapped = classMetricsArray.map(item => ({
-        className: item.className || item.name,
-        cbo: item.coupling || item.metrics?.CountClassCoupled || 0,
-        cyclomatic: item.cyclomatic || item.metrics?.SumCyclomatic || 0,
-        loc: item.line || item.totalLOC || item.metrics?.CountLineCode || 0,
-      }));      
+    const mapped = classMetricsArray.map(item => ({
+      className: item.className || item.name,
+      cbo: item.coupling || item.metrics?.CountClassCoupled || 0,
+      cyclomatic: item.cyclomatic || item.metrics?.SumCyclomatic || 0,
+      loc: item.line || item.totalLOC || item.metrics?.CountLineCode || 0,
+    }));
 
     setCboData(mapped);
   }, [metricData]);
@@ -57,27 +58,25 @@ export default function CBOHistogram({ metricData = [] }) {
     return bins;
   }, [filtered]);
 
-  const labels = Object.keys(binCounts).map(bin => `${bin * BIN_SIZE}`);
-  const counts = Object.values(binCounts).map(b => b.count);
-  const classDetails = Object.values(binCounts).map(b => b.classes);
+  const dataPoints = Object.keys(binCounts).map(bin => ({
+    x: Number(bin) * BIN_SIZE + BIN_SIZE / 2,
+    y: binCounts[bin].count,
+    classes: binCounts[bin].classes
+  }));
 
   const chartData = {
-    labels,
     datasets: [
       {
         label: "Number of Classes",
-        data: counts,
-        backgroundColor: labels.map((_, i) =>
-          i >= 3 ? "rgba(255, 99, 132, 0.7)" : "rgba(209, 236, 244, 0.5)"
-        ),
-        borderColor: labels.map((_, i) =>
-          i >= 3 ? "rgba(248, 3, 56, 0.7)" : "rgb(16, 110, 80)"
-        ),
+        data: dataPoints,
+        backgroundColor: dataPoints.map((_, i) => i >= 3 ? "rgba(255, 99, 132, 0.7)" : "rgba(209, 236, 244, 0.5)"),
+        borderColor: dataPoints.map((_, i) => i >= 3 ? "rgba(248, 3, 56, 0.7)" : "rgb(16, 110, 80)"),
         borderWidth: 1,
-        categoryPercentage: 0.9,
-        barPercentage: 0.9,
-      },
-    ],
+        categoryPercentage: 1.0,
+        barPercentage: 1.0,
+        parsing: false,
+      }
+    ]
   };
 
   const options = {
@@ -93,27 +92,29 @@ export default function CBOHistogram({ metricData = [] }) {
       legend: { display: false },
       title: {
         display: true,
-        //text: "Coupling Between Objects (CBO Histogram)",
-        font: { size: 20 },
+        text: "Coupling Between Objects (Histogram)",
+        font: { size: 20 }
       },
       tooltip: {
         callbacks: {
           label: ctx => {
             const index = ctx.dataIndex;
-            return [`Count: ${ctx.raw}`, ...classDetails[index]];
-          },
-        },
-      },
+            return [`Count: ${ctx.raw.y}`, ...dataPoints[index].classes];
+          }
+        }
+      }
     },
     scales: {
       x: {
-        title: { display: true, text: "CBO Value (Bin Center)" },
+        type: 'linear',
+        title: { display: true, text: "CBO Value" },
+        ticks: { stepSize: 1 }
       },
       y: {
-        title: { display: true, text: "Number of Classes" },
         beginAtZero: true,
-      },
-    },
+        title: { display: true, text: "Number of Classes" }
+      }
+    }
   };
 
   return (
@@ -134,18 +135,17 @@ export default function CBOHistogram({ metricData = [] }) {
         </div>
       </div>
 
-      <h2>Coupling between the Objects Metric</h2>
+      <h2>Coupling Between the Objects Metric</h2>
       <p>Click on the bar to get more details</p>
       <div className="CBO-top-section horizontal-layout">
         <div className="cbo-vertical-slider-container">
           <div className="cbo-slider-wrapper">
-            <div className="cnbo-slider-text">
+            <div className="cbo-slider-text">
               CBO Range: {range[0]} – {range[1]}
             </div>
             <div>100</div>
             <Slider
               range
-              horizontal
               min={0}
               max={100}
               value={range}
@@ -154,7 +154,7 @@ export default function CBOHistogram({ metricData = [] }) {
               trackStyle={[{ backgroundColor: "#007b5e" }]}
               handleStyle={[
                 { borderColor: "#007b5e", backgroundColor: "#fff" },
-                { borderColor: "#007b5e", backgroundColor: "#fff" },
+                { borderColor: "#007b5e", backgroundColor: "#fff" }
               ]}
             />
             <div>0</div>
@@ -166,16 +166,19 @@ export default function CBOHistogram({ metricData = [] }) {
         </div>
       </div>
 
-      {selectedBarIndex !== null && classDetails[selectedBarIndex] && (
+      {selectedBarIndex !== null && dataPoints[selectedBarIndex] && (
         <div className="cbo-details-card">
           <h3>
-            {`Classes in CBO Range ${labels[selectedBarIndex]}`}
-            <button className="cbo-details-close-btn" onClick={() => setSelectedBarIndex(null)}>
+            Classes in CBO Range {dataPoints[selectedBarIndex].x - 0.5} - {dataPoints[selectedBarIndex].x + 0.5}
+            <button
+              className="cbo-details-close-btn"
+              onClick={() => setSelectedBarIndex(null)}
+            >
               ✖
             </button>
           </h3>
           <ul>
-            {classDetails[selectedBarIndex].map((cls, idx) => {
+            {dataPoints[selectedBarIndex].classes.map((cls, idx) => {
               const classInfo = cboData.find(c => c.className === cls);
               return (
                 <li key={idx}>
@@ -189,8 +192,6 @@ export default function CBOHistogram({ metricData = [] }) {
           </ul>
         </div>
       )}
-
-
     </div>
   );
 }
