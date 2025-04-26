@@ -3,9 +3,10 @@ import downloadicon from "../icons/download.svg";
 import refreshicon from "../icons/refresh.svg"
 import editicon from "../icons/edit.svg";
 import logo from "../icons/logo.png";
+import MaintainabilityScoreTable from './MaintainabilityScoreTable.js';
 
 
-const Header = () => {
+const Header = ({ metricData = [] }) => {
   const [lastAnalyzed, setlastAnalyzed] =useState("");
   useEffect(() =>{
 
@@ -39,6 +40,24 @@ const Header = () => {
     
     window.location.reload();
   };
+  const safeData = Array.isArray(metricData.class_metrics)
+  ? metricData.class_metrics
+  : Array.isArray(metricData) ? metricData : [];
+
+const computeScore = (cls) => {
+  const loc = cls.totalLOC || cls.line || cls.metrics?.CountLineCode || 0;
+  const cbo = cls.coupling || cls.metrics?.CountClassCoupled || 0;
+  const lcom = cls.lackOfCohesion || cls.metrics?.PercentLackOfCohesion || 0;
+  const cyclo = cls.cyclomatic || cls.metrics?.SumCyclomatic || 0;
+  const rawScore = 100 - (loc * 0.01 + cbo * 2 + lcom * 1.5 + cyclo * 1.5);
+  return Math.max(0, Math.min(100, Math.round(rawScore)));
+};
+
+const avgMaintainabilityScore = safeData.length > 0
+  ? Math.round(
+      safeData.map(cls => computeScore(cls)).reduce((sum, score) => sum + score, 0) / safeData.length
+    )
+  : 0;
 
   return (
     <header className="dashboard-header">
@@ -64,8 +83,8 @@ const Header = () => {
     <div className="header-details">
       <span><em>Current Branch:</em> main</span>
       <span><em>Last Analyzed:</em> {lastAnalyizedTime}</span>
-      <span className="score">Overall Repository Score: Maintainable (85)</span>
-    </div>
+      <span className="score">Overall Repository Score: {avgMaintainabilityScore}%</span>
+      </div>
   </header>  
   );
 };
