@@ -563,6 +563,13 @@ body, html, #root {
   color: #0d0d0d;
   margin: 0;
 }
+
+/* Adding this overriden class to LargestClassesChart to allow summary cards to wrap */
+.class-kpi-card-wrapper .summary-cards-container {
+  flex-wrap: wrap;
+  overflow-x: visible;
+}
+
 /* Changing pointer-events: none; to pointer-events: auto; for making chart clickable on dashboard */
 .overview-chart canvas {
   pointer-events: auto;
