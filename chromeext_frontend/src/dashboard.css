@@ -80,6 +80,7 @@
   --section-spacing: 50px;
 }
 
+
 .metrics-table {
   font-family: "Poppins", sans-serif;
   max-width: var(--table-max-width);
@@ -275,6 +276,35 @@ body, html, #root {
   margin-top: 30px;
 
 }
+
+.metrics-table-scroll {
+  max-height: 220px; /* even though you show 5, fix height */
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.metrics-table-scroll table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.metrics-table-scroll th,
+.metrics-table-scroll td {
+  padding: 12px;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.metrics-table-scroll th {
+  background-color: #f7f7f7;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
 
 .legend-table th,
 .legend-table td {
@@ -494,7 +524,7 @@ body, html, #root {
   min-height: 350px; 
   min-width: 100px;
   padding: 10px;
-  margin-bottom: 30cm;
+  margin-bottom: 30px;
 }
 
 
@@ -580,6 +610,9 @@ body, html, #root {
   width: 100%;
   padding: 20px;
   font-family: "Poppins", sans-serif;
+  max-height: 100vh;
+  overflow-y: auto;
+  padding-bottom: 20px;
 }
 
 
@@ -645,4 +678,215 @@ body, html, #root {
   padding: 6px 10px;
   border-radius: 4px;
   border: 1px solid #ccc;
+}
+
+
+/* CBO Histogram Styles */
+
+.cbo-bar-chart {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 40px;
+  font-family: "Poppins", sans-serif;
+}
+
+.cbo-bar-chart h2 {
+  font-size: 24px;
+  font-style: italic;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.cbo-top-section.horizontal-layout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 40px;
+  flex-wrap: nowrap;
+  margin-bottom: 30px;
+  align-items: stretch;
+}
+
+.cbo-chart {
+  flex-grow: 1;
+  height: 500px;
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cbo-filter {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 40px;
+  margin-bottom: 20px;
+  font-family: "Poppins", sans-serif;
+}
+
+.cbo-filter > div {
+  flex: 1;
+  min-width: 260px;
+}
+
+.cbo-filter label {
+  font-size: 14px;
+  font-family: "Poppins", sans-serif;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.cbo-slider-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 350px;
+  min-width: 100px;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.cbo-slider-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.cbo-slider-text {
+  font-size: 14px;
+  color: #333;
+  font-family: "Poppins", sans-serif;
+  margin-bottom: 8px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.rc-slider-vertical {
+  height: 290px !important;
+}
+
+/* Detail Card Styling */
+.cbo-details-card {
+  margin-top: 20px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: #f7f7f7;
+  border: 1px solid #ccc;
+  font-family: "Poppins", sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+.cbo-details-card h3 {
+  margin-top: 0;
+  font-size: 18px;
+  font-weight: 600;
+  font-style: italic;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cbo-details-card h3:hover {
+  color: #cc0000;
+}
+
+.cbo-details-card ul {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 10px;
+}
+
+.cbo-details-card li {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #555;
+}
+
+.cbo-details-card li span {
+  font-weight: bold;
+  color: #007b5e;
+}
+
+/* Close button inside details card */
+.cbo-details-close-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  margin-left: 10px;
+}
+
+.cbo-details-close-btn:hover {
+  color: #cc0000;
+}
+
+/* High risk classes Details Card */
+.bubble-details-card {
+  margin-top: 20px;
+  padding: 18px 24px;
+  border-radius: 12px;
+  background: #f7f7f7;
+  border: 1px solid #ccc;
+  font-family: "Poppins", sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+  overflow-x: auto; 
+}
+
+.bubble-details-card h3 {
+  margin-top: 0;
+  font-size: 20px;
+  font-weight: 600;
+  font-style: italic;
+  color: #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bubble-details-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
+  color: #cc0000;
+  cursor: pointer;
+}
+
+.bubble-details-close-btn:hover {
+  color: #a30000;
+}
+
+.bubble-details-card ul {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.bubble-details-card li {
+  margin-bottom: 10px;
+  font-size: 15px;
+  color: #555;
+}
+
+.bubble-details-card li span {
+  font-weight: bold;
+  color: #007b5e;
 }

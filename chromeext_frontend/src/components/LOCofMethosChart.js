@@ -38,7 +38,6 @@ const LOCofMethosChart = ({ metricData = [] }) => {
   useEffect(() => {
    if (!metricData) return;
    
-   // Changing the json data handling
    const classMetricsArray = Array.isArray(metricData.class_metrics) 
      ? metricData.class_metrics 
      : Array.isArray(metricData) ? metricData : [];
@@ -74,10 +73,10 @@ const LOCofMethosChart = ({ metricData = [] }) => {
         label: "Lack of Cohesion Method",
         data: filteredData.map((item) => item.lcom),
         backgroundColor: filteredData.map((item) =>
-          highlightClasses.includes(item.className) ? "#cc0000" : "rgba(209, 236, 244, 0.5)"
+          highlightClasses.includes(item.className) ? "rgba(255, 99, 132, 0.7)"  : "rgba(209, 236, 244, 0.5)"
         ),
         borderColor: filteredData.map((item) =>
-          highlightClasses.includes(item.className) ? "#cc0000" : "rgb(16, 110, 80)"
+          highlightClasses.includes(item.className) ? "rgba(248, 3, 56, 0.7)" : "rgb(16, 110, 80)"
         ),
         borderWidth: 1,
       },
@@ -126,29 +125,29 @@ const LOCofMethosChart = ({ metricData = [] }) => {
   return (
     <div className="lcom-bar-chart">
       <div className="loc-filter">
-  <div>
-    <label>Filter by Class</label>
-    <Select
-      isMulti
-      options={lcomData.map((item) => ({
-        label: item.className,
-        value: item.className,
-      }))}
-      value={selectedLcomClasses}
-      onChange={setSelectedLcomClasses}
-      placeholder="Select classes..."
-    />
-  </div>
+        <div>
+          <label>Filter by Class</label>
+          <Select
+            isMulti
+            options={lcomData.map((item) => ({
+              label: item.className,
+              value: item.className,
+            }))}
+            value={selectedLcomClasses}
+            onChange={setSelectedLcomClasses}
+            placeholder="Select classes..."
+          />
+        </div>
 
-  <div>
-    <label>Sort by LCOM</label>
-    <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
-      <option value="default">Default</option>
-      <option value="asc">Ascending</option>
-      <option value="desc">Descending</option>
-    </select>
-  </div>
-</div>
+        <div>
+          <label>Sort by LCOM</label>
+          <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+            <option value="default">Default</option>
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
+        </div>
+      </div>
 
 
   <h2>Lack of Cohesion per Method Metric</h2>
@@ -197,21 +196,37 @@ const LOCofMethosChart = ({ metricData = [] }) => {
       </div>
 
       <div className="metrics-table">
-        <h2>LCOM Metrics (Top 5)</h2>
-        <table>
-          <thead>
-            <tr><th>Class Name</th><th>LCOM Score</th></tr>
-          </thead>
-          <tbody>
-            {lcomData.slice(0, 5).map((item, index) => (
-              <tr key={index}>
-                <td>{item.className}</td>
-                <td>{item.lcom}</td>
+        <h2>LCOM Metrics (Top 10 Highest)</h2>
+
+        <div className="metrics-table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Class Name</th>
+                <th>LCOM Score</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {[...lcomData]
+                .sort((a, b) => b.lcom - a.lcom)
+                .slice(0, 10)
+                .map((item, index) => {
+                  let color = "rgba(23, 227, 53, 0.7)"; 
+                  if (item.lcom > 1) color = "rgba(248, 3, 56, 0.7)"; 
+                  else if (item.lcom > 0 && item.lcom <= 1) color = "rgba(216, 238, 20, 0.7)"; 
+                  return (
+                    <tr key={index}>
+                      <td>{item.className}</td>
+                      <td style={{ color: color, fontWeight: "bold" }}>{item.lcom}</td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+
     </div>
   );
 };

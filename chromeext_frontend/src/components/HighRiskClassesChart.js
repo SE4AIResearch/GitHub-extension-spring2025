@@ -22,6 +22,7 @@ const RISK_LEVELS = {
 const HighRiskClassesChart = ({ metricData = [] }) => {
   const [chartData, setChartData] = useState([]);
   const [classMetricsArray, setClassMetricsArray] = useState([]);
+  const [selectedBubbleIndex, setSelectedBubbleIndex] = useState(null);
   const [riskFilter, setRiskFilter] = useState(RISK_LEVELS.ALL);
   const [processedData, setProcessedData] = useState([]);
 
@@ -200,6 +201,8 @@ const HighRiskClassesChart = ({ metricData = [] }) => {
 
   return (
     <div className="high-risk-bubble-wrapper">
+        <h1>High Risk CLasses Metric</h1>
+        <p>Click on the bubble to get more details</p>
       <div className="risk-filter-controls" style={{ marginBottom: "10px", display: "flex", justifyContent: "center" }}>
         <select
           value={riskFilter}
@@ -228,9 +231,39 @@ const HighRiskClassesChart = ({ metricData = [] }) => {
               : `No ${riskFilter} classes found.`}
           </div>
         ) : (
-          <Bubble data={data} options={options} />
+          <Bubble
+            data={data}
+            options={{
+              ...options,
+              onClick: (event, elements) => {
+                if (elements.length > 0) {
+                  const idx = elements[0].index;
+                  setSelectedBubbleIndex(idx);
+                }
+              },
+            }}
+          />
+
         )}
       </div>
+      {selectedBubbleIndex !== null && (
+        <div className="cbo-details-card">
+          <h3>
+            {`Class Details: ${data.datasets[0].data[selectedBubbleIndex].className}`}
+            <button className="cbo-details-close-btn" onClick={() => setSelectedBubbleIndex(null)}>
+              ✖
+            </button>
+          </h3>
+          <ul>
+            <li><span>CBO:</span> {data.datasets[0].data[selectedBubbleIndex].x}</li>
+            <li><span>CC:</span> {data.datasets[0].data[selectedBubbleIndex].y}</li>
+            <li><span>LCOM:</span> {Math.round(data.datasets[0].data[selectedBubbleIndex].r / 0.3)}</li>
+            <li><span>Risk Score:</span> {data.datasets[0].data[selectedBubbleIndex].riskScore}%</li>
+            <li><span>Risk Level:</span> {data.datasets[0].data[selectedBubbleIndex].riskLevel}</li>
+          </ul>
+        </div>
+      )}
+
     </div>
   );
 };

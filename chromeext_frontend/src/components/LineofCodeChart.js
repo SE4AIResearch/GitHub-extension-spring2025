@@ -69,11 +69,16 @@ const LOCBarChart = ({ metricData = [] }) => {
         label: "Total LOC",
         data: locfilteredData.map((item) => item.totalLOC),
         backgroundColor: locfilteredData.map(item =>
-          highlightClasses.includes(item.className)
+            highlightClasses.includes(item.className) ? "rgba(255, 99, 132, 0.7)" : "rgba(209, 236, 244, 0.5)"
+          ),
+          borderColor: locfilteredData.map((item) =>
+            highlightClasses.includes(item.className) ? "rgba(248, 3, 56, 0.7)" : "rgb(16, 110, 80)"
+          ),
+          /* highlightClasses.includes(item.className)
             ? "rgba(255, 99, 132, 0.7)"
             : "rgba(209, 236, 244, 0.5)"
         ),
-        borderColor: "rgb(16, 110, 80)",
+        borderColor: "rgb(16, 110, 80)", */
         borderWidth: 1,
       },
     ],
