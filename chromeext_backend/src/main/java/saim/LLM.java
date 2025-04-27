@@ -23,7 +23,7 @@ public class LLM {
                 "\n" +
                 "MANDATORY FORMAT:\n" +
                 "SUMMARY: A concise technical description of the change (1–2 lines max), " +
-                "INTENT: All the ones which apply: Fixed Bug, Improved Internal Quality, Improved External Quality, Feature Update, Code Smell Resolution, " +
+                "INTENT: All the ones which apply: Fixed Bug, Improved Internal Quality, Improved External Quality, Feature Update, and Code Smell Resolution.  You can also find other intenets in the code. Also point out the reason for the intent in the code." +
                 "IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability.\n" +
                 "\n" +
                 "You MUST include all three sections. Always use the specified keywords for INTENT.\n" +
@@ -34,12 +34,12 @@ public class LLM {
                 "\n" +
                 "Example 1:\n" +
                 "SUMMARY: Replaced nested loops with a hash-based lookup in UserProcessor.java.\n" +
-                "INTENT: Improved Internal Quality, Fixed Bug\n" +
+                "INTENT: Improved Internal Quality, Fixed Bug(in the UserProcessor.java line 12)\n" +
                 "IMPACT: Reduced time complexity from O(n^2) to O(n), improving efficiency and code clarity.\n" +
                 "\n" +
                 "Example 2:\n" +
                 "SUMMARY: Fixed null pointer exception in PaymentService.java during refund processing.\n" +
-                "INTENT: Fixed Bug\n" +
+                "INTENT: Fixed Bug (in PaymentService.java line 127)\n" +
                 "IMPACT: Enhanced system stability by preventing crashes and improving error handling.\n" +
                 "\n" +
                 "Example 3:\n" +
@@ -54,7 +54,7 @@ public class LLM {
                 "\n" +
                 "Example 5:\n" +
                 "SUMMARY: Removed redundant code and improved variable naming in DataProcessor.java.\n" +
-                "INTENT: Code Smell Resolution, Improved Internal Quality\n" +
+                "INTENT: Code Smell Resolution (due the update method in DataProcessor.java), Improved Internal Quality\n" +
                 "IMPACT: Enhanced readability and maintainability by reducing code clutter and clarifying functionality.\n" +
                 "\n" +
                 "Example 6:\n" +
@@ -87,67 +87,53 @@ public class LLM {
                 "\n" +
                 "MANDATORY FORMAT:\n" +
                 "SUMMARY: A in-depth technical description of the change (2-3 lines max), " +
-                "INTENT: All the ones which apply: Fixed Bug, Internal Quality Improvement, External Quality Improvement, Feature Update, Code Smell Resolution, " +
-                "IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability more in depth and related to the code changes, the summary and the intent generated, and ensure to elaborate on how the intent and impact are related.\n" +
-                "\n" +
-                "You MUST include all three sections. Always use the specified keywords for INTENT.\n" +
-                "\n" +
-                "Here are some examples before and after your improvements:\n" +
-                "\n" +
+                "INTENT: Give a software change classification such as Fixed Bug, Internal Quality Improvement, External Quality Improvement, Feature Update, Code Smell Resolution, Refactoring, Performance Optimization, Security Patch, Test Addition, Test Update, Test Removal, Logging Improvement, Dependency Update, Documentation Update, UI/UX Enhancement. Don't be limited to this list. You can also find other classification in the code." +
+                "IMPACT: Explain how the change affects software quality. Use software engineering concepts such as: reduced cyclomatic complexity, improved cohesion, " +
+                "decreased coupling, better adherence to SRP/OCP, enhanced testability, or improved abstraction layering. Do not use vague terms like 'maintainability' or 'readability' without tying them to specific code behaviors or design principles.\n\n" +
+
+                "You MUST include all three sections. Always use the provided INTENT terms. Connect the IMPACT to both the SUMMARY and INTENT using concrete software reasoning.\n\n" +
+
+                "EXAMPLES:\n\n" +
+
                 "Example 1:\n" +
-                "SUMMARY: Replaced nested loop in UserProcessor.java with a HashMap<String, User> for O(1) user lookups. " +
-                "Modified UserValidator.java to skip invalid entries early. Added testProcessUsers_withValidAndInvalidIds() " +
-                "in UserProcessorTest.java to validate edge behavior and ensure consistent output.\n" +
-                "INTENT: Improved Internal Quality, Fixed Bug\n" +
-                "IMPACT: Eliminated redundant iterations during user reconciliation, cutting execution time in half for large datasets. " +
-                "Made UserProcessor deterministic and easier to reason about.\n\n" +
+                "SUMMARY: Replaced nested loop in UserProcessor.java with a Map<String, User> lookup. Added early exit logic to validateUserBatch().\n" +
+                "INTENT: Performance Optimization, Code Simplification\n" +
+                "IMPACT: Reduced time complexity from O(n²) to O(n), improving execution for large inputs. Used guard clauses and data structure optimization to align with efficient control flow and low-complexity design principles.\n\n" +
 
                 "Example 2:\n" +
-                "SUMMARY: Added null checks for TransactionMetadata in PaymentService.java. " +
-                "Refactored RefundController.java to perform request validation before invoking the service. " +
-                "Created testNullTransactionMetadata_handling() in PaymentServiceTest.java to verify fallback behavior.\n" +
-                "INTENT: Fixed Bug\n" +
-                "IMPACT: Prevented NullPointerException during refund calls when metadata is missing, making the refund flow safe and fault-tolerant. " +
-                "Improved input validation at the controller level.\n\n" +
+                "SUMMARY: Extracted credential validation logic into AuthService and introduced LoginRequest/Response DTOs.\n" +
+                "INTENT: Internal Quality Improvement, Architectural Refactoring\n" +
+                "IMPACT: Applied SRP by isolating responsibilities and improved cohesion within business logic layers. Reduced controller-service coupling, increasing testability and layering integrity.\n\n" +
 
                 "Example 3:\n" +
-                "SUMMARY: Extracted business logic from AuthenticationController.java to AuthService.java. " +
-                "Introduced LoginRequest and LoginResponse DTOs to formalize input/output structures. " +
-                "Added testSuccessfulLogin() and testInvalidCredentials() in AuthServiceTest.java.\n" +
-                "INTENT: Improved Internal Quality, Code Smell Resolution\n" +
-                "IMPACT: Reduced controller complexity by 60%, enabling isolated service testing. " +
-                "Decoupling logic improved test reliability and reduced future regression risk in the login flow.\n\n" +
+                "SUMMARY: Integrated pagination using Spring Data’s Pageable in UserRequestController.\n" +
+                "INTENT: External Quality Improvement, Feature Update\n" +
+                "IMPACT: Improved modularity and frontend responsiveness by reducing payload size. Supports lazy loading and aligns with ISO/IEC 25010 responsiveness and functional suitability metrics.\n\n" +
 
                 "Example 4:\n" +
-                "SUMMARY: Integrated Spring Data Pageable in UserRequestController.java to support pagination. " +
-                "Updated UserRequestRepository.java to use Page<UserRequest> for backend efficiency. " +
-                "Created testPaginatedUserRequestResults() in UserRequestServiceTest.java.\n" +
-                "INTENT: Feature Update, Improved External Quality\n" +
-                "IMPACT: Reduced response payload size and improved database query performance by using indexed paging. " +
-                "Enhanced backend scalability for high-volume user queries.\n\n" +
+                "SUMMARY: Replaced switch-case structure in PermissionsManager with polymorphic handlers.\n" +
+                "INTENT: Code Smell Resolution\n" +
+                "IMPACT: Eliminated type-checking smell by encapsulating behavior polymorphically. Reduced conditional logic complexity and applied Strategy pattern as per Refactoring.Guru.\n\n" +
 
                 "Example 5:\n" +
-                "SUMMARY: Removed deprecated normalizeData() and oldTransform() from DataProcessor.java. " +
-                "Renamed cryptic variables like x1 → rawInputLine in DataParser.java. " +
-                "Added testCleanDataTransformation() in DataProcessorTest.java to validate outputs.\n" +
-                "INTENT: Code Smell Resolution, Improved Internal Quality\n" +
-                "IMPACT: Improved comprehension and maintainability by eliminating misleading code paths. " +
-                "Refactor reduced onboarding time for new devs and lowered risk of reintroducing legacy bugs.\n\n" +
+                "SUMMARY: Introduced batch inserts in OrderRepository to replace per-record inserts.\n" +
+                "INTENT: Performance Optimization\n" +
+                "IMPACT: Reduced round trips and improved transactional throughput. Optimized data persistence following performance tuning principles for database operations.\n\n" +
 
                 "Example 6:\n" +
-                "SUMMARY: Refined backend error mapping in ErrorHandler.java for known error codes. " +
-                "Updated UIErrorComponent.jsx to show contextual error alerts. " +
-                "Added testErrorMessageMapping() in ErrorHandlerTest.java to verify proper user-facing descriptions.\n" +
-                "INTENT: Improved External Quality\n" +
-                "IMPACT: Increased frontend reliability during API failures, reducing confusion around ambiguous errors. " +
-                "Enhanced error granularity allows better debugging and faster support response." +
-                "\n" +
-                "Example 6:\n" +
-                "SUMMARY: Enhanced error messages in the user interface for better clarity during failures.\n" +
-                "INTENT: Improved External Quality\n" +
-                "IMPACT: Improved user experience by providing actionable information during errors.\n" +
-                "\n" +
-                "Now, generate the structured summary for:\n" +
+                "SUMMARY: Migrated user auth from monolith to OAuth2-based service. Configured token validation with service registry integration.\n" +
+                "INTENT: Architectural Refactoring\n" +
+                "IMPACT: Enabled clean separation of concerns and horizontal scalability by isolating authentication. Aligned architecture with microservices and domain-driven design.\n\n" +
+
+                "Example 7:\n" +
+                "SUMMARY: Created PyTest suite to validate reconciliation edge cases, covering duplicate detection and currency rounding.\n" +
+                "INTENT: Test Enhancement\n" +
+                "IMPACT: Improved edge coverage and defect isolation. Aligned with test-first practices and boosted defect detection rates in CI through targeted regression testing.\n\n" +
+
+                "Example 8:\n" +
+                "SUMMARY: Refactored controller to delegate report downloads to ReportService. Removed file streaming logic from controller layer.\n" +
+                "INTENT: External Quality Improvement\n" +
+                "IMPACT: Reduced coupling and improved abstraction boundaries. Enhanced external quality by aligning responsibilities with modular service-oriented architecture.\n\n" +
                "Refactorings:\n" + refactorings;
 
         System.out.println(prompt);

@@ -154,15 +154,17 @@ async def process_output(request: QueryRequest, token: str = Depends(get_token))
             Given a code text extracted from Github, go through the entire changes, and extract a meaningful summary using this structure.
 
             MANDATORY FORMAT:\n
-            SUMMARY:A in-depth technical description of the change (2-3 lines max), 
-            INTENT: All the ones which apply: Fixed Bug, Internal Quality Improvement, External Quality Improvement, Feature Update, Code Smell Resolution
-            IMPACT: Describe how this affects performance, maintainability, readability, modularity, or usability more in depth and related to the code changes, the summary and the intent generated, and ensure to elaborate on how the intent and impact are related.
-            You MUST include all three sections. Always use the specified keywords for INTENT.\n
+            SUMMARY: A in-depth technical description of the change (2-3 lines max), 
+            INTENT: Give software changes classification such as Fixed Bug, Internal Quality Improvement, External Quality Improvement, Feature Update, Code Smell Resolution, Refactoring, Performance Optimization, Security Patch, Test Addition, Test Update, Test Removal, Logging Improvement, Dependency Update, Documentation Update, UI/UX Enhancement. Don't be limited to this list. You can also find other classification in the code.            
+            IMPACT: Explain how the change affects software quality. Use software engineering concepts such as: reduced cyclomatic complexity, improved cohesion, decreased coupling, better adherence to SRP/OCP, enhanced testability, or improved abstraction layering. Do not use vague terms like 'maintainability' or 'readability' without tying them to specific code behaviors or design principles.\n
+
+            You MUST include all three sections (SUMMARY, INTENT, IMPACT). Always use the provided INTENT terms. Connect the IMPACT to both the SUMMARY and INTENT using concrete software reasoning\n
+            
             Here is example response:
             Example 1:\n
-            SUMMARY: Replaced nested loop in UserProcessor.java with a HashMap<String, User> for O(1) user lookups.  Modified UserValidator.java to skip invalid entries early. Added testProcessUsers_withValidAndInvalidIds() in UserProcessorTest.java to validate edge behavior and ensure consistent output.\n" +
-            INTENT: Improved Internal Quality, Fixed Bug 
-            IMPACT: Eliminated redundant iterations during user reconciliation, cutting execution time in half for large datasets. Made UserProcessor deterministic and easier to reason about.\n\n
+            SUMMARY: Replaced nested loop in UserProcessor.java with a HashMap<String, User> for O(1) user lookups.  Modified UserValidator.java to skip invalid entries early. Added testProcessUsers_withValidAndInvalidIds() in UserProcessorTest.java to validate edge behavior and ensure consistent output.\n"
+            INTENT: Internal Quality Improvement, Fixed Bug, Feature Update\n
+            IMPACT: Reduced time complexity from O(n²) to O(n), improving execution for large inputs. Used guard clauses and data structure optimization to align with efficient control flow and low-complexity design principles.\n\n
 
         '''
         changes = get_github_commit_changes(query_text)

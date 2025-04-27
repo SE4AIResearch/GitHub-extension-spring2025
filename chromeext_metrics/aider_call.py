@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 import argparse
 import subprocess
-import tempfile
 import shutil
 import os
 import sys
+import stat
 import shlex
-# from aider.coders import Coder
-
 
 def run(cmd):
     print(f"Running: {' '.join(cmd)}")
@@ -17,10 +15,31 @@ def run(cmd):
         sys.exit(result.returncode)
     return result.stdout.strip()
 
+def get_script_dir():
+    # Get the absolute path of the directory where this script is located.
+    return os.path.dirname(os.path.abspath(__file__))
+
+def remove_readonly(func, path, excinfo):
+    """
+    Error handler for `shutil.rmtree` to change file permission and retry.
+    """
+    # Remove read-only attribute and try again
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
 def clone_repo(repo_url):
-    tmp = tempfile.mkdtemp(prefix="aider_repo_")
-    run(["git", "clone", "--depth", "1", repo_url, tmp])
-    return tmp
+    # Create a clone destination in the script's directory
+    script_dir = get_script_dir()
+    dest_dir = os.path.join(script_dir, "cloned_repo")
+    
+    # If the directory exists, remove it first for a clean clone
+    if os.path.isdir(dest_dir):
+        print(f"Removing existing directory: {dest_dir}")
+        shutil.rmtree(dest_dir, onerror=remove_readonly)
+    
+    print(f"Cloning repository into: {dest_dir}")
+    run(["git", "clone", "--depth", "1", repo_url, dest_dir])
+    return dest_dir
 
 def get_summary_from_aider(repo_url):
     repo_url = str(repo_url)
@@ -52,21 +71,21 @@ def get_summary_from_aider(repo_url):
     except subprocess.TimeoutExpired:
         print("ERROR: Aider command timed out.", file=sys.stderr)
         if is_remote:
-            shutil.rmtree(src_dir)
+            shutil.rmtree(src_dir, onerror=remove_readonly)
         sys.exit(1)
     
     if result.returncode:
         print(f"ERROR executing command:\n{result.stderr}", file=sys.stderr)
         if is_remote:
-            shutil.rmtree(src_dir)
+            shutil.rmtree(src_dir, onerror=remove_readonly)
         sys.exit(result.returncode)
     else:
         summary = result.stdout.strip()
         print("Aider Output:\n", summary)
     
     if is_remote:
-        print("\nCleaning up temporary cloned repository ...")
-        shutil.rmtree(src_dir)
+        print("\nCleaning up cloned repository ...")
+        shutil.rmtree(src_dir, onerror=remove_readonly)
     
     return summary
 
@@ -84,27 +103,21 @@ def main():
             print("ERROR: Path not found.", file=sys.stderr)
             sys.exit(1)
 
-    print("Source Directory: ", src_dir)
+    print("Source Directory:", src_dir)
     
     # Build the aider command
-    message = "\"give me a brief summary of the project including files\""
-    aider_cmd = ["aider", "--no-gitignore", "--message", message, src_dir]
-    # message = "give me a brief summary of the project including files"
-    # aider_cmd = ["aider", "--message \"", message, "\"", src_dir]
-    # aider_cmd = f'aider --message "{message}" {src_dir}'
-    # aider_cmd = shlex.split(aider_cmd)
-    
-    # Call aider and capture its summary output
-    # summary = run(aider_cmd)
-    
-    # print("\nProject Summary:")
-    # print(summary)
     message = "\"give me a brief summary of the project including a brief list of files (not all) in a json format\""
-    command_string = f"aider --no-gitignore --reasoning-effort 2  --yes-always --message {message} {src_dir}"
+    command_string = f"aider --no-gitignore --reasoning-effort 2 --yes-always --message {message} {src_dir}"
     print("Full command string:", command_string)
     
     print("Executing Aider command...")
-    result = subprocess.run(command_string, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=120)
+    try:
+        result = subprocess.run(command_string, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=120)
+    except subprocess.TimeoutExpired:
+        print("ERROR: Aider command timed out.", file=sys.stderr)
+        if args.repo.startswith(("http://", "https://", "git@")):
+            shutil.rmtree(src_dir, onerror=remove_readonly)
+        sys.exit(1)
     
     if result.returncode:
         print(f"ERROR executing command:\n{result.stderr}", file=sys.stderr)
@@ -112,11 +125,10 @@ def main():
     else:
         print("Aider Output:\n", result.stdout.strip())
     
-    
-    # Cleanup the temporary clone if a remote repository was used
+    # Cleanup if a remote repository was used
     if args.repo.startswith(("http://", "https://", "git@")):
-        print("\nCleaning up temporary cloned repository ...")
-        shutil.rmtree(src_dir)
+        print("\nCleaning up cloned repository ...")
+        shutil.rmtree(src_dir, onerror=remove_readonly)
 
 if __name__ == "__main__":
     main()
