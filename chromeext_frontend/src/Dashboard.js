@@ -292,7 +292,7 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <Header />
+      <Header metricData={metricData} />
       {showRepoAnalysis && repoUrl ? (
         <>
           <RepoAnalysis 

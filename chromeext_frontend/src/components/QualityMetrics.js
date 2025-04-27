@@ -20,7 +20,6 @@ const QualityMetrics = ({ metricData = [] }) => {
   useEffect(() => {
     if (!metricData) return;
     
-    // Changing the json data handling
     const classMetricsArray = Array.isArray(metricData.class_metrics) 
       ? metricData.class_metrics 
       : Array.isArray(metricData) ? metricData : [];

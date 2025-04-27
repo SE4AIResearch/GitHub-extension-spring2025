@@ -225,7 +225,14 @@ const LOCofMethosChart = ({ metricData = [] }) => {
           </table>
         </div>
       </div>
-
+      <div className="color-legend">
+          <h4>Color Interpretation</h4>
+          <ul>
+            <li><span className="legend-dot high-risk"></span> High Risk (LCOM = 1)</li>
+            <li><span className="legend-dot medium-risk"></span> Medium Risk (LCOM ≤ 1)</li>
+            <li><span className="legend-dot low-risk"></span> Low Risk (LCOM = 0)</li>
+          </ul>
+        </div>
 
     </div>
   );
