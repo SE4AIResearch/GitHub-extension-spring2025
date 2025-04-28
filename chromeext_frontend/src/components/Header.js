@@ -75,6 +75,26 @@ const avgMaintainabilityScore = safeData.length > 0
     )
   : 0;
 
+  const handleDownload = () => {
+    if (!safeData.length) {
+      alert("No metrics data available to download.");
+      return;
+    }
+  
+    const dataStr = JSON.stringify(safeData, null, 2); // nicely formatted
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+  
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'repository-metrics.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+  
+
   return (
     <header className="dashboard-header">
     <div className="logo-title-buttons">
@@ -84,13 +104,7 @@ const avgMaintainabilityScore = safeData.length > 0
       </div>
   
       <div className="header-buttons">
-        <button 
-          id="download-btn" 
-          onClick={handleDownloadCharts} 
-          disabled={isDownloading} 
-          title="Download charts as PDF report"
-          className={isDownloading ? 'loading-btn' : ''}
-        >
+        <button id="download-btn" onClick={handleDownload}>
           <img src={downloadicon} height={24} alt="download" />
           {isDownloading && <span className="loading-dot">...</span>}
         </button>
