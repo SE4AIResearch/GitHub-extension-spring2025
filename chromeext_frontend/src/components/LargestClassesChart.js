@@ -127,9 +127,7 @@ const LargestClassesChart = ({ metricsData }) => {
         }
       },
       title: {
-        display: true,
-        text: 'Largest Classes (by Lines of Code)',
-        font: { size: 14, weight: 'bold' }
+        display: false,
       }
     },
     scales: {
@@ -153,6 +151,7 @@ const LargestClassesChart = ({ metricsData }) => {
 
   return (
     <div className="overview-chart" style={{ minHeight: "250px" }}> 
+      <h4 className="overview-chart-title">Largest Classes (by Lines of Code)</h4>
       <div style={{ height: "250px", position: "relative" }}> 
         {chartData ? (
           <Bar data={chartData} options={chartOptions} />

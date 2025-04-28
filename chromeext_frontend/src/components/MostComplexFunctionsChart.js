@@ -151,9 +151,7 @@ const MostComplexFunctionsChart = ({ metricsData }) => {
     plugins: {
       legend: { display: false },
       title: {
-        display: true,
-        text: 'Most Complex Functions (by Cyclomatic Complexity)',
-        font: { size: 14, weight: 'bold' }
+        display: false,
       },
        tooltip: {
          callbacks: {
@@ -188,6 +186,7 @@ const MostComplexFunctionsChart = ({ metricsData }) => {
 
   return (
     <div className="overview-chart" style={{ minHeight: "250px" }}>
+      <h4 className="overview-chart-title">Most Complex Functions (by Cyclomatic Complexity)</h4>
       <div style={{ height: "250px", position: "relative" }}>
         {chartData ? (
           <Bar

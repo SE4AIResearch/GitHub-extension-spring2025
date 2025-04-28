@@ -4,12 +4,13 @@ import refreshicon from "../icons/refresh.svg"
 import editicon from "../icons/edit.svg";
 import logo from "../icons/logo.png";
 import MaintainabilityScoreTable from './MaintainabilityScoreTable.js';
-
+import { downloadAllCharts } from './AnalysisReportDownload.js';
 
 const Header = ({ metricData = [] }) => {
-  const [lastAnalyzed, setlastAnalyzed] =useState("");
+  const [lastAnalyzed, setlastAnalyzed] = useState("");
+  const [isDownloading, setIsDownloading] = useState(false);
+  
   useEffect(() =>{
-
     const storedLogin = localStorage.getItem("lastLogin");
 
     if (!storedLogin) {
@@ -40,6 +41,21 @@ const Header = ({ metricData = [] }) => {
     
     window.location.reload();
   };
+  
+  const handleDownloadCharts = async () => {
+    if (isDownloading) return;
+    
+    try {
+      setIsDownloading(true);
+      await downloadAllCharts();
+    } catch (error) {
+      console.error('Error generating PDF report:', error);
+      alert('There was a problem generating the PDF report. Check console for details.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+  
   const safeData = Array.isArray(metricData.class_metrics)
   ? metricData.class_metrics
   : Array.isArray(metricData) ? metricData : [];
@@ -68,8 +84,15 @@ const avgMaintainabilityScore = safeData.length > 0
       </div>
   
       <div className="header-buttons">
-        <button id="download-btn">
+        <button 
+          id="download-btn" 
+          onClick={handleDownloadCharts} 
+          disabled={isDownloading} 
+          title="Download charts as PDF report"
+          className={isDownloading ? 'loading-btn' : ''}
+        >
           <img src={downloadicon} height={24} alt="download" />
+          {isDownloading && <span className="loading-dot">...</span>}
         </button>
         <button id="refresh-btn" onClick={handleForceReanalysis}>
           <img src={refreshicon} height={24} alt="refresh" />
