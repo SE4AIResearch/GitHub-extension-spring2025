@@ -104,7 +104,13 @@ const avgMaintainabilityScore = safeData.length > 0
       </div>
   
       <div className="header-buttons">
-        <button id="download-btn" onClick={handleDownload}>
+        <button 
+          id="download-btn" 
+          onClick={handleDownloadCharts} 
+          disabled={isDownloading} 
+          title="Download charts as PDF report"
+          className={isDownloading ? 'loading-btn' : ''}
+        >
           <img src={downloadicon} height={24} alt="download" />
           {isDownloading && <span className="loading-dot">...</span>}
         </button>
