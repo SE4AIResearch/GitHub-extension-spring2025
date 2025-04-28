@@ -205,7 +205,33 @@ function addRepositoryAnalysisLink(parentElement) {
                 // Save to localStorage directly - this is critical for the analysis to work
                 localStorage.setItem(`${appNamespace}repoAnalysisUrl`, repoUrl);
                 console.log('Saved repoAnalysisUrl to localStorage:', repoUrl);
+
+                // ALSO save commitID
+                // Extract commitID again from URL (safe double-check)
+                function match(url) {
+                    const splitwords = url.split('/');
+                    return splitwords;
+                }
+                const url = window.location.href;
+                let commitID = ''
                 
+                const words = match(url);
+                if (words[5] === "commit" || (words[5] === "pull" && words[7] === "commits")) {
+                    const urlToSend = words[0] + '//' + words[2] + "/" + words[3] + "/" + words[4];
+                    console.log(urlToSend);
+                    const commitIDlist = words[words.length - 1].split('?');
+                    commitID = commitIDlist[0];
+                    console.log(commitID);
+
+                    if (commitID) {
+                        localStorage.setItem(`${appNamespace}commitID`, commitID);
+                        console.log('Saved commitID to localStorage:', commitID);
+                    } else {
+                        console.warn('Could not extract commitID properly.');
+                    }
+                }
+                
+
                 // Add flag to indicate user explicitly requested analysis
                 localStorage.setItem(`${appNamespace}forceReanalysis`, 'true');
                 console.log('Set forceReanalysis flag in localStorage');
@@ -215,7 +241,8 @@ function addRepositoryAnalysisLink(parentElement) {
                     // Don't use the response callback to avoid issues with message channel closing
                     chrome.runtime.sendMessage({
                         action: 'repoUrlSaved',
-                        repoUrl: repoUrl
+                        repoUrl: repoUrl,
+                        commitID: commitID
                     });
                     console.log("Sent repository URL to background script");
                 } catch (storageErr) {

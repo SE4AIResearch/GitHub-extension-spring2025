@@ -89,6 +89,13 @@ const Dashboard = () => {
             setForceReanalysis(true);
             localStorage.removeItem(`${appNamespace}forceReanalysis`);
           }
+          const commitID = localStorage.getItem(`${appNamespace}commitID`);
+          if (commitID) {
+            console.log("Calling fetchSummaryData with repoUrl and commitID:", latestUrl, commitID);
+            fetchSummaryData(latestUrl, commitID);
+          } else {
+            console.warn("No commitID found in localStorage");
+          }
           return;
         }
         if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
@@ -136,6 +143,7 @@ const Dashboard = () => {
         const encodedUrl = encodeURIComponent(url);
         const response = await fetch(`localhost:8000/api/commits/message?url=${encodedUrl}&id=${commitId}`);
         const data = await response.json();
+        console.log("Response from fetchSummaryData:", data);
     
         if (response.ok) {
           setCommitData({

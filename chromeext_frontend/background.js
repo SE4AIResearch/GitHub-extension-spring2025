@@ -162,6 +162,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 sendResponse({ success: true });
             }
         });
+
+        chrome.storage.local.set({ 'repoAnalysisUrlCommit': message.commitID }, () => {
+            if (chrome.runtime.lastError) {
+                console.error("Error syncing repository URL:", chrome.runtime.lastError);
+                sendResponse({ success: false, error: chrome.runtime.lastError.message });
+            } else {
+                console.log("Repository URL synced to chrome.storage.local:", message.commitID);
+                sendResponse({ success: true });
+            }
+        });
+
+        
         
         return true; // Keep the message channel open
     }
