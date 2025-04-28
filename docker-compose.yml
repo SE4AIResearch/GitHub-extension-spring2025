@@ -50,10 +50,13 @@ services:
     container_name: chromeext_metrics
     ports:
       - "8000:8000"
+    volumes:
+      - ./chromeext_metrics:/app  # your code
+      - /Applications/Understand.app/Contents/MacOS:/scitools #replace with your path
     networks:
       - chromeext_network
     environment:
-      OPENAI_API_KEY: InsertYourKeyHere
+      OPENAI_API_KEY: InsertKeyHere
 
 networks:
   chromeext_network:

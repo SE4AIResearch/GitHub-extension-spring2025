@@ -34,3 +34,8 @@ clean:
 # Prune everything (be careful!)
 prune:
 	docker system prune -af --volumes
+
+rebuild:
+	docker-compose down
+	docker-compose build
+	docker-compose up -d

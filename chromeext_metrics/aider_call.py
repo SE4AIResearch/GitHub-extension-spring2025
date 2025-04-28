@@ -72,13 +72,15 @@ def get_summary_from_aider(repo_url):
         print("ERROR: Aider command timed out.", file=sys.stderr)
         if is_remote:
             shutil.rmtree(src_dir, onerror=remove_readonly)
-        sys.exit(1)
+        # sys.exit(1)
+        return ''
     
     if result.returncode:
         print(f"ERROR executing command:\n{result.stderr}", file=sys.stderr)
         if is_remote:
             shutil.rmtree(src_dir, onerror=remove_readonly)
-        sys.exit(result.returncode)
+        # sys.exit(result.returncode)
+        return ''
     else:
         summary = result.stdout.strip()
         print("Aider Output:\n", summary)
@@ -117,7 +119,7 @@ def main():
         print("ERROR: Aider command timed out.", file=sys.stderr)
         if args.repo.startswith(("http://", "https://", "git@")):
             shutil.rmtree(src_dir, onerror=remove_readonly)
-        sys.exit(1)
+        # sys.exit(1)
     
     if result.returncode:
         print(f"ERROR executing command:\n{result.stderr}", file=sys.stderr)

@@ -21,6 +21,9 @@ public class CommitController {
     @Autowired
     private CommitService commitService;
 
+    @Autowired
+    private CommitRefactoringsRepository commitRefactoringsRepository;  // 🛜 New Injection
+
     private final Gson gson = new Gson();
 
     /**
@@ -28,7 +31,7 @@ public class CommitController {
      * 
      * @param url       the repository URL
      * @param commitId  the commit identifier
-     * @return          JSON with "commitMessage" or an error JSON if not found
+     * @return          JSON with "commitMessage" and "refactorings" or error
      */
     @GetMapping("/message")
     public ResponseEntity<String> getCommitMessage(
@@ -36,10 +39,16 @@ public class CommitController {
             @RequestParam("id") String commitId) {
         
         Optional<String> messageOpt = commitService.getCommitfromDB(url, commitId);
-        
+        Optional<CommitRefactorings> refactoringsOpt = commitRefactoringsRepository.findByCommitId(commitId);
+
         if (messageOpt.isPresent()) {
             Map<String, String> resp = new HashMap<>();
             resp.put("commitMessage", messageOpt.get());
+            if (refactoringsOpt.isPresent()) {
+                resp.put("refactorings", refactoringsOpt.get().getRefactorings());
+            } else {
+                resp.put("refactorings", "No refactorings found");
+            }
             return ResponseEntity.ok(gson.toJson(resp));
         } else {
             Map<String, String> error = new HashMap<>();
