@@ -50,6 +50,89 @@ const Dashboard = () => {
     }
   }, [location]);
 
+
+  const fetchSummaryData = async (url, commitId) => {
+    try {
+      const encodedUrl = encodeURIComponent(url);
+      const response = await fetch(`http://localhost:8000/api/commits/message?url=${encodedUrl}&id=${commitId}`);
+      const data = await response.json();
+      console.log("Response from fetchSummaryData:", data);
+  
+      if (response.ok) {
+        setCommitData({
+          commitMessage: data.commitMessage,
+          refactorings: data.refactorings,
+        });
+      } else {
+        setCommitData({
+          commitMessage: null,
+          refactorings: null,
+          error: data.error || 'Failed to fetch commit summary',
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching commit summary:', err);
+      setCommitData({
+        commitMessage: null,
+        refactorings: null,
+        error: err.message || 'Unknown error',
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get(
+        ['github-extension-repoAnalysisUrl', 'github-extension-commitID', 'github-extension-summary', 'github-extension-forceReanalysis'],
+        (result) => {
+          if (chrome.runtime.lastError) {
+            console.error('Error accessing chrome.storage:', chrome.runtime.lastError);
+            return;
+          }
+  
+          console.log('Chrome storage result:', result);
+  
+          const { 
+            'github-extension-repoAnalysisUrl': repoAnalysisUrl, 
+            'github-extension-commitID': commitID, 
+            'github-extension-summary': summary,
+            'github-extension-forceReanalysis': forceReanalysis 
+          } = result;
+  
+          if (repoAnalysisUrl) {
+            setRepoUrl(repoAnalysisUrl);
+            setShowRepoAnalysis(true);
+          }
+  
+          if (summary) {
+            console.log('Loaded commit summary:', summary);
+            setCommitData({
+              commitMessage: summary,
+              refactorings: null,
+            });
+          } else {
+            console.warn('No commit summary found in chrome.storage.local.');
+          }
+  
+          if (forceReanalysis) {
+            setForceReanalysis(true);
+            chrome.storage.local.remove('github-extension-forceReanalysis');
+          }
+  
+          if (commitID) {
+            console.log("Fetching with commitID:", commitID);
+            // You disabled fetching from localhost (good).
+          } else {
+            console.warn('No commitID found in chrome.storage.local');
+          }
+        }
+      );
+    } else {
+      console.error('Chrome APIs not available. This is not running inside a Chrome extension.');
+    }
+  }, []); 
+  
+
   const getLatestRepositoryUrl = useCallback(() => {
     const appNamespace = 'github-extension-';
     const fromLocalStorage = localStorage.getItem(`${appNamespace}repoAnalysisUrl`);
@@ -92,7 +175,7 @@ const Dashboard = () => {
           const commitID = localStorage.getItem(`${appNamespace}commitID`);
           if (commitID) {
             console.log("Calling fetchSummaryData with repoUrl and commitID:", latestUrl, commitID);
-            fetchSummaryData(latestUrl, commitID);
+            // fetchSummaryData(latestUrl, commitID);
           } else {
             console.warn("No commitID found in localStorage");
           }
@@ -135,35 +218,6 @@ const Dashboard = () => {
           setAnalysisCompleted(false);
           setMetricData([]);
         }
-      }
-    };
-
-    const fetchSummaryData = async (url, commitId) => {
-      try {
-        const encodedUrl = encodeURIComponent(url);
-        const response = await fetch(`localhost:8000/api/commits/message?url=${encodedUrl}&id=${commitId}`);
-        const data = await response.json();
-        console.log("Response from fetchSummaryData:", data);
-    
-        if (response.ok) {
-          setCommitData({
-            commitMessage: data.commitMessage,
-            refactorings: data.refactorings,
-          });
-        } else {
-          setCommitData({
-            commitMessage: null,
-            refactorings: null,
-            error: data.error || 'Failed to fetch commit summary',
-          });
-        }
-      } catch (err) {
-        console.error('Error fetching commit summary:', err);
-        setCommitData({
-          commitMessage: null,
-          refactorings: null,
-          error: err.message || 'Unknown error',
-        });
       }
     };
     
@@ -237,7 +291,6 @@ const Dashboard = () => {
     return (
       <>
         {decodedTab && <h2 className="overview-heading">Viewing: {decodedTab}</h2>}
-        <div>{}</div>
         <QualityMetrics metricData={metricData} />
         <ChartTabs
           activeTab={decodedTab}
@@ -315,6 +368,15 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <Header />
+
+      <div className="commit-summary">
+          {commitData && commitData.commitMessage ? (
+            <div dangerouslySetInnerHTML={{ __html: commitData.commitMessage }} />
+          ) : (
+            <div>No commit summary available.</div>
+          )}
+      </div>
+      
       {showRepoAnalysis && repoUrl ? (
         <>
           <RepoAnalysis 

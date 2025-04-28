@@ -1,3 +1,5 @@
+
+let summary = ""
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => 
     {
         let commitTitleDiv = document.querySelector('.commit-desc') || document.querySelector(".extended-commit-description-container");
@@ -82,7 +84,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             commitProText.className = 'commit-pro-text';
 
             console.log(message.content);
-            let summary = ""
 
 
             try{
@@ -235,6 +236,15 @@ function addRepositoryAnalysisLink(parentElement) {
                 // Add flag to indicate user explicitly requested analysis
                 localStorage.setItem(`${appNamespace}forceReanalysis`, 'true');
                 console.log('Set forceReanalysis flag in localStorage');
+
+                chrome.storage.local.set({
+                    'github-extension-repoAnalysisUrl': repoUrl,
+                    'github-extension-commitID': commitID,
+                    'github-extension-summary': summary,
+                    'github-extension-forceReanalysis': true,
+                  }, function() {
+                    console.log('Saved repoUrl and commitID in chrome.storage.local');
+                  });
                 
                 // Also try to set it to chrome.storage as a backup, but don't wait for response
                 try {

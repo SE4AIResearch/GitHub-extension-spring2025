@@ -135,6 +135,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
 
 // Add a listener for the repoUrlSaved message
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log("Background script received message:", message);
     if (message.action === 'repoUrlSaved') {
         console.log("Background script received repository URL:", message.repoUrl);
         
@@ -150,6 +151,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
     
     if (message.action === 'syncRepoUrl') {
+        console.log('Background script received syncRepoUrl message:', message);
         console.log("Background script received syncRepoUrl request:", message.repoUrl);
         
         // Update chrome.storage with the new URL
@@ -163,7 +165,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
         });
 
-        chrome.storage.local.set({ 'repoAnalysisUrlCommit': message.commitID }, () => {
+        chrome.storage.local.set({ 'commitID': message.commitID }, () => {
             if (chrome.runtime.lastError) {
                 console.error("Error syncing repository URL:", chrome.runtime.lastError);
                 sendResponse({ success: false, error: chrome.runtime.lastError.message });
