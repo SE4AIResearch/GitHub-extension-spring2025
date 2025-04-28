@@ -167,6 +167,7 @@ public class UnderstandService {
 
     private File determineProjectRoot() throws IOException {
         File cwd = new File(System.getProperty("user.dir"));
+        System.out.println(System.getProperty("user.dir"));
         log.info("Detected Current Working Directory (CWD): {}", cwd.getAbsolutePath());
         
         // Check if current directory is valid
@@ -203,7 +204,7 @@ public class UnderstandService {
     }
 
     private File locateMetricsDirectory(File projectRoot) throws IOException {
-        File metricsDir = new File(projectRoot, "chromeext_metrics");
+        File metricsDir = new File(projectRoot, "../chromeext_metrics");
         log.info("Looking for metrics directory at: {}", metricsDir.getAbsolutePath());
         if (!metricsDir.exists() || !metricsDir.isDirectory()) {
             throw new IOException("Metrics directory not found at expected location: " + metricsDir.getAbsolutePath());

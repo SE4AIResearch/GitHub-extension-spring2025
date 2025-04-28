@@ -1,26 +1,21 @@
 # Stage 1: Build the Maven project
-FROM maven:3.8.6-openjdk-17 AS build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Copy pom.xml and download dependencies
 COPY pom.xml .
 RUN mvn dependency:go-offline
 
-# Copy the source code
 COPY src ./src
 
-# Package the application
-RUN mvn clean package -DskipTests
+# Repackage properly so app.jar is executable
+RUN mvn clean package spring-boot:repackage -DskipTests
 
-# Stage 2: Create the runtime image
-FROM openjdk:17-alpine
+# Stage 2: Runtime image
+FROM eclipse-temurin:17-jdk
 WORKDIR /app
 
-# Copy the jar from the build stage
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose the port Spring Boot will run on
 EXPOSE 8080
 
-# Run the jar
 ENTRYPOINT ["java", "-jar", "app.jar"]

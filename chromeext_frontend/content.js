@@ -1,3 +1,5 @@
+
+let summary = ""
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => 
     {
         let commitTitleDiv = document.querySelector('.commit-desc') || document.querySelector(".extended-commit-description-container");
@@ -82,7 +84,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             commitProText.className = 'commit-pro-text';
 
             console.log(message.content);
-            let summary = ""
 
 
             try{
@@ -205,17 +206,53 @@ function addRepositoryAnalysisLink(parentElement) {
                 // Save to localStorage directly - this is critical for the analysis to work
                 localStorage.setItem(`${appNamespace}repoAnalysisUrl`, repoUrl);
                 console.log('Saved repoAnalysisUrl to localStorage:', repoUrl);
+
+                // ALSO save commitID
+                // Extract commitID again from URL (safe double-check)
+                function match(url) {
+                    const splitwords = url.split('/');
+                    return splitwords;
+                }
+                const url = window.location.href;
+                let commitID = ''
                 
+                const words = match(url);
+                if (words[5] === "commit" || (words[5] === "pull" && words[7] === "commits")) {
+                    const urlToSend = words[0] + '//' + words[2] + "/" + words[3] + "/" + words[4];
+                    console.log(urlToSend);
+                    const commitIDlist = words[words.length - 1].split('?');
+                    commitID = commitIDlist[0];
+                    console.log(commitID);
+
+                    if (commitID) {
+                        localStorage.setItem(`${appNamespace}commitID`, commitID);
+                        console.log('Saved commitID to localStorage:', commitID);
+                    } else {
+                        console.warn('Could not extract commitID properly.');
+                    }
+                }
+                
+
                 // Add flag to indicate user explicitly requested analysis
                 localStorage.setItem(`${appNamespace}forceReanalysis`, 'true');
                 console.log('Set forceReanalysis flag in localStorage');
+
+                chrome.storage.local.set({
+                    'github-extension-repoAnalysisUrl': repoUrl,
+                    'github-extension-commitID': commitID,
+                    'github-extension-summary': summary,
+                    'github-extension-forceReanalysis': true,
+                  }, function() {
+                    console.log('Saved repoUrl and commitID in chrome.storage.local');
+                  });
                 
                 // Also try to set it to chrome.storage as a backup, but don't wait for response
                 try {
                     // Don't use the response callback to avoid issues with message channel closing
                     chrome.runtime.sendMessage({
                         action: 'repoUrlSaved',
-                        repoUrl: repoUrl
+                        repoUrl: repoUrl,
+                        commitID: commitID
                     });
                     console.log("Sent repository URL to background script");
                 } catch (storageErr) {

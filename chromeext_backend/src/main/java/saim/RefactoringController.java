@@ -1,21 +1,20 @@
 package saim;
 
+import java.io.File;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
-
 import org.refactoringminer.api.Refactoring;
 import org.refactoringminer.api.RefactoringHandler;
 import org.refactoringminer.rm1.GitHistoryRefactoringMinerImpl;
@@ -25,9 +24,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.theokanning.openai.completion.CompletionChoice;
-import com.theokanning.openai.completion.CompletionRequest;
-import com.theokanning.openai.completion.CompletionResult;
 import com.theokanning.openai.service.OpenAiService;
 
 @RestController
@@ -39,6 +35,9 @@ public class RefactoringController {
 
     @Autowired
     private ApiKeyRepo apiKeyRepo;
+
+    @Autowired
+    private CommitRefactoringsRepository commitRefactoringsRepository;
 
     @Autowired
     private CommitService cService;
@@ -74,10 +73,10 @@ public class RefactoringController {
         StringBuilder refactoringMessages = new StringBuilder();
         Map<String, Integer> refactoringInstances = new HashMap<>();
 
-        boolean apiSuccess = analyzeCommitUsingGitHubApi(repoUrl, id, miner, refactoringMessages, refactoringInstances);
+        boolean apiSuccess = analyzeCommitUsingGitHubApi(repoUrl, id, miner, refactoringMessages, refactoringInstances, commitRefactoringsRepository);
 
         if (!apiSuccess) {
-            analyzeCommitUsingLocalClone(repoUrl, id, miner, refactoringMessages, refactoringInstances);
+            analyzeCommitUsingLocalClone(repoUrl, id, miner, refactoringMessages, refactoringInstances, commitRefactoringsRepository);
         }
 
         OpenAiService service = new OpenAiService(aiToken);
@@ -141,7 +140,8 @@ public class RefactoringController {
     }
 
     private boolean analyzeCommitUsingGitHubApi(String repoUrl, String commitId, GitHistoryRefactoringMinerImpl miner,
-                                                StringBuilder refactoringMessages, Map<String, Integer> refactoringInstances) {
+                                                StringBuilder refactoringMessages, Map<String, Integer> refactoringInstances,
+                                                CommitRefactoringsRepository commitRefactoringsRepository) {
         final boolean[] refactoringsFound = {false};
         try {
             miner.detectAtCommit(repoUrl, commitId, new RefactoringHandler() {
@@ -153,12 +153,16 @@ public class RefactoringController {
                     }
                     int x = 1;
                     for (Refactoring ref : refactorings) {
+                        System.out.println("Refactoring #" + ref.toString());
                         refactoringMessages.append(x + ". " + ref.toString() + "\n");
-                        System.out.println("Refactoring found: " + ref.getRefactoringType());
+//                        System.out.println("Refactoring found: " + ref.getRefactoringType());
                         String refType = ref.getRefactoringType().toString();
                         refactoringInstances.put(refType, refactoringInstances.getOrDefault(refType, 0) + 1);
                         x++;
                     }
+                    CommitRefactorings commitRef = new CommitRefactorings(commitId, refactoringMessages.toString());
+                    commitRefactoringsRepository.save(commitRef);
+                    System.out.println("Saved refactorings for commit " + commitId + " into database (GitHub API method)");
                 }
                 @Override
                 public void handleException(String commitId, Exception e) {
@@ -175,7 +179,8 @@ public class RefactoringController {
     }
 
     private void analyzeCommitUsingLocalClone(String repoUrl, String commitId, GitHistoryRefactoringMinerImpl miner,
-                                              StringBuilder refactoringMessages, Map<String, Integer> refactoringInstances) {
+                                              StringBuilder refactoringMessages, Map<String, Integer> refactoringInstances,
+                                              CommitRefactoringsRepository commitRefactoringsRepository) {
         try {
             System.out.println("GitHub API approach failed - falling back to shallow clone approach");
             Path tempDir = Files.createTempDirectory("refactoring-clone-");
@@ -215,6 +220,9 @@ public class RefactoringController {
                         refactoringInstances.put(refType, refactoringInstances.getOrDefault(refType, 0) + 1);
                         x++;
                     }
+                    CommitRefactorings commitRef = new CommitRefactorings(commitId, refactoringMessages.toString());
+                    commitRefactoringsRepository.save(commitRef);
+                    System.out.println("Saved refactorings for commit " + commitId + " into database (Local Clone method)");
                 }
                 @Override
                 public void handleException(String commitId, Exception e) {

@@ -29,6 +29,9 @@
             "resources": ["index.html","static/*", "pics/load_spinner.gif"],
             "matches": ["<all_urls>"]
         }
-    ]
+    ],
+    "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' http://localhost:8080"
+  }
 }
 
