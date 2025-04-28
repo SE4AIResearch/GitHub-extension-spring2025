@@ -33,6 +33,7 @@ const Dashboard = () => {
   const [analysisCompleted, setAnalysisCompleted] = useState(false);
   const [forceReanalysis, setForceReanalysis] = useState(false);
   const [showImpactedOnly, setShowImpactedOnly] = useState(true); 
+  const [commitData, setCommitData] = useState(null);
 
 
   useEffect(() => {
@@ -130,6 +131,35 @@ const Dashboard = () => {
       }
     };
 
+    const fetchSummaryData = async (url, commitId) => {
+      try {
+        const encodedUrl = encodeURIComponent(url);
+        const response = await fetch(`localhost:8000/api/commits/message?url=${encodedUrl}&id=${commitId}`);
+        const data = await response.json();
+    
+        if (response.ok) {
+          setCommitData({
+            commitMessage: data.commitMessage,
+            refactorings: data.refactorings,
+          });
+        } else {
+          setCommitData({
+            commitMessage: null,
+            refactorings: null,
+            error: data.error || 'Failed to fetch commit summary',
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching commit summary:', err);
+        setCommitData({
+          commitMessage: null,
+          refactorings: null,
+          error: err.message || 'Unknown error',
+        });
+      }
+    };
+    
+
     window.addEventListener('storage', handleStorageChange);
     return () => {
       window.removeEventListener('storage', handleStorageChange);
@@ -199,6 +229,7 @@ const Dashboard = () => {
     return (
       <>
         {decodedTab && <h2 className="overview-heading">Viewing: {decodedTab}</h2>}
+        <div>{}</div>
         <QualityMetrics metricData={metricData} />
         <ChartTabs
           activeTab={decodedTab}
