@@ -204,7 +204,7 @@ public class UnderstandService {
     }
 
     private File locateMetricsDirectory(File projectRoot) throws IOException {
-        File metricsDir = new File(projectRoot, "../chromeext_metrics");
+        File metricsDir = new File(projectRoot, "/chromeext_metrics");
         log.info("Looking for metrics directory at: {}", metricsDir.getAbsolutePath());
         if (!metricsDir.exists() || !metricsDir.isDirectory()) {
             throw new IOException("Metrics directory not found at expected location: " + metricsDir.getAbsolutePath());
