@@ -352,9 +352,9 @@ public class UnderstandService {
         
         // Set progress based on which commit we're analyzing
         if (fileSuffix.equals("_previous")) {
-            updateJobProgress(analysisId, 40);
+            updateJobProgress(analysisId, 50);
         } else if (fileSuffix.equals("_latest")) {
-            updateJobProgress(analysisId, 65);
+            updateJobProgress(analysisId, 99);
         }
 
         boolean success = false;
@@ -365,7 +365,8 @@ public class UnderstandService {
             log.info("Checking out commit: {}", commitId.getName());
             git.checkout().setName(commitId.getName()).call();
 
-            log.info("Executing Python script...");
+            // Log for confirming the commit which is being analyzed
+            log.info("Executing Python script for commit: {}", commitId.getName());
             PythonExecutionResult result = executePythonScript(baseCommand, scriptWorkingDir);
 
             if (result.exitCode == 0 && result.stdOut != null && !result.stdOut.trim().isEmpty()) {

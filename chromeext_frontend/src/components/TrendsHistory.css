@@ -1,0 +1,145 @@
+.trends-history {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.trends-history-loading,
+.trends-history-error {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.warning-message {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.metric-selector {
+  margin-bottom: 20px;
+}
+
+.metric-selector label {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.metric-selector-dropdown {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  min-width: 250px;
+}
+
+.chart-container {
+  height: 600px;
+  margin-bottom: 20px;
+}
+
+.legend-container {
+  height: 50px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+}
+
+.legend-item-previous {
+  margin-right: 20px;
+}
+
+.legend-color {
+  width: 15px;
+  height: 15px;
+  margin-right: 5px;
+}
+
+.legend-color-previous {
+  background-color: rgba(150, 150, 150, 0.5);
+  border: 1px solid rgb(120, 120, 120);
+}
+
+.legend-color-latest {
+  background-color: rgba(209, 236, 244, 0.5);
+  border: 1px solid rgb(16, 110, 80);
+}
+
+.chart-title {
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.chart-scroll-wrapper {
+  position: relative;
+  height: calc(100% - 80px);
+}
+
+.chart-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: rgb(120, 120, 120);
+  font-weight: bold;
+}
+
+.chart-arrow-left {
+  left: -45px;
+}
+
+.chart-arrow-right {
+  right: -45px;
+}
+
+.chart-padding-container {
+  position: relative;
+  height: 100%;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+#chart-scroll-container {
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+#chart-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.chart-inner-container {
+  height: 100%;
+}
+
+.no-data-message {
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  text-align: center;
+} 

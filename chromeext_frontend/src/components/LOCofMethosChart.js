@@ -12,49 +12,59 @@ import {
 import Slider from "rc-slider";
 import zoomPlugin from "chartjs-plugin-zoom";
 import { useLocation } from "react-router-dom";
-
+import "rc-slider/assets/index.css";
+import Select from "react-select";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title, zoomPlugin);
 
 const LOCofMethosChart = ({ metricData = [] }) => {
   const [lcomData, setLcomData] = useState([]);
-  const [selectedLcomClass, setSelectLcomClass] = useState("All");
+  const [selectedLcomClasses, setSelectedLcomClasses] = useState([]);
   const [range, setRange] = useState([0, 100]);
+  const [sortOrder, setSortOrder] = useState("default");
+
   const location = useLocation();
   const highlightClasses = location.state?.highlightClasses || [];
-  
 
   const shortenClassName = (fullName) => {
+    if (typeof fullName !== "string") return "";
     const parts = fullName.split(".");
     if (parts.length >= 2) {
       return `${parts[parts.length - 2]}.${parts[parts.length - 1]}`;
     }
     return fullName;
-  };  
+  };
 
   useEffect(() => {
-    fetch("/Java_4185549.json")
-      .then((res) => {
-        if (!res.ok) throw new Error("Network response was not ok");
-        return res.json()
-      })
-      .then((data) => {
-        const mapped = data.class_metrics
-        .filter(item => item.metrics.PercentLackOfCohesion !== null)
-        .map((item) => ({
-          className: item.name,
-          lcom: item.metrics.PercentLackOfCohesion ?? 0,
-        }));
-      setLcomData(mapped);
-      })
-      .catch((err) => console.error("Failed to load LCOM data", err));
-  }, []);
+   if (!metricData) return;
+   
+   const classMetricsArray = Array.isArray(metricData.class_metrics) 
+     ? metricData.class_metrics 
+     : Array.isArray(metricData) ? metricData : [];
+   
+   if (classMetricsArray.length > 0) {
+     const mapped = classMetricsArray.map(item => ({
+       className: item.className || item.name,
+       lcom: item.lackOfCohesion || item.metrics?.PercentLackOfCohesion || 0
+     }));
+     setLcomData(mapped);
+   }
+  }, [metricData]);
+  
 
-  const filteredData = lcomData.filter((item) => {
-    const classMatch = selectedLcomClass === "All" || item.className === selectedLcomClass;
+  const filteredData = lcomData.filter(item => {
+    const classMatch =
+    selectedLcomClasses.length === 0 || selectedLcomClasses.some(sel => sel.value === item.className);
+    //selectedLcomClass === "All" || item.className === selectedLcomClass; this was for singlr selec
     const rangeMatch = item.lcom >= range[0] && item.lcom <= range[1];
     return classMatch && rangeMatch;
   });
+  
+  if (sortOrder === "asc") {
+    filteredData.sort((a, b) => a.lcom - b.lcom);
+  } else if (sortOrder === "desc") {
+    filteredData.sort((a, b) => b.lcom - a.lcom);
+  }
 
   const chartData = {
     labels: filteredData.map((item) => item.className),
@@ -63,16 +73,16 @@ const LOCofMethosChart = ({ metricData = [] }) => {
         label: "Lack of Cohesion Method",
         data: filteredData.map((item) => item.lcom),
         backgroundColor: filteredData.map((item) =>
-          highlightClasses.includes(item.className) ? "#cc0000" : "rgba(209, 236, 244, 0.5)"
+          highlightClasses.includes(item.className) ? "rgba(255, 99, 132, 0.7)"  : "rgba(209, 236, 244, 0.5)"
         ),
         borderColor: filteredData.map((item) =>
-          highlightClasses.includes(item.className) ? "#cc0000" : "rgb(16, 110, 80)"
+          highlightClasses.includes(item.className) ? "rgba(248, 3, 56, 0.7)" : "rgb(16, 110, 80)"
         ),
         borderWidth: 1,
       },
     ],
   };
-  
+
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -80,9 +90,8 @@ const LOCofMethosChart = ({ metricData = [] }) => {
       x: {
         type: "category",
         ticks: {
-          callback: function (value, index) {
+          callback: (value, index) => {
             const label = chartData.labels[index];
-            //return label.length > 25 ? label.slice(0, 22) + "..." : label;
             const shortLabel = shortenClassName(label);
             return shortLabel.length > 25 ? shortLabel.slice(0, 22) + "..." : shortLabel;
           },
@@ -97,18 +106,16 @@ const LOCofMethosChart = ({ metricData = [] }) => {
     plugins: {
       tooltip: {
         callbacks: {
-          label: (ctx) => //`${ctx.dataset.label}: LCOM = ${ctx.raw}`,
-          {
-            const originalLabel = chartData.labels[context.dataIndex];
+          label: (ctx) => {
+            const originalLabel = chartData.labels[ctx.dataIndex];
             const shortLabel = shortenClassName(originalLabel);
             const rawScore = ctx.raw;
             let interpretation = "";
             if (rawScore === 0) interpretation = "Perfect cohesion";
             else if (rawScore > 0 && rawScore <= 1) interpretation = "Good cohesion";
             else interpretation = "Low cohesion";
-      
-            return `${context.dataset.label}: ${context.raw} | Class: ${shortLabel}`;
-          }
+            return `${ctx.dataset.label}: ${ctx.raw} | Class: ${shortLabel} | ${interpretation}`;
+          },
         },
       },
       legend: { display: false },
@@ -116,52 +123,63 @@ const LOCofMethosChart = ({ metricData = [] }) => {
   };
 
   return (
-    <div className="lcom-dashboard">
-      <div className="metrics-filter">
-        <label>
-          Filter by Class
-          <select value={selectedLcomClass} onChange={(e) => setSelectLcomClass(e.target.value)}>
-            <option value="All">All</option>
-            {lcomData.map((item, idx) => (
-              <option key={idx} value={item.className}>{item.className}</option>
-            ))}
+    <div className="lcom-bar-chart">
+      <div className="loc-filter">
+        <div>
+          <label>Filter by Class</label>
+          <Select
+            isMulti
+            options={lcomData.map((item) => ({
+              label: item.className,
+              value: item.className,
+            }))}
+            value={selectedLcomClasses}
+            onChange={setSelectedLcomClasses}
+            placeholder="Select classes..."
+          />
+        </div>
+
+        <div>
+          <label>Sort by LCOM</label>
+          <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+            <option value="default">Default</option>
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
           </select>
-        </label>
+        </div>
       </div>
-      
-      <h2>Lack of Cohesion per Method Metric</h2>
 
-      <div className="lcom-top-section horizontal-layout">
-        <div className="vertical-slider-container">
-          <div className="slider-wrapper">
-          <div className="slider-text">
-              LCOM Range: {range[0]} – {range[1]}
-            </div>
-            <div>100</div>
-            <Slider
-              range
-              vertical
-              min={0}
-              max={100}
-              value={range}
-              onChange={setRange}
-              allowCross={false}
-              trackStyle={[{ backgroundColor: "#007b5e" }]}
-              handleStyle={[
-                { borderColor: "#007b5e", backgroundColor: "#fff" },
-                { borderColor: "#007b5e", backgroundColor: "#fff" }
-              ]}
-            />
-             <div>0</div>
 
+  <h2>Lack of Cohesion per Method Metric</h2>
+    <div className="lcom-top-section horizontal-layout">
+      <div className="lcom-vertical-slider-container">
+        <div className="lcom-slider-wrapper">
+          <div className="lcom-slider-text">
+            LCOM Range: {range[0]} – {range[1]}
           </div>
-
-        </div>
-
-        <div className="bubble-chart">
-          <Bar data={chartData} options={options} />
+          <div>100</div>
+          <Slider
+            range
+            vertical
+            min={0}
+            max={100}
+            value={range}
+            onChange={setRange}
+            allowCross={false}
+            trackStyle={[{ backgroundColor: "#007b5e" }]}
+            handleStyle={[
+              { borderColor: "#007b5e", backgroundColor: "#fff" },
+              { borderColor: "#007b5e", backgroundColor: "#fff" },
+            ]}
+          />
+          <div>0</div>
         </div>
       </div>
+
+      <div className="lcom-chart">
+        <Bar data={chartData} options={options} />
+      </div>
+    </div>
 
       <div className="lcom-legend">
         <h4>LCOM Interpretation</h4>
@@ -178,21 +196,44 @@ const LOCofMethosChart = ({ metricData = [] }) => {
       </div>
 
       <div className="metrics-table">
-        <h2>LCOM Metrics (Top 5)</h2>
-        <table>
-          <thead>
-            <tr><th>Class Name</th><th>LCOM Score</th></tr>
-          </thead>
-          <tbody>
-            {lcomData.slice(0, 5).map((item, index) => (
-              <tr key={index}>
-                <td>{item.className}</td>
-                <td>{item.lcom}</td>
+        <h2>LCOM Metrics (Top 10 Highest)</h2>
+
+        <div className="metrics-table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Class Name</th>
+                <th>LCOM Score</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {[...lcomData]
+                .sort((a, b) => b.lcom - a.lcom)
+                .slice(0, 10)
+                .map((item, index) => {
+                  let color = "rgba(23, 227, 53, 0.7)"; 
+                  if (item.lcom > 1) color = "rgba(248, 3, 56, 0.7)"; 
+                  else if (item.lcom > 0 && item.lcom <= 1) color = "rgba(216, 238, 20, 0.7)"; 
+                  return (
+                    <tr key={index}>
+                      <td>{item.className}</td>
+                      <td style={{ color: color, fontWeight: "bold" }}>{item.lcom}</td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+        </div>
       </div>
+      <div className="color-legend">
+          <h4>Color Interpretation</h4>
+          <ul>
+            <li><span className="legend-dot high-risk"></span> High Risk (LCOM = 1)</li>
+            <li><span className="legend-dot medium-risk"></span> Medium Risk (LCOM ≤ 1)</li>
+            <li><span className="legend-dot low-risk"></span> Low Risk (LCOM = 0)</li>
+          </ul>
+        </div>
+
     </div>
   );
 };

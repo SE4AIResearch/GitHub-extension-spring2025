@@ -4,6 +4,8 @@ import ChartTabs from "./components/ChartTabs.js";
 import Footer from "./components/Footer.js";
 import RepoAnalysis from "./components/RepoAnalysis.js";
 import QualityMetrics from "./components/QualityMetrics.js";
+import LargestClassesChart from "./components/LargestClassesChart.js";
+import MostComplexFunctionsChart from "./components/MostComplexFunctionsChart.js";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Bar } from "react-chartjs-2";
 import {
@@ -35,6 +37,13 @@ const Dashboard = () => {
   const [showImpactedOnly, setShowImpactedOnly] = useState(true); 
   const [commitData, setCommitData] = useState(null);
 
+  // Exposing metrics data for chart download
+  useEffect(() => {
+    window.appMetricsData = metricData;
+    return () => {
+      window.appMetricsData = null;
+    };
+  }, [metricData]);
 
   useEffect(() => {
     setSelectedTab(decodedTab);
@@ -244,8 +253,16 @@ const Dashboard = () => {
   }, []);
 
   const getMostImpactedRecords = (limit = 5) => {
-    if (!metricData || metricData.length === 0) return [];
-    return [...metricData]
+    if (!metricData) return [];
+    
+    // If metricData is the full object with class_metrics and cyclomatic
+    const classMetricsArray = Array.isArray(metricData.class_metrics) 
+      ? metricData.class_metrics 
+      : metricData;
+      
+    if (!classMetricsArray || classMetricsArray.length === 0) return [];
+    
+    return [...classMetricsArray]
       .map(cls => ({
         ...cls,
         impactScore: cls.totalLOC * 0.6 + cls.cyclomatic * 0.4
@@ -359,6 +376,13 @@ const Dashboard = () => {
                 );
               })}
             </div>
+            
+            {/*Adding the charts for the largest classes and functions*/}
+            <h2 className="overview-heading" style={{ marginTop: "30px" }}>Largest Code Entities</h2>
+            <div className="overview-charts-container">
+              <LargestClassesChart metricsData={metricData} />
+              <MostComplexFunctionsChart metricsData={metricData} />
+            </div>
           </div>
         )}
       </>
@@ -367,7 +391,7 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <Header />
+      <Header metricData={metricData} />
 
       <div className="commit-summary">
           {commitData && commitData.commitMessage ? (
@@ -376,7 +400,6 @@ const Dashboard = () => {
             <div>No commit summary available.</div>
           )}
       </div>
-      
       {showRepoAnalysis && repoUrl ? (
         <>
           <RepoAnalysis 

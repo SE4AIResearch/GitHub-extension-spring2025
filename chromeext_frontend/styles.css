@@ -528,3 +528,103 @@ button.disabled {
 .result-files a:hover {
   text-decoration: underline;
 }
+
+/* Download button loading indicator */
+.loading-dot {
+  display: inline-block;
+  margin-left: 4px;
+  animation: blink 1.4s infinite both;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+/* Chart download loading overlay */
+#chart-download-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+#chart-download-loader div {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  max-width: 80%;
+}
+
+/* Style for the loading button */
+.loading-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.2; }
+  50% { opacity: 0.5; }
+  100% { opacity: 0.2; }
+}
+
+/* Styles used in PDF report */
+@media print {
+  body { 
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  .chart-container {
+    page-break-inside: avoid;
+    margin-bottom: 20px;
+  }
+  
+  h1, h2 {
+    font-weight: bold;
+    color: #000 !important;
+  }
+  
+  .header {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+  
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  .page-break {
+    page-break-after: always;
+    height: 0;
+    display: block;
+  }
+}
+
+/* Ensure buttons look disabled when they are */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
