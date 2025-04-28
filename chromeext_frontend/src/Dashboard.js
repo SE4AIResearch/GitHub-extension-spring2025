@@ -36,6 +36,13 @@ const Dashboard = () => {
   const [forceReanalysis, setForceReanalysis] = useState(false);
   const [showImpactedOnly, setShowImpactedOnly] = useState(true); 
 
+  // Exposing metrics data for chart download
+  useEffect(() => {
+    window.appMetricsData = metricData;
+    return () => {
+      window.appMetricsData = null;
+    };
+  }, [metricData]);
 
   useEffect(() => {
     setSelectedTab(decodedTab);
@@ -156,7 +163,7 @@ const Dashboard = () => {
   const getMostImpactedRecords = (limit = 5) => {
     if (!metricData) return [];
     
-    // If metricData is the full object with class_metrics
+    // If metricData is the full object with class_metrics and cyclomatic
     const classMetricsArray = Array.isArray(metricData.class_metrics) 
       ? metricData.class_metrics 
       : metricData;
