@@ -167,7 +167,7 @@ public class LLM {
                     .build();
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("localhost:8000/get-response"))
+                    .uri(URI.create("http://localhost:8000/get-response"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer "+aiToken)
                     .POST(HttpRequest.BodyPublishers.ofString(jsonRequestBody))

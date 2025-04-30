@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import downloadicon from "../icons/download.svg";
 import refreshicon from "../icons/refresh.svg"
-import editicon from "../icons/edit.svg";
 import logo from "../icons/logo.png";
 import MaintainabilityScoreTable from './MaintainabilityScoreTable.js';
 import { downloadAllCharts } from './AnalysisReportDownload.js';
@@ -116,9 +115,6 @@ const avgMaintainabilityScore = safeData.length > 0
         </button>
         <button id="refresh-btn" onClick={handleForceReanalysis}>
           <img src={refreshicon} height={24} alt="refresh" />
-        </button>
-        <button id="edit-btn">
-          <img src={editicon} height={24} alt="edit" />
         </button>
       </div>
     </div>

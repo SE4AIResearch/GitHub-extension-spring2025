@@ -6,17 +6,10 @@ import RepoAnalysis from "./components/RepoAnalysis.js";
 import QualityMetrics from "./components/QualityMetrics.js";
 import LargestClassesChart from "./components/LargestClassesChart.js";
 import MostComplexFunctionsChart from "./components/MostComplexFunctionsChart.js";
+import RefactoringsList from "./components/RefactoringsList.js";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Bar } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-  Title,
-} from "chart.js";
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title } from "chart.js";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title);
 
@@ -36,6 +29,7 @@ const Dashboard = () => {
   const [forceReanalysis, setForceReanalysis] = useState(false);
   const [showImpactedOnly, setShowImpactedOnly] = useState(true); 
   const [commitData, setCommitData] = useState(null);
+  const [refactorings, setRefactorings] = useState([]);
 
   // Exposing metrics data for chart download
   useEffect(() => {
@@ -72,12 +66,20 @@ const Dashboard = () => {
           commitMessage: data.commitMessage,
           refactorings: data.refactorings,
         });
+        
+        // If there are refactorings in the response, set them
+        if (data.refactorings) {
+          setRefactorings(data.refactorings.split('\n').filter(line => line.trim() !== ''));
+        } else {
+          setRefactorings([]);
+        }
       } else {
         setCommitData({
           commitMessage: null,
           refactorings: null,
           error: data.error || 'Failed to fetch commit summary',
         });
+        setRefactorings([]);
       }
     } catch (err) {
       console.error('Error fetching commit summary:', err);
@@ -86,13 +88,32 @@ const Dashboard = () => {
         refactorings: null,
         error: err.message || 'Unknown error',
       });
+      setRefactorings([]);
+    }
+  };
+
+  const fetchRefactorings = async (url, commitId, uuid) => {
+    try {
+      const encodedUrl = encodeURIComponent(url);
+      const response = await fetch(`http://localhost:8080/api/refactorings?url=${encodedUrl}&id=${commitId}&uuid=${uuid || ''}`);
+      const data = await response.json();
+      
+      if (response.ok && data.refactorings) {
+        setRefactorings(data.refactorings.split('\n').filter(line => line.trim() !== ''));
+      } else {
+        console.error('Error fetching refactorings:', data.error);
+        setRefactorings([]);
+      }
+    } catch (err) {
+      console.error('Error fetching refactorings:', err);
+      setRefactorings([]);
     }
   };
 
   useEffect(() => {
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
       chrome.storage.local.get(
-        ['github-extension-repoAnalysisUrl', 'github-extension-commitID', 'github-extension-summary', 'github-extension-forceReanalysis'],
+        ['github-extension-repoAnalysisUrl', 'github-extension-commitID', 'github-extension-summary', 'github-extension-forceReanalysis', 'github-extension-uuid'],
         (result) => {
           if (chrome.runtime.lastError) {
             console.error('Error accessing chrome.storage:', chrome.runtime.lastError);
@@ -105,7 +126,8 @@ const Dashboard = () => {
             'github-extension-repoAnalysisUrl': repoAnalysisUrl, 
             'github-extension-commitID': commitID, 
             'github-extension-summary': summary,
-            'github-extension-forceReanalysis': forceReanalysis 
+            'github-extension-forceReanalysis': forceReanalysis,
+            'github-extension-uuid': uuid
           } = result;
   
           if (repoAnalysisUrl) {
@@ -119,6 +141,9 @@ const Dashboard = () => {
               commitMessage: summary,
               refactorings: null,
             });
+            
+            // Not extracting refactorings from summary - only using direct API responses
+            setRefactorings([]);
           } else {
             console.warn('No commit summary found in chrome.storage.local.');
           }
@@ -133,6 +158,14 @@ const Dashboard = () => {
             // You disabled fetching from localhost (good).
           } else {
             console.warn('No commitID found in chrome.storage.local');
+          }
+  
+          // Fetch refactorings if we have both repo URL and commit ID
+          if (repoAnalysisUrl && commitID) {
+            console.log("Fetching refactorings for commitID:", commitID);
+            fetchRefactorings(repoAnalysisUrl, commitID, uuid);
+          } else {
+            console.warn('Missing repoAnalysisUrl or commitID, cannot fetch refactorings');
           }
         }
       );
@@ -182,9 +215,10 @@ const Dashboard = () => {
             localStorage.removeItem(`${appNamespace}forceReanalysis`);
           }
           const commitID = localStorage.getItem(`${appNamespace}commitID`);
+          const uuid = localStorage.getItem(`${appNamespace}uuid`);
           if (commitID) {
-            console.log("Calling fetchSummaryData with repoUrl and commitID:", latestUrl, commitID);
-            // fetchSummaryData(latestUrl, commitID);
+            console.log("Calling fetchRefactorings with repoUrl and commitID:", latestUrl, commitID);
+            fetchRefactorings(latestUrl, commitID, uuid);
           } else {
             console.warn("No commitID found in localStorage");
           }
@@ -391,15 +425,38 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <Header metricData={metricData} />
-
-      <div className="commit-summary">
-          {commitData && commitData.commitMessage ? (
-            <div dangerouslySetInnerHTML={{ __html: commitData.commitMessage }} />
-          ) : (
-            <div>No commit summary available.</div>
-          )}
+      <Header metricData={metricData} />  
+      
+      {repoUrl && (
+        <p><b>Repository:</b> {repoUrl}</p>
+      )}
+      
+      <div className="dashboard-cards">
+        <h3>Commit Summary</h3>
+        {commitData && commitData.commitMessage ? (
+          <div className="commit-summary-content" style={{marginTop: 0, paddingTop: 0}}>
+            <div dangerouslySetInnerHTML={{ __html: commitData.commitMessage.replace(
+              /COMMIT PRO/, ''
+            ).replace(
+              /SUMMARY:/g, '<div class="commit-section"><span class="commit-section-title">SUMMARY:</span><div class="commit-content">'
+            ).replace(
+              /INTENT:/g, '</div></div><div class="commit-section"><span class="commit-section-title">INTENT:</span><div class="commit-content">'
+            ).replace(
+              /IMPACT:/g, '</div></div><div class="commit-section"><span class="commit-section-title">IMPACT:</span><div class="commit-content">'
+            ).replace(
+              /INSTRUCTION:/g, '</div></div><div class="commit-section"><span class="commit-section-title">INSTRUCTION:</span><div class="commit-content">'
+            ) + '</div></div>' }} />
+          </div>
+        ) : (
+          <div>No commit summary available.</div>
+        )}
       </div>
+      
+      <div className="dashboard-cards">
+        <h3>Refactorings</h3>
+        <RefactoringsList refactorings={refactorings} />
+      </div>
+      
       {showRepoAnalysis && repoUrl ? (
         <>
           <RepoAnalysis 
@@ -413,6 +470,7 @@ const Dashboard = () => {
       ) : (
         renderCharts()
       )}
+      
       <Footer />
     </div>
   );

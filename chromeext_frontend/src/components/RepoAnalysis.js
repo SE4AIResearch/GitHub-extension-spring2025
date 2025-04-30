@@ -288,7 +288,7 @@ const RepoAnalysis = ({ repoUrl, onAnalysisComplete, onMetricsLoaded, forceReana
   return (
     <div className="repo-analysis-container">
       <div className="repo-analysis-info">
-        <div className="repo-url">
+        <div className="repo-url" style={{ display: 'none' }}>
           <strong>Repository:</strong> {repoUrl || 'No repository URL provided'}
         </div>
       </div>

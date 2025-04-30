@@ -434,6 +434,99 @@ body, html, #root {
   font-style: italic;
 }
 
+/* Added card styling to match charts on dashboard */
+.dashboard-cards {
+  background: #fff;
+  border: 1px solid #e1e1e1;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin: 2rem;
+  font-family: 'Poppins', sans-serif;
+  overflow: hidden;
+}
+
+.dashboard-cards h3 {
+  font-size: 18px;
+  font-weight: 600;
+  font-style: italic;
+  margin-bottom: 10px;
+  text-align: center;
+  color: #444;
+  border-bottom: 1px solid #f1f1f1;
+  padding-bottom: 8px;
+  margin-top: 0;
+}
+
+/* Style for HTML content in commit summary */
+.dashboard-cards div[dangerouslySetInnerHTML],
+.dashboard-cards .commit-summary-content,
+.refactorings-list,
+.refactorings-list li,
+.dashboard-cards div {
+  line-height: 1.4;
+  font-size: 13px;
+  color: #444;
+  margin-top: 0;
+}
+
+.commit-summary-content {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.dashboard-cards .commit-section:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+/* Format specific parts of commit summary */
+.dashboard-cards .commit-section {
+  margin-bottom: 6px;
+  margin-top: 0;
+}
+
+.dashboard-cards .commit-section-title {
+  font-weight: 600;
+  color: #222;
+  display: inline-block;
+  margin-right: 6px;
+  font-size: 13px;
+}
+
+.dashboard-cards .commit-content {
+  display: inline;
+  font-size: 13px;
+}
+
+/* Styling for refactorings list */
+.refactorings-list {
+  margin-top: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+.refactorings-list ul {
+  list-style-type: decimal;
+  padding-left: 25px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.refactorings-list li {
+  padding: 3px 0;
+  font-size: 14px;
+  color: #444;
+  line-height: 1.4;
+}
+
+.no-refactorings {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+  padding: 1rem 0;
+  font-size: 14px;
+}
+
 .overview-charts-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
