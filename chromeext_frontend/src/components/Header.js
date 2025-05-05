@@ -80,7 +80,7 @@ const avgMaintainabilityScore = safeData.length > 0
       return;
     }
   
-    const dataStr = JSON.stringify(safeData, null, 2); // nicely formatted
+    const dataStr = JSON.stringify(safeData, null, 2); 
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
   

@@ -434,6 +434,15 @@ body, html, #root {
   font-style: italic;
 }
 
+.toggle-filter {
+  float: left;
+  margin-top: -36px; 
+  margin-right: 40px; 
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+}
+
+
 /* Added card styling to match charts on dashboard */
 .dashboard-cards {
   background: #fff;
