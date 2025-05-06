@@ -306,6 +306,20 @@ const Dashboard = () => {
   };
   
 
+  const getTopMetricsFromNested = (key, limit = 5) => {
+    if (!metricData || !Array.isArray(metricData.class_metrics)) return [];
+  
+    return metricData.class_metrics
+      .filter(cls => cls.metrics && typeof cls.metrics[key] === "number")
+      .map(cls => ({
+        className: cls.name || cls.className || "Unnamed",
+        [key]: cls.metrics[key],
+      }))
+      .sort((a, b) => b[key] - a[key])
+      .slice(0, limit);
+  };
+  
+
   const createBarChartData = (records, key) => ({
     labels: records.map((item) => item.className),
     datasets: [
@@ -324,7 +338,7 @@ const Dashboard = () => {
     { title: "Lack of Cohesion (LCOM)", key: "lackOfCohesion", route: "Lack of Cohesion of Methods" },
     { title: "Coupling Between Objects (CBO)", key: "coupling", route: "Coupling Between Objects" },
     { title: "Cyclomatic Complexity", key: "cyclomatic", route: "Quality Metrics" },
-  ];
+      ];
 
   const handleChartClick = (route, highlightClasses = []) => {
     navigate(`/dashboard/${encodeURIComponent(route)}`, {
@@ -368,7 +382,7 @@ const Dashboard = () => {
                 const topData = getMostImpactedRecords(5); 
                 if (topData.length === 0) return null;
                 const chartData = createBarChartData(topData, metric.key);
-                const options = {
+                const options =   {
                   onClick: (event, elements) => {
                     if (elements.length > 0) {
                       const selected = topData.map((item) => item.className);
@@ -409,6 +423,50 @@ const Dashboard = () => {
                   </div>
                 );
               })}
+
+              {["MaxInheritanceTree", "CountClassDerived"].map((key, index) => {
+                  const title = key === "MaxInheritanceTree" ? "Inheritance Depth (DIT)" : "Number of Children (NOC)";
+                  const topData = getTopMetricsFromNested(key, 5);
+                  if (topData.length === 0) return null;
+                  const chartData = createBarChartData(topData, key);
+                  const options = { 
+                    onClick: (event, elements) => {
+                      if (elements.length > 0) {
+                        const selected = topData.map((item) => item.className);
+                        handleChartClick(metric.route, selected);
+                      }
+                    },
+                    responsive: true,
+                    plugins: {
+                      legend: { display: false },
+                      tooltip: {
+                        callbacks: {
+                          label: (context) => `${context.dataset.label}: ${context.raw}`,
+                        },
+                      },
+                    },
+                    scales: {
+                      x: {
+                        type: "category",
+                        ticks: {
+                          callback: function (value, index) {
+                            const label = chartData.labels[index];
+                            return label.length > 25 ? label.slice(0, 22) + "..." : label;
+                          },
+                        },
+                        title: { display: false },
+                      },
+                      y: { beginAtZero: true },
+                    },
+                 }; 
+                  return (
+                    <div key={`extra-${index}`} className="overview-chart" onClick={() => handleChartClick("Quality Metrics")}>
+                      <h4 className="overview-chart-title">{title} - Most Impacted Classes</h4>
+                      <Bar data={chartData} options={options} />
+                    </div>
+                  );
+                })}
+
             </div>
             
             {/*Adding the charts for the largest classes and functions*/}
