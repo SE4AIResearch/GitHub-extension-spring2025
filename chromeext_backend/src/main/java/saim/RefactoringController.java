@@ -19,11 +19,14 @@ import org.refactoringminer.api.Refactoring;
 import org.refactoringminer.api.RefactoringHandler;
 import org.refactoringminer.rm1.GitHistoryRefactoringMinerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.gson.Gson;
 import com.theokanning.openai.service.OpenAiService;
 
 @RestController
@@ -271,6 +274,49 @@ public class RefactoringController {
             e.printStackTrace();
             return new Greeting(counter.incrementAndGet(), 
                 "Error analyzing commit: " + e.getMessage());
+        }
+    }
+
+    @CrossOrigin(origins = "*")
+    @GetMapping("/api/refactorings")
+    public ResponseEntity<String> getRefactorings(@RequestParam String url, @RequestParam String id, @RequestParam(required = false) String uuid) {
+        try {
+            // Clean the commit ID
+            String cleanId = new ReactoringHelper().cleanCommitId(id);
+            
+            // First check if refactorings are already in the database
+            Optional<CommitRefactorings> refactoringsOpt = commitRefactoringsRepository.findByCommitId(cleanId);
+            
+            if (refactoringsOpt.isPresent()) {
+                Map<String, String> response = new HashMap<>();
+                response.put("refactorings", refactoringsOpt.get().getRefactorings());
+                return ResponseEntity.ok(new Gson().toJson(response));
+            }
+            
+            // If not in database, fetch them
+            String repoUrl = new ReactoringHelper().getRepoUrl(url);
+            
+            GitHistoryRefactoringMinerImpl miner = new GitHistoryRefactoringMinerImpl();
+            ApiKey apiKey = retrieveApiKey(uuid);
+            String githubToken = apiKey.getGithubApiKey();
+            setupGitHubAuthentication(githubToken, miner);
+            
+            StringBuilder refactoringMessages = new StringBuilder();
+            Map<String, Integer> refactoringInstances = new HashMap<>();
+            
+            boolean apiSuccess = analyzeCommitUsingGitHubApi(repoUrl, cleanId, miner, refactoringMessages, refactoringInstances, commitRefactoringsRepository);
+            
+            if (!apiSuccess) {
+                analyzeCommitUsingLocalClone(repoUrl, cleanId, miner, refactoringMessages, refactoringInstances, commitRefactoringsRepository);
+            }
+            
+            Map<String, String> response = new HashMap<>();
+            response.put("refactorings", refactoringMessages.toString());
+            return ResponseEntity.ok(new Gson().toJson(response));
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Gson().toJson(error));
         }
     }
 }
