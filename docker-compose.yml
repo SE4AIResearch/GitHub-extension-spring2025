@@ -26,6 +26,9 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    volumes:
+      - ./chromeext_metrics:/chromeext_metrics:ro
+      - /Applications/Understand.app/Contents/MacOS
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://chromeext_mysql:3306/commit_database2?sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false
       SPRING_DATASOURCE_USERNAME: root
@@ -39,24 +42,26 @@ services:
       METRICS_SCRIPT_PATH: /chromeext_metrics/understandMetrics.py
       OUTPUT_DIRECTORY_NAME: output
       REPOS_DIRECTORY_NAME: repos
-      SCITOOLS_DIRECTORY: /Applications/Understand.app/Contents/MacOS
-      SCITOOLS_UPYTHON_EXECUTABLE: /Applications/Understand.app/Contents/MacOS/upython
+      SCITOOLS_DIRECTORY: /
+      SCITOOLS_UPYTHON_EXECUTABLE: upython
     networks:
       - chromeext_network
   
   metrics:
     build:
       context: ./chromeext_metrics
-    container_name: chromeext_metrics
+    container_name: chromeext-metrics
     ports:
       - "8000:8000"
     volumes:
-      - ./chromeext_metrics:/app  # your code
-      - /Applications/Understand.app/Contents/MacOS:/scitools #replace with your path
+      - ./chromeext_metrics:/app
+      - /Applications/Understand.app/Contents/MacOS:/scitools:ro
     networks:
       - chromeext_network
+    env_file:
+      - ./chromeext_metrics/.env
     environment:
-      OPENAI_API_KEY: InsertKeyHere
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
 
 networks:
   chromeext_network:

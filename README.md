@@ -37,6 +37,11 @@ Run the following command from chromeext_backend folder:
 -	Go to the src -> main -> java -> saim
 -	Right click on RestServiceApplication.java and click on "Run java"
 
+### Docker -
+Run the following command from the main folder:
+- make build
+- make up
+
 ### After following these steps:
 - Open chrome browser and go to "chrome://extensions/"
 - Click on "Load unpacked"

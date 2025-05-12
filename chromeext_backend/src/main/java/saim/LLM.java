@@ -6,8 +6,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
-import javax.naming.StringRefAddr;
-
 import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
@@ -151,6 +149,9 @@ public class LLM {
 
     public String generateSummaryForNoRefactorings(String fullUrl, String repoUrl, OpenAiService service, String aiToken) {
         System.out.println("Generating summary for no refactorings");
+
+        System.out.println("🔄 Sending request to: http://chromeext-metrics:8000/get-response");
+        System.out.println("With token: Bearer " + aiToken);
         
         try {
             String prompt = buildPromptFromRefactorings(fullUrl);
@@ -165,9 +166,12 @@ public class LLM {
             HttpClient client = HttpClient.newBuilder()
                     .version(HttpClient.Version.HTTP_1_1)
                     .build();
+                
+            URI uri = new URI("http", null, "chromeext-metrics", 8000, "/get-response", null, null);
+
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("localhost:8000/get-response"))
+                    .uri(uri)
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer "+aiToken)
                     .POST(HttpRequest.BodyPublishers.ofString(jsonRequestBody))
@@ -188,6 +192,9 @@ public class LLM {
 
     public String generateSummaryForRefactorings(String refactorings, Map<String, Integer> refactoringInstances, String repoUrl, String commitUrl, String aiToken) {
         System.out.println("Generating summary for refactorings");
+
+        System.out.println("🔄 Sending request to: http://chromeext-metrics:8000/get-response");
+        System.out.println("With token: Bearer " + aiToken);
         try {
             String prompt = buildPromptFromRefactorings(refactorings);
 
@@ -203,14 +210,18 @@ public class LLM {
                     .version(HttpClient.Version.HTTP_1_1)
                     .build();
 
+            URI uri = new URI("http", null, "chromeext-metrics", 8000, "/get-response", null, null);
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/get-response"))
+                    .uri(uri)
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer "+aiToken)
                     .POST(HttpRequest.BodyPublishers.ofString(jsonRequestBody))
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            System.out.println(" Response status code: " + response.statusCode());
+            System.out.println(" Response body: " + response.body());
 
             JSONObject jsonResponse = new JSONObject(response.body());
             String generatedText = jsonResponse.optString("response_with_cs", "");
