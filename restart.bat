@@ -5,8 +5,10 @@ REM === CONFIG ===
 set BACKEND_DIR=chromeext_backend
 set JAR_FILE=%BACKEND_DIR%\target\app.jar
 
+echo 🔁 Restarting Docker containers and Spring Boot app...
+
 echo [1/6] Shutting down Docker containers...
-docker-compose down
+docker compose down
 IF %ERRORLEVEL% NEQ 0 (
     echo ❌ Failed to shut down Docker containers.
     pause
@@ -25,14 +27,14 @@ IF %ERRORLEVEL% NEQ 0 (
 popd
 
 echo [3/6] Starting Docker containers (mysql + metrics)...
-docker-compose up -d mysql metrics
+docker compose up -d mysql metrics
 IF %ERRORLEVEL% NEQ 0 (
     echo ❌ Failed to start Docker containers.
     pause
     exit /b 1
 )
 
-echo [4/6] Waiting for services to warm up...
+echo [4/6] Waiting 5 seconds for Docker to warm up...
 timeout /T 5 > NUL
 
 echo [5/6] Checking built JAR: %JAR_FILE%
@@ -42,7 +44,7 @@ IF NOT EXIST "%JAR_FILE%" (
     exit /b 1
 )
 
-echo [6/6] Running Spring Boot application...
+echo [6/6] Running Spring Boot app...
 java -jar "%JAR_FILE%"
 IF %ERRORLEVEL% NEQ 0 (
     echo ❌ Failed to start Spring Boot app.
