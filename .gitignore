@@ -17,3 +17,5 @@ undtest/
 chromeext_frontend/build/
 chromeext_frontend/static/
 Understand-7.1.1223-Linux-64bit.tgz
+chromeext_backend/target/*
+*.lst

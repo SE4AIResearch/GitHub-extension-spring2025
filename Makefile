@@ -1,41 +1,59 @@
-# Makefile
+# Path to Spring Boot backend with pom.xml
+BACKEND_DIR=chromeext_backend
+JAR_FILE=$(BACKEND_DIR)/target/app.jar
 
-.PHONY: build up down restart logs clean prune
+.PHONY: build run start clean test package \
+        docker-up docker-down docker-logs docker-clean docker-rebuild \
+        check-jar
 
-# Build the docker images
+# === Java Backend ===
+
 build:
-	docker-compose build
+	cd $(BACKEND_DIR) && mvn clean package spring-boot:repackage -DskipTests
 
-# Start the containers
-up:
-	docker-compose up
+run:
+	java -jar $(JAR_FILE)
 
-# Start the containers in detached mode
-upd:
-	docker-compose up -d
+check-jar:
+	@if [ ! -f $(JAR_FILE) ]; then \
+		echo "⚙️  JAR not found. Building..."; \
+		$(MAKE) build; \
+	else \
+		echo "✅ JAR already built."; \
+	fi
 
-# Stop the containers
-down:
+# === Docker ===
+
+docker-up:
+	docker-compose up -d mysql metrics
+
+docker-down:
 	docker-compose down
 
-# Restart the containers
-restart:
-	docker-compose down
-	docker-compose up
-
-# View logs
-logs:
+docker-logs:
 	docker-compose logs -f
 
-# Clean containers, networks, and volumes
-clean:
+docker-clean:
 	docker-compose down --volumes --remove-orphans
 
-# Prune everything (be careful!)
-prune:
-	docker system prune -af --volumes
+docker-rebuild:
+	docker-compose build metrics
+	docker-compose up -d metrics
 
-rebuild:
-	docker-compose down
-	docker-compose build
-	docker-compose up -d
+clean:
+	cd $(BACKEND_DIR) && mvn clean
+
+test:
+	cd $(BACKEND_DIR) && mvn test
+
+# === Full launch ===
+
+start: docker-up check-jar run
+
+restart:
+	@echo "🔁 Restarting everything..."
+	$(MAKE) docker-down
+	$(MAKE) clean
+	$(MAKE) build
+	$(MAKE) docker-up
+	$(MAKE) run

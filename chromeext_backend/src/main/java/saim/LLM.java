@@ -167,11 +167,11 @@ public class LLM {
                     .version(HttpClient.Version.HTTP_1_1)
                     .build();
                 
-            URI uri = new URI("http", null, "chromeext-metrics", 8000, "/get-response", null, null);
-
+            // URI uri = new URI("http", null, "chromeext-metrics", 8000, "/get-response", null, null);
+            URI uri = new URI("http://localhost:8000/get-response");
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("localhost:8000/get-response"))
+                    .uri(uri)
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer "+aiToken)
                     .POST(HttpRequest.BodyPublishers.ofString(jsonRequestBody))

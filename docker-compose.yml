@@ -17,35 +17,35 @@ services:
     networks:
       - chromeext_network
 
-  backend:
-    build:
-      context: ./chromeext_backend
-    container_name: chromeext_backend
-    ports:
-      - "8080:8080"
-    depends_on:
-      mysql:
-        condition: service_healthy
-    volumes:
-      - ./chromeext_metrics:/chromeext_metrics:ro
-      - /Applications/Understand.app/Contents/MacOS
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://chromeext_mysql:3306/commit_database2?sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: 112358132134
-      SPRING_JPA_SHOW_SQL: true
-      SPRING_JPA_GENERATE_DDL: true
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
-      SERVER_CONNECTION_TIMEOUT: 180s
-      SPRING_MVC_ASYNC_REQUEST_TIMEOUT: 180000
-      METRICS_SCRIPT_PATH: /chromeext_metrics/understandMetrics.py
-      OUTPUT_DIRECTORY_NAME: output
-      REPOS_DIRECTORY_NAME: repos
-      SCITOOLS_DIRECTORY: /
-      SCITOOLS_UPYTHON_EXECUTABLE: upython
-    networks:
-      - chromeext_network
+  # backend:
+  #   build:
+  #     context: ./chromeext_backend
+  #   container_name: chromeext_backend
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     mysql:
+  #       condition: service_healthy
+  #   volumes:
+  #     - ./chromeext_metrics:/chromeext_metrics
+  #     - /Applications/Understand.app/Contents/MacOS
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:mysql://chromeext_mysql:3306/commit_database2?sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false
+  #     SPRING_DATASOURCE_USERNAME: root
+  #     SPRING_DATASOURCE_PASSWORD: 112358132134
+  #     SPRING_JPA_SHOW_SQL: true
+  #     SPRING_JPA_GENERATE_DDL: true
+  #     SPRING_JPA_HIBERNATE_DDL_AUTO: update
+  #     SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
+  #     SERVER_CONNECTION_TIMEOUT: 180s
+  #     SPRING_MVC_ASYNC_REQUEST_TIMEOUT: 180000
+  #     METRICS_SCRIPT_PATH: /chromeext_metrics/understandMetrics.py
+  #     OUTPUT_DIRECTORY_NAME: output
+  #     REPOS_DIRECTORY_NAME: repos
+  #     SCITOOLS_DIRECTORY: /Applications/Understand.app/Contents/MacOS
+  #     SCITOOLS_UPYTHON_EXECUTABLE: /Applications/Understand.app/Contents/MacOS/upython
+  #   networks:
+  #     - chromeext_network
   
   metrics:
     build:
