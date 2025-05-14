@@ -1,48 +1,48 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM === CONFIG ===
 set BACKEND_DIR=chromeext_backend
 set JAR_FILE=%BACKEND_DIR%\target\app.jar
+set DB_HOST=localhost
+set DB_PORT=3307
 
-echo [1/5] Starting Docker containers (mysql + metrics)...
+echo [1/6] Starting Docker containers (mysql + metrics)...
 docker compose up -d mysql metrics
 IF %ERRORLEVEL% NEQ 0 (
-    echo ❌ Failed to start Docker containers. Ensure Docker is running and Docker Compose v2 is installed.
+    echo ❌ Failed to start Docker containers.
     pause
     exit /b 1
 )
 
-REM === Check if JAR exists ===
-echo [2/5] Checking if %JAR_FILE% exists...
+REM === Wait for MySQL to become reachable ===
+echo [2/6] Waiting for MySQL to become available on port %DB_PORT%...
+:wait_for_mysql
+(
+    echo >nul 2>nul < \\%DB_HOST%:%DB_PORT%
+) || (
+    timeout /T 2 >nul
+    goto wait_for_mysql
+)
+echo ✅ MySQL is up!
+
+echo [3/6] Checking if JAR exists...
 IF NOT EXIST "%JAR_FILE%" (
-    echo ⚙️ JAR not found. Building with Maven...
+    echo ⚙️ JAR not found. Building...
     pushd %BACKEND_DIR%
     mvn clean package spring-boot:repackage -DskipTests
-    IF %ERRORLEVEL% NEQ 0 (
-        echo ❌ Maven build failed.
-        pause
-        popd
-        exit /b 1
-    )
     popd
 ) ELSE (
     echo ✅ Found %JAR_FILE%.
 )
 
-REM === Optional wait time for containers to initialize ===
-echo [3/5] Waiting 5 seconds for Docker containers to warm up...
-timeout /T 5 > NUL
-
-REM === Run Spring Boot App ===
-echo [4/5] Running Spring Boot application...
+echo [4/6] Starting Spring Boot app...
 java -jar "%JAR_FILE%"
 IF %ERRORLEVEL% NEQ 0 (
-    echo ❌ Failed to run Spring Boot app. Check if Java is installed and app is built properly.
+    echo ❌ Failed to start Spring Boot app.
     pause
     exit /b 1
 )
 
-echo [5/5] Done.
+echo [5/6] Done.
 pause
 endlocal
