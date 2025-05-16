@@ -14,12 +14,12 @@ IF %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-REM === Wait for MySQL to become reachable ===
 echo [2/6] Waiting for MySQL to become available on port %DB_PORT%...
 :wait_for_mysql
-(
-    echo >nul 2>nul < \\%DB_HOST%:%DB_PORT%
-) || (
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$port = %DB_PORT%; $tcp = New-Object Net.Sockets.TcpClient; try { $tcp.Connect('%DB_HOST%', $port); $tcp.Close(); exit 0 } catch { exit 1 }"
+IF %ERRORLEVEL% NEQ 0 (
+    echo Still waiting...
     timeout /T 2 >nul
     goto wait_for_mysql
 )
