@@ -8,9 +8,9 @@ services:
       MYSQL_ROOT_PASSWORD: 112358132134
       MYSQL_DATABASE: commit_database2
     ports:
-      - "3306:3306"
+      - "3307:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p112358132134"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,13 +25,11 @@ services:
       - "8000:8000"
     volumes:
       - ./chromeext_metrics:/app
-      # Platform-specific mount for SciTools
-      # Optional: Skip this volume on Windows or mount an existing tool dir
-      # Use conditional logic OR update metrics service to fall back if path not mounted
+      # Optional: SciTools mount for macOS/Linux only
+      # - /Applications/Understand.app/Contents/MacOS:/scitools:ro
     env_file:
       - ./chromeext_metrics/.env
     environment:
-      # fallback in case .env doesn't load
       OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-missing}
     networks:
       - chromeext_network
