@@ -17,36 +17,6 @@ services:
     networks:
       - chromeext_network
 
-  # backend:
-  #   build:
-  #     context: ./chromeext_backend
-  #   container_name: chromeext_backend
-  #   ports:
-  #     - "8080:8080"
-  #   depends_on:
-  #     mysql:
-  #       condition: service_healthy
-  #   volumes:
-  #     - ./chromeext_metrics:/chromeext_metrics
-  #     - /Applications/Understand.app/Contents/MacOS
-  #   environment:
-  #     SPRING_DATASOURCE_URL: jdbc:mysql://chromeext_mysql:3306/commit_database2?sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false
-  #     SPRING_DATASOURCE_USERNAME: root
-  #     SPRING_DATASOURCE_PASSWORD: 112358132134
-  #     SPRING_JPA_SHOW_SQL: true
-  #     SPRING_JPA_GENERATE_DDL: true
-  #     SPRING_JPA_HIBERNATE_DDL_AUTO: update
-  #     SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
-  #     SERVER_CONNECTION_TIMEOUT: 180s
-  #     SPRING_MVC_ASYNC_REQUEST_TIMEOUT: 180000
-  #     METRICS_SCRIPT_PATH: /chromeext_metrics/understandMetrics.py
-  #     OUTPUT_DIRECTORY_NAME: output
-  #     REPOS_DIRECTORY_NAME: repos
-  #     SCITOOLS_DIRECTORY: /Applications/Understand.app/Contents/MacOS
-  #     SCITOOLS_UPYTHON_EXECUTABLE: /Applications/Understand.app/Contents/MacOS/upython
-  #   networks:
-  #     - chromeext_network
-  
   metrics:
     build:
       context: ./chromeext_metrics
@@ -55,13 +25,16 @@ services:
       - "8000:8000"
     volumes:
       - ./chromeext_metrics:/app
-      - /Applications/Understand.app/Contents/MacOS:/scitools:ro
-    networks:
-      - chromeext_network
+      # Platform-specific mount for SciTools
+      # Optional: Skip this volume on Windows or mount an existing tool dir
+      # Use conditional logic OR update metrics service to fall back if path not mounted
     env_file:
       - ./chromeext_metrics/.env
     environment:
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      # fallback in case .env doesn't load
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-missing}
+    networks:
+      - chromeext_network
 
 networks:
   chromeext_network:
