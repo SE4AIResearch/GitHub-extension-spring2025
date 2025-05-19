@@ -35,7 +35,10 @@ IF NOT EXIST "%JAR_FILE%" (
     echo ✅ Found %JAR_FILE%.
 )
 
-echo [4/6] Starting Spring Boot app...
+echo [4/6] Waiting 5 seconds before starting Spring Boot app...
+call :delay
+
+echo Starting Spring Boot app...
 java -jar "%JAR_FILE%"
 IF %ERRORLEVEL% NEQ 0 (
     echo ❌ Failed to start Spring Boot app.
@@ -46,3 +49,8 @@ IF %ERRORLEVEL% NEQ 0 (
 echo [5/6] Done.
 pause
 endlocal
+exit /b
+
+:delay
+timeout /T 30 >nul
+exit /b
