@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: chromeext_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 112358132134
+      MYSQL_DATABASE: commit_database2
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p112358132134"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - chromeext_network
+
+  metrics:
+    build:
+      context: ./chromeext_metrics
+    container_name: chromeext-metrics
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./chromeext_metrics:/app
+      # Optional: SciTools mount for macOS/Linux only
+      # - /Applications/Understand.app/Contents/MacOS:/scitools:ro
+    env_file:
+      - ./chromeext_metrics/.env
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-missing}
+    networks:
+      - chromeext_network
+
+networks:
+  chromeext_network:
+    driver: bridge

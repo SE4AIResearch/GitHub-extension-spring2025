@@ -28,7 +28,8 @@ const RepoAnalysis = ({ repoUrl, onAnalysisComplete, onMetricsLoaded, forceReana
         // Force sync with the background script to ensure all storage is updated
         chrome.runtime.sendMessage({
           action: 'syncRepoUrl',
-          repoUrl: url
+          repoUrl: url,
+          commitID: commitID
         }, (response) => {
           if (chrome.runtime.lastError) {
             console.error("[RepoAnalysis] Error syncing repository URL:", chrome.runtime.lastError);
@@ -287,7 +288,7 @@ const RepoAnalysis = ({ repoUrl, onAnalysisComplete, onMetricsLoaded, forceReana
   return (
     <div className="repo-analysis-container">
       <div className="repo-analysis-info">
-        <div className="repo-url">
+        <div className="repo-url" style={{ display: 'none' }}>
           <strong>Repository:</strong> {repoUrl || 'No repository URL provided'}
         </div>
       </div>

@@ -132,6 +132,7 @@
   </dependencies>
 
   <build>
+  <finalName>app</finalName>
     <pluginManagement>
       <plugins>
         <!-- Plugins -->
@@ -180,9 +181,16 @@
         </plugin>
 
         <plugin>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-maven-plugin</artifactId>
-        </plugin>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-maven-plugin</artifactId>
+      <executions>
+        <execution>
+          <goals>
+            <goal>repackage</goal> <!-- This makes your app.jar executable -->
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
       </plugins>
     </pluginManagement>
   </build>

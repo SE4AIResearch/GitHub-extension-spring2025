@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import downloadicon from "../icons/download.svg";
 import refreshicon from "../icons/refresh.svg"
-import editicon from "../icons/edit.svg";
 import logo from "../icons/logo.png";
 import MaintainabilityScoreTable from './MaintainabilityScoreTable.js';
 import { downloadAllCharts } from './AnalysisReportDownload.js';
@@ -81,7 +80,7 @@ const avgMaintainabilityScore = safeData.length > 0
       return;
     }
   
-    const dataStr = JSON.stringify(safeData, null, 2); // nicely formatted
+    const dataStr = JSON.stringify(safeData, null, 2); 
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
   
@@ -116,9 +115,6 @@ const avgMaintainabilityScore = safeData.length > 0
         </button>
         <button id="refresh-btn" onClick={handleForceReanalysis}>
           <img src={refreshicon} height={24} alt="refresh" />
-        </button>
-        <button id="edit-btn">
-          <img src={editicon} height={24} alt="edit" />
         </button>
       </div>
     </div>
