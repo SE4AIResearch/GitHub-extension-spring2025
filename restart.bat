@@ -6,36 +6,40 @@ set JAR_FILE=%BACKEND_DIR%\target\app.jar
 set DB_HOST=localhost
 set DB_PORT=3307
 
-echo 🔁 Restarting services...
+echo 🔁 Restarting backend services...
 
+REM Step 1: Stop Docker containers
+echo [1/5] Stopping old containers...
 docker compose down
 
-echo [1/6] Building Spring Boot project...
+REM Step 2: Build Spring Boot project
+echo [2/5] Building Spring Boot project...
 pushd %BACKEND_DIR%
-mvn clean package spring-boot:repackage -DskipTests
+mvn clean package spring-boot:repackage -DskipTests || (
+    echo ❌ Maven build failed.
+    pause
+    popd
+    exit /b 1
+)
 popd
 
-echo [2/6] Starting Docker containers...
+REM Step 3: Start containers
+echo [3/5] Starting Docker containers...
 docker compose up -d mysql metrics
 
-echo [3/6] Waiting for MySQL to be available on port %DB_PORT%...
-:wait_for_mysql
-(
-    echo >nul 2>nul < \\%DB_HOST%:%DB_PORT%
-) || (
+REM Step 4: Wait for MySQL to be available
+echo [4/5] Waiting for MySQL to be available on port %DB_PORT%...
+:waitloop
+powershell -Command "$tcp = New-Object Net.Sockets.TcpClient('%DB_HOST%', %DB_PORT%); if ($tcp.Connected) { $tcp.Close(); exit 0 } else { exit 1 }"
+IF %ERRORLEVEL% NEQ 0 (
     timeout /T 2 >nul
-    goto wait_for_mysql
+    goto waitloop
 )
 echo ✅ MySQL is up!
 
-echo [4/6] Launching Spring Boot app...
-java -jar "%JAR_FILE%"
-IF %ERRORLEVEL% NEQ 0 (
-    echo ❌ Spring Boot app failed to start.
-    pause
-    exit /b 1
-)
+REM Step 5: Launch Spring Boot
+echo [5/5] Starting Spring Boot app...
+start "" java -jar "%JAR_FILE%"
+echo ✅ Backend launched in new window.
 
-echo ✅ App is running.
-pause
 endlocal
