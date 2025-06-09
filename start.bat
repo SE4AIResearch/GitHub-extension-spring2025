@@ -7,6 +7,51 @@ set DB_HOST=localhost
 set DB_PORT=3307
 
 echo [1/6] Starting Docker containers (mysql + metrics)...
+
+REM Check if .env file exists, if not create an empty one
+IF NOT EXIST "chromeext_metrics\.env" (
+    echo .env file not found in chromeext_metrics. Creating an empty one...
+    type nul > "chromeext_metrics\.env"
+) ELSE (
+    echo Found chromeext_metrics\.env.
+)
+
+REM Look for OPENAI_API_KEY in .env (and ensure it’s not blank)
+set "KEY_VALUE="
+for /f "usebackq tokens=1* delims==" %%A in ("chromeext_metrics\.env") do (
+    if /i "%%A"=="OPENAI_API_KEY" (
+        set "KEY_VALUE=%%B"
+    )
+)
+
+if not defined KEY_VALUE (
+    echo OPENAI_API_KEY not found in .env.
+    goto prompt_key
+) else (
+    if "%KEY_VALUE%"=="" (
+        echo OPENAI_API_KEY is blank in chromeext_metrics\.env.
+        goto prompt_key
+    ) else (
+        echo OPENAI_API_KEY already set in .env.
+        goto run_compose
+    )
+)
+
+REM Prompt the user for OPENAI_API_KEY
+:prompt_key
+    set /p OPENAI_API_KEY=Please enter your OpenAI API Key: 
+    if "%OPENAI_API_KEY%"=="" (
+        echo Enter a non-empty API key.
+        goto prompt_key
+    )
+
+    REM Append the new key to the .env file
+    >>"chromeext_metrics\.env" echo OPENAI_API_KEY=%OPENAI_API_KEY%
+    echo OPENAI_API_KEY saved to chromeext_metrics\.env.
+    goto run_compose
+
+:run_compose
+REM Start Docker containers
 docker compose up -d mysql metrics
 IF %ERRORLEVEL% NEQ 0 (
     echo ❌ Failed to start Docker containers.
