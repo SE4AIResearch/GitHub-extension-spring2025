@@ -1,12 +1,12 @@
-## Commit Pro
-Commit Pro is a browser extension designed for Git to help developers understand code changes at a commit level by providing code summaries based on code or refactoring changes. Clear and understandable commit messages are crucial for code documentation, but there is a current lack in documentation standards for developers leading to vague and inconsistent commit messages. Commit Pro addresses this challenge by generating detailed summaries on code changes especially from refactoring instances along with the intent and impact of the change in the codebase to help developers have more productive code reviews.
+## CommitPro
+CommitPro is a browser extension designed for Git to help developers understand code changes at a commit level by providing code summaries based on code or refactoring changes. Clear and understandable commit messages are crucial for code documentation, but there is a current lack in documentation standards for developers leading to vague and inconsistent commit messages. CommitPro addresses this challenge by generating detailed summaries on code changes especially from refactoring instances along with the intent and impact of the change in the codebase to help developers have more productive code reviews.
 ## Name of team members:
 -Vaibhavi Shah <br/>
 -Meghna Agrawal <br/>
 -Ali Vaziri <br/>
 -Ishan Garg <br/>
 -Priyanshi Yadav <br/>
-## Steps for running the chrome extension
+## Steps for running the Chrome extension
 ## Pre-requisites:
 <ul>
   <li>Maven: https://www.youtube.com/watch?v=YTvlb6eny_0</li>
@@ -23,11 +23,14 @@ Check Edit the System Environment Variables on your workspace -> Click Environme
   <li>https://github.com/settings/tokens -> generate new token(classic) -> name it and click generate (Make sure to note this down somewhere)
     Note: This token expires after a while (usually 30 days) -> Make sure to generate a new one if it does</li>
   <li>https://platform.openai.com/api-keys -> Sign in -> Create New Secret Key(Make sure to note this key down somewhere as well) Important: This tool only works if you have money in your OpenAI account, $5 is enough</li>
+  <ul>
+  <li> https://platform.openai.com/settings/organization/billing/overview -> To add money into your OpenAI account. 
+  </ul></li>
 </ul>
 
 ## Understand Tool -
-- Install the Understand Tool- https://licensing.scitools.com/download
-- Please follow the steps mentioned over here for obtaining the license code- https://scitools.com/student
+- Install the Understand Tool: https://licensing.scitools.com/download
+- Please follow the steps mentioned over here for obtaining the license code: https://scitools.com/student
 - Open the Understand tool and navigate to the Licensing through the Help option present in the navigation bar
   ![image](https://github.com/user-attachments/assets/f5f6e549-6764-44d0-813f-752755f920bf)
 - Provide the obtained license code from step 2 and click on OK
@@ -50,8 +53,7 @@ Run the following command from chromeext_metrics folder:
 
 ### For backend -
 - Open chromeext_backend\src\main\
-- Extract the resources_mac.zip/resources_win.zip folder and rename it as resources (if using mac machine then resources_mac.zip and in case of windows machine extract resources_win.zip)
-Run the following command from chromeext_backend folder:
+- Extract the resources_mac.zip/resources_win.zip folder and rename it as resources (if using mac machine then resources_mac.zip and in case of windows machine extract resources_win.zip) Run the following command from chromeext_backend folder:
 -	mvn clean install
 -	Go to the src -> main -> java -> saim
 -	Right click on RestServiceApplication.java and click on "Run java"
@@ -67,16 +69,31 @@ Run the following command from the main folder:
 ## After Setup of application:
 ### After following the above-mentioned steps-
 - Open chrome browser and go to "chrome://extensions/"
+- Click on Developer Mode
 - Click on "Load unpacked"
 - Upload the "chromeext_frontend" folder
 - Open any java repository e.g., "https://github.com/danilofes/refactoring-toy-example/commit/d4bce13a443cf12da40a77c16c1e591f4f985b47" or "https://github.com/jaygajera17/E-commerce-project-springBoot/commit/a229716179982a98f41033f7d76670f344b68cd8"
 - Click on extension icon
-- Click on Commit Pro
+- Click on CommitPro
 - Click on setting icon
 - Provide the GitHub Oauth token
 - Provide the OpenAPI key
 - Click on back button
 - Click on "Generate Summary" button
 
+## Metrics
+To view metrics, after generating the commit's summary, click on "Repository Analysis" link near the bottom of the generated commit message.
+
+Metrics Listed: 
+- <b> Cyclomatic Complexity (CC) </b> -> Indicates how complex the decision structure is
+- <b> Lines of Code (LOC) </b> -> Counts the total number of lines
+- <b> Coupling Between Objects (CBO) </b> -> The number of distinct classes to which a given class is connected
+- <b> Lack of Cohesion of Methods (LCOM) </b> -> Quantifies how many method pairs in a class do not share instance variables—with higher values meaning lower cohesion among methods
+- <b> Weighted Methods per Class (WMC) </b> -> Sum of the cyclomatic complexities of all methods in a class, representing its overall internal complexity
+- <b> Depth of Inheritance Tree (DIT) </b> -> The maximum number of ancestor classes from a given class up to the root of the inheritance hierarchy
+- <b> Number of Children </b> -> The count of immediate subclasses that directly inherit from a particular class
+
 ## TroubleShooting:
 If the Dashboard is not showing any metrics then recheck for the license code provided in Understand tool.
+
+If the start.bat command doesn't work, install Docker (https://www.docker.com/) and delete all associated CommitPro containers before reattempting. 
