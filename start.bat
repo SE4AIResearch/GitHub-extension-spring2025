@@ -33,7 +33,7 @@ if not defined KEY_VALUE (
         goto prompt_key
     ) else (
         echo OPENAI_API_KEY already set in .env.
-        goto run_compose
+        goto extract_resources
     )
 )
 
@@ -48,7 +48,36 @@ REM Prompt the user for OPENAI_API_KEY
     REM Append the new key to the .env file
     >>"chromeext_metrics\.env" echo OPENAI_API_KEY=%OPENAI_API_KEY%
     echo OPENAI_API_KEY saved to chromeext_metrics\.env.
-    goto run_compose
+    goto extract_resources
+
+REM Check if resources folder already exists
+:extract_resources
+    IF EXIST "%BACKEND_DIR%\src\main\resources" (
+        echo Resources folder found.
+        goto run_compose
+    )
+    echo Resources folder not found. Attempting OS detection and extraction...
+
+    REM Detect If on Windows
+    ver | findstr /I "Windows" >nul
+    IF %ERRORLEVEL%==0 (
+        echo Detected Windows. Extracting resources_win.zip...
+        powershell -NoProfile -Command "Expand-Archive -Path '%BACKEND_DIR%\src\main\resources_win.zip' -DestinationPath '%BACKEND_DIR%\src\main\' -Force"
+        goto run_compose
+    )
+
+    REM Detect if on macOS (via uname)
+    for /f %%i in ('uname') do set "UNAME=%%i"
+    IF /I "!UNAME!"=="Darwin" (
+        echo Detected macOS. Extracting resources_mac.zip...
+        powershell -NoProfile -Command "Expand-Archive -Path '%BACKEND_DIR%/src/main/resources_mac.zip' -DestinationPath '%BACKEND_DIR%/src/main/' -Force"
+        goto run_compose
+    )
+
+    REM If neither Windows nor macOS
+    echo ❌ Unsupported operating system. Only Windows and macOS are supported.
+    pause
+    exit /b 1
 
 :run_compose
 REM Start Docker containers
