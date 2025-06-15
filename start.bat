@@ -18,37 +18,50 @@ IF NOT EXIST "chromeext_metrics\.env" (
 
 REM Look for OPENAI_API_KEY in .env (and ensure it’s not blank)
 set "KEY_VALUE="
+set "KEY_FOUND=0"
 for /f "usebackq tokens=1* delims==" %%A in ("chromeext_metrics\.env") do (
     if /i "%%A"=="OPENAI_API_KEY" (
         set "KEY_VALUE=%%B"
+        set "KEY_FOUND=1"
     )
 )
 
-if not defined KEY_VALUE (
-    echo OPENAI_API_KEY not found in .env.
+if "%KEY_FOUND%"=="0" (
+    echo OPENAI_API_KEY not found in .env
     goto prompt_key
 ) else (
     if "%KEY_VALUE%"=="" (
-        echo OPENAI_API_KEY is blank in chromeext_metrics\.env.
+        echo OPENAI_API_KEY is blank in .env
         goto prompt_key
     ) else (
-        echo OPENAI_API_KEY already set in .env.
+        echo OPENAI_API_KEY already set in .env
         goto extract_resources
     )
 )
 
+
 REM Prompt the user for OPENAI_API_KEY
 :prompt_key
-    set /p OPENAI_API_KEY=Please enter your OpenAI API Key: 
-    if "%OPENAI_API_KEY%"=="" (
-        echo Enter a non-empty API key.
-        goto prompt_key
-    )
+set /p USER_KEY=Please enter your OpenAI API Key: 
+if "%USER_KEY%"=="" (
+    echo Enter a non-empty API key.
+    goto prompt_key
+)
 
-    REM Append the new key to the .env file
-    >>"chromeext_metrics\.env" echo OPENAI_API_KEY=%OPENAI_API_KEY%
-    echo OPENAI_API_KEY saved to chromeext_metrics\.env.
-    goto extract_resources
+REM If OPENAI_API_KEY exists (even as blank), replace it; otherwise append it
+powershell -NoProfile -Command ^
+  "$path = 'chromeext_metrics\.env';" ^
+  "$content = Get-Content $path;" ^
+  "if ($content -match '^OPENAI_API_KEY=') {" ^
+  "  $content = $content -replace '^OPENAI_API_KEY=.*$', 'OPENAI_API_KEY=%USER_KEY%'" ^
+  "} else {" ^
+  "  $content += 'OPENAI_API_KEY=%USER_KEY%'" ^
+  "}" ^
+  "Set-Content $path $content"
+
+echo OPENAI_API_KEY saved to chromeext_metrics\.env.
+goto extract_resources
+
 
 REM Check if resources folder already exists
 :extract_resources
