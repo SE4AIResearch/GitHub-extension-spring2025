@@ -48,6 +48,14 @@ if "%USER_KEY%"=="" (
     goto prompt_key
 )
 
+REM Validate the key using curl
+echo Validating OpenAI API key...
+curl --silent --fail -H "Authorization: Bearer %USER_KEY%" https://api.openai.com/v1/models >nul 2>&1
+IF %ERRORLEVEL% NEQ 0 (
+    echo Invalid OpenAI API key. Please try again.
+    goto prompt_key
+)
+
 REM If OPENAI_API_KEY exists (even as blank), replace it; otherwise append it
 powershell -NoProfile -Command ^
   "$path = 'chromeext_metrics\.env';" ^

@@ -125,7 +125,7 @@ def main():
         print(f"ERROR executing command:\n{result.stderr}", file=sys.stderr)
         sys.exit(result.returncode)
     else:
-        print("Aider Output:\n", result.stdout.strip())
+        print("Aider Output:\n", result.stdout)
     
     # Cleanup if a remote repository was used
     if args.repo.startswith(("http://", "https://", "git@")):
