@@ -141,7 +141,7 @@ async def process_output(request: QueryRequest, token: str = Depends(get_token))
     project_context = ''
     if request.git_url:
         project_context = 'Project Context: ' + get_summary_from_aider(request.git_url)
-        project_context = ''
+        #project_context = ''
     
     print('Project Context: ', project_context)
     print(query_text)

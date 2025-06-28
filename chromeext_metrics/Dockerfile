@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y \
  && rm -rf /var/lib/apt/lists/*
 
 # Install Aider (code assistant)
-RUN curl -LsSf https://aider.chat/install.sh | sh
+RUN pip install --no-cache-dir -U aider-chat
+# RUN curl -LsSf https://aider.chat/install.sh | sh
 
 # Install Python dependencies
 COPY requirements.txt .

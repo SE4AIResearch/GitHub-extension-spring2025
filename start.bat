@@ -6,6 +6,16 @@ set JAR_FILE=%BACKEND_DIR%\target\app.jar
 set DB_HOST=localhost
 set DB_PORT=3307
 
+echo [0/6] Checking internet connection...
+REM  Check for internet connection
+ping -n 1 8.8.8.8 >nul 2>&1
+IF %ERRORLEVEL% NEQ 0 (
+    echo No internet connection detected. Please check your connection and try again.
+    pause
+    exit /b 1
+)
+echo Internet connection detected.
+
 echo [1/6] Starting Docker containers (mysql + metrics)...
 
 REM Check if .env file exists, if not create an empty one
@@ -29,16 +39,22 @@ for /f "usebackq tokens=1* delims==" %%A in ("chromeext_metrics\.env") do (
 if "%KEY_FOUND%"=="0" (
     echo OPENAI_API_KEY not found in .env
     goto prompt_key
-) else (
-    if "%KEY_VALUE%"=="" (
-        echo OPENAI_API_KEY is blank in .env
-        goto prompt_key
-    ) else (
-        echo OPENAI_API_KEY already set in .env
-        goto extract_resources
-    )
+)
+if "%KEY_VALUE%"=="" (
+    echo OPENAI_API_KEY is blank in .env
+    goto prompt_key
 )
 
+REM Validate existing key
+echo Validating existing OPENAI_API_KEY...
+curl --silent --fail -H "Authorization: Bearer %KEY_VALUE%" https://api.openai.com/v1/models >nul 2>&1
+IF %ERRORLEVEL% NEQ 0 (
+    echo Existing API key in .env is invalid.
+    goto prompt_key
+) ELSE (
+    echo Existing API key in .env is valid.
+    goto extract_resources
+)
 
 REM Prompt the user for OPENAI_API_KEY
 :prompt_key
