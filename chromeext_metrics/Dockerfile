@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
  && rm -rf /var/lib/apt/lists/*
 
 # Install Aider (code assistant)
-RUN pip install --no-cache-dir -U aider-chat
+RUN pip install --no-cache-dir aider-chat==0.84.0
 
 # Prevent Aider from prompting for updates
 ENV AIDER_NO_UPDATE=1
