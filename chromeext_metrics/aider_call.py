@@ -55,6 +55,10 @@ def _trim_aider_output(raw: str) -> str:
     return m.group(0).strip() if m else raw.strip()
 
 def get_summary_from_aider(repo_url: str) -> str:
+    if not os.getenv("OPENAI_API_KEY"):
+        print("❌ OPENAI_API_KEY not found in environment", file=sys.stderr)
+        sys.exit(1)
+
     """Run Aider on the repo and return just the formatted summary block."""
     is_remote = repo_url.startswith(("http://", "https://", "git@"))
     if is_remote:
