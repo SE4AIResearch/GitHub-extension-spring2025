@@ -101,8 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                         if (!apiKey || !token) {
                             throw new Error("A field is blank. Please try again.");
-                        }
-                    
+                        }        
                     }
                     
                     alert("Settings saved successfully!");
@@ -113,12 +112,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     console.log("Verified saved data:", verifyData);
                     
                 } catch (error) {
+                    //console.error("Error saving settings:", error);
                     if (error.message.includes("blank")) {
                        alert(error.message); 
                     } else {
                         alert("Error saving settings. Please try again.");
                     }
-                    alert("Error saving settings. Please try again.");
                 }
             });
         });

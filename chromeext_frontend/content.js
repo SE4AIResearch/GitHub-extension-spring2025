@@ -78,13 +78,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
                 commitTitleDiv.removeChild(loading);
             }
             
-
             let commitProText = document.createElement('span');
             commitProText.style.color = '#2f68a8';
             commitProText.className = 'commit-pro-text';
 
             console.log(message.content);
-
 
             try{
                 // Setting the COMMIT PRO header
@@ -130,7 +128,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             }catch(e){
                 console.log("Error processing refactoring details: " + e.message);
                 // Fallback display if there's an error parsing the refactorings
-                summary += "<br>INSTRUCTION: No Refactoring Detected";
+                summary += "<br>INSTRUCTION: No Refactoring Detected Test";
             }
             
             // Update the HTML content
@@ -140,6 +138,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             
             // Now add the Repository Analysis link after summary is loaded
             addRepositoryAnalysisLink(commitTitleDiv);
+
+        } else if (message.action === "error") {
+            alert("Error fetching data");
+            console.log("Error fetching data" + message.content);
         }
 
         return true;
