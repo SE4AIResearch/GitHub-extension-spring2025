@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     console.log("Verified saved data:", verifyData);
                     
                 } catch (error) {
-                    //console.error("Error saving settings:", error);
+                    console.error("Error saving settings:", error);
                     if (error.message.includes("blank")) {
                        alert(error.message); 
                     } else {
