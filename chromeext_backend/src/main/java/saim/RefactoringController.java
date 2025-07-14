@@ -258,11 +258,14 @@ public class RefactoringController {
         System.out.println("Received UUID: " + uuid);
 
         // Check if commit is cached
-        Optional<String> commitmsg = cService.getCommitfromDB(url, id);
-        if (commitmsg.isPresent() && cachingEnabled) {
-            System.out.println("Retrieved cached summary for commit: " + id);
-            return new Greeting(counter.incrementAndGet(), commitmsg.get());
+        if (cachingEnabled) {
+            Optional<String> commitmsg = cService.getCommitfromDB(url, id);
+            if (commitmsg.isPresent()) {
+                System.out.println("Retrieved cached summary for commit: " + id);
+                return new Greeting(counter.incrementAndGet(), commitmsg.get());
+            }
         }
+        
 
         // Generate new summary
         try {
