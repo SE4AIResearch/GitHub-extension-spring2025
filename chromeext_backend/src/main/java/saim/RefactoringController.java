@@ -45,6 +45,8 @@ public class RefactoringController {
     @Autowired
     private CommitService cService;
     private final AtomicLong counter = new AtomicLong();
+    
+    private boolean cachingEnabled = false; // Toggle for caching, mostly used for testing
 
     public String returnrefs(String url, String id, String uuid) {
 
@@ -257,7 +259,7 @@ public class RefactoringController {
 
         // Check if commit is cached
         Optional<String> commitmsg = cService.getCommitfromDB(url, id);
-        if (commitmsg.isPresent()) {
+        if (commitmsg.isPresent() && cachingEnabled) {
             System.out.println("Retrieved cached summary for commit: " + id);
             return new Greeting(counter.incrementAndGet(), commitmsg.get());
         }

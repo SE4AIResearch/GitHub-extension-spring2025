@@ -140,12 +140,13 @@ async def process_output(request: QueryRequest, token: str = Depends(get_token))
     query_text = request.query.strip()
     project_context = ''
     if request.git_url:
-        project_context = 'Project Context: ' + get_summary_from_aider(request.git_url)
+        print('Git URL provided: ', request.git_url)
+        #project_context = get_summary_from_aider(request.git_url)
         #project_context = ''
     
-    print('Project Context: ', project_context)
-    print(query_text)
-    print(is_valid_url(query_text))
+    #print('Project Context: ', project_context)
+    print('Query Text: ', query_text)
+    print('Is Valid URL: ', is_valid_url(query_text))
     #print('token: ', token)
     token = token.split(' ')[1]
 
@@ -196,4 +197,3 @@ async def process_output(request: QueryRequest, token: str = Depends(get_token))
         response = chain.invoke(chain_input)
         #print('Generated: ', response)
         return {"response_with_cs": response}
-
