@@ -46,7 +46,7 @@ public class RefactoringController {
     private CommitService cService;
     private final AtomicLong counter = new AtomicLong();
     
-    private boolean cachingEnabled = false; // Toggle for caching, mostly used for testing
+    private boolean cachingEnabled = true; // Toggle for caching, mostly used for testing
 
     public String returnrefs(String url, String id, String uuid) {
 

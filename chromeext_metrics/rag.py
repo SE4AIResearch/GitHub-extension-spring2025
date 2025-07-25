@@ -152,22 +152,58 @@ async def process_output(request: QueryRequest, token: str = Depends(get_token))
     if is_valid_url(query_text):
         #print('Fetching commit changes')
         prompt = '''
-            You are an expert software engineer trained in commit summarization
-            Given a code text extracted from Github, go through the entire changes, and extract a meaningful summary using this structure.
+            You are an expert software engineer trained in commit summarization.\n
+                "Given a code refactorings, go through the entire changes, and extract a meaningful summary using this structure:\n
+                \n
+                MANDATORY FORMAT:\n
+                SUMMARY: A in-depth technical description of the change (2-3 lines max)
+                INTENT: Give a software change classification such as Fixed Bug, Internal Quality Improvement, External Quality Improvement, Feature Update, Code Smell Resolution, Refactoring, Performance Optimization, Security Patch, Test Addition, Test Update, Test Removal, Logging Improvement, Dependency Update, Documentation Update, UI/UX Enhancement. Don't be limited to this list. You can also find other classification in the code. Use parent format also Corrective, Perfective, Preventive, and Adaptive
+                IMPACT: Explain how the change affects software quality. Use software engineering concepts such as: reduced cyclomatic complexity, improved cohesion
+                decreased coupling, better adherence to SRP/OCP, enhanced testability, or improved abstraction layering. Do not use vague terms like 'maintainability' or 'readability' without tying them to specific code behaviors or design principles.\n
+                \n
+                You MUST include all three sections. Always use the provided INTENT terms. Connect the IMPACT to both the SUMMARY and INTENT using concrete software reasoning.\n\n
 
-            MANDATORY FORMAT:\n
-            SUMMARY: A in-depth technical description of the change (2-3 lines max), 
-            INTENT: Give software changes classification such as Fixed Bug, Internal Quality Improvement, External Quality Improvement, Feature Update, Code Smell Resolution, Refactoring, Performance Optimization, Security Patch, Test Addition, Test Update, Test Removal, Logging Improvement, Dependency Update, Documentation Update, UI/UX Enhancement. Don't be limited to this list. You can also find other classification in the code. Use parent format also Corrective, Perfective, Preventive, and Adaptive.            
-            IMPACT: Explain how the change affects software quality. Use software engineering concepts such as: reduced cyclomatic complexity, improved cohesion, decreased coupling, better adherence to SRP/OCP, enhanced testability, or improved abstraction layering. Do not use vague terms like 'maintainability' or 'readability' without tying them to specific code behaviors or design principles.\n
+                EXAMPLES:\n\n
 
-            You MUST include all three sections (SUMMARY, INTENT, IMPACT). Always use the provided INTENT terms. Connect the IMPACT to both the SUMMARY and INTENT using concrete software reasoning\n
-            
-            Here is example response:
-            Example 1:\n
-            SUMMARY: Replaced nested loop in UserProcessor.java with a HashMap<String, User> for O(1) user lookups.  Modified UserValidator.java to skip invalid entries early. Added testProcessUsers_withValidAndInvalidIds() in UserProcessorTest.java to validate edge behavior and ensure consistent output.\n"
-            INTENT: Perfective: Internal Quality Improvement, Corrective: Fixed Bug, Adaptive: Feature Update\n
-            IMPACT: Reduced time complexity from O(n²) to O(n), improving execution for large inputs. Used guard clauses and data structure optimization to align with efficient control flow and low-complexity design principles.\n\n
+                Example 1:\n
+                SUMMARY: Replaced nested loop in UserProcessor.java with a Map<String, User> lookup. Added early exit logic to validateUserBatch().\n
+                INTENT: Adaptive: Performance Optimization, Code Simplification\n
+                IMPACT: Reduced time complexity from O(n²) to O(n), improving execution for large inputs. Used guard clauses and data structure optimization to align with efficient control flow and low-complexity design principles.\n\n
 
+                Example 2:\n
+                SUMMARY: Extracted credential validation logic into AuthService and introduced LoginRequest/Response DTOs.\n
+                INTENT: Perfective: Internal Quality Improvement, Preventive: Architectural Refactoring\n
+                IMPACT: Applied SRP by isolating responsibilities and improved cohesion within business logic layers. Reduced controller-service coupling, increasing testability and layering integrity.\n\n
+
+                Example 3:\n
+                SUMMARY: Integrated pagination using Spring Data’s Pageable in UserRequestController.\n
+                INTENT: Perfective: External Quality Improvement, Adaptive: Feature Update\n
+                IMPACT: Improved modularity and frontend responsiveness by reducing payload size. Supports lazy loading and aligns with ISO/IEC 25010 responsiveness and functional suitability metrics.\n\n
+
+                Example 4:\n
+                SUMMARY: Replaced switch-case structure in PermissionsManager with polymorphic handlers.\n
+                INTENT: Perfective: Code Smell Resolution\n
+                IMPACT: Eliminated type-checking smell by encapsulating behavior polymorphically. Reduced conditional logic complexity and applied Strategy pattern as per Refactoring.Guru.\n\n
+
+                Example 5:\n
+                SUMMARY: Introduced batch inserts in OrderRepository to replace per-record inserts.\n
+                INTENT: Perfective: Performance Optimization\n
+                IMPACT: Reduced round trips and improved transactional throughput. Optimized data persistence following performance tuning principles for database operations.\n\n
+
+                Example 6:\n" +
+                SUMMARY: Migrated user auth from monolith to OAuth2-based service. Configured token validation with service registry integration.\n
+                INTENT: Preventive: Architectural Refactoring\n
+                IMPACT: Enabled clean separation of concerns and horizontal scalability by isolating authentication. Aligned architecture with microservices and domain-driven design.\n\n
+
+                Example 7:\n
+                SUMMARY: Created PyTest suite to validate reconciliation edge cases, covering duplicate detection and currency rounding.\n
+                INTENT: Test Enhancement\n
+                IMPACT: Improved edge coverage and defect isolation. Aligned with test-first practices and boosted defect detection rates in CI through targeted regression testing.\n\n
+
+                Example 8:\n
+                SUMMARY: Refactored controller to delegate report downloads to ReportService. Removed file streaming logic from controller layer.\n
+                INTENT: External Quality Improvement\n
+                IMPACT: Reduced coupling and improved abstraction boundaries. Enhanced external quality by aligning responsibilities with modular service-oriented architecture.\n\n
         '''
         changes = get_github_commit_changes(query_text)
         query = prompt + changes + project_context
