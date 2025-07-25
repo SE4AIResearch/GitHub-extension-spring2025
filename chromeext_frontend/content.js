@@ -77,7 +77,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             if (loading) {
                 commitTitleDiv.removeChild(loading);
             }
-            
 
             let commitProText = document.createElement('span');
             commitProText.style.color = '#2f68a8';
@@ -85,6 +84,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
 
             console.log(message.content);
 
+            // Check if summary is already generated
+            if (summary.includes("COMMIT PRO")) {
+                console.log("Summary is already generated");
+                alert("Summary is already generated");
+
+                commitProText.innerHTML = summary;
+                commitTitleDiv.appendChild(commitProText);
+                return;
+            }
 
             try{
                 // Setting the COMMIT PRO header
@@ -132,14 +140,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
                 // Fallback display if there's an error parsing the refactorings
                 summary += "<br>INSTRUCTION: No Refactoring Detected";
             }
-            
+
             // Update the HTML content
             commitProText.innerHTML = summary;
-            
             commitTitleDiv.appendChild(commitProText);
-            
+        
             // Now add the Repository Analysis link after summary is loaded
             addRepositoryAnalysisLink(commitTitleDiv);
+        
+        } else if (message.action === "error") {
+            alert("Error fetching data");
+            console.log("Error fetching data" + message.content);
+            return;
         }
 
         return true;

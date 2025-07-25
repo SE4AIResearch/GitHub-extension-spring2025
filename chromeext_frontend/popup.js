@@ -8,6 +8,7 @@ const instruction = document.getElementById("instruction");
 let summaryGenerating = false;
 let summaryTimeout; 
 let keysAvailable = false;
+let isCurURLCommit = true;
 
 // Check if keys are available on popup load
 function checkKeysAvailability() {
@@ -116,7 +117,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             button.classList.remove('disabled');
         }
         console.log("Settings updated, Generate Summary button enabled");
-    }
+    } 
     return true;
 });
 
@@ -135,23 +136,40 @@ window.addEventListener("DOMContentLoaded", () =>
             alert("Please set your GitHub OAuth token and OpenAI API key in Settings first.");
             return;
         }
+
+         // Checks if current website is a GitHub commit 
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            let checkURL = tabs[0].url;
+            if (checkURL.match(/https?:\/\/github\.com/) && checkURL.match(/\b(commit)\b((?!.*master).)*/)) {
+                console.log("Current URL is a GitHub commit. URL " + checkURL);
+                isCurURLCommit = true;
+            } else {
+                console.log("Incorrect URL. Not a GitHub commit. URL " + checkURL);
+                isCurURLCommit = false;
+            }
+        });
+        
+        if (isCurURLCommit) {
+            chrome.runtime.sendMessage({ action: "buttonClicked" });
             
-        chrome.runtime.sendMessage({ action: "buttonClicked" });
+            if (summaryGenerating) {
+                alert("Summary generation is already in progress!");
+                return;
+            }
 
-        if (summaryGenerating) {
-            alert("Summary generation is already in progress!");
-            return;
-        }
+            summaryGenerating = true; 
+            console.log("Generating summary...");
 
-        summaryGenerating = true; 
-        console.log("Generating summary...");
+            summaryTimeout = setTimeout(() => {
+                summaryGenerating = false;
+                console.log("Summary generated successfully!");
+            }, 5000);
 
-        summaryTimeout = setTimeout(() => {
-            summaryGenerating = false;
-            console.log("Summary generated successfully!");
-        }, 5000);
+        } else {
+           alert("Current URL is not a GitHub commit. Please try again.");
+      }
     });
-
+        
     if (cancelBtn) {
                 cancelBtn.addEventListener("click", () => {
             if (!summaryGenerating) {
