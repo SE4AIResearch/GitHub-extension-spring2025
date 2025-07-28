@@ -117,7 +117,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             button.classList.remove('disabled');
         }
         console.log("Settings updated, Generate Summary button enabled");
-    } 
+
+    } else if (message.action === "timeOut") {
+        console.log("Reclicked buttons after request timed out");
+        cancelBtn.click();
+        button.click();
+    }
     return true;
 });
 

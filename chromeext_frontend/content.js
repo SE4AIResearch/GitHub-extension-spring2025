@@ -1,4 +1,3 @@
-
 let summary = ""
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => 
     {
@@ -152,8 +151,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             alert("Error fetching data");
             console.log("Error fetching data" + message.content);
             return;
-        }
-
+        } 
         return true;
     });
 
