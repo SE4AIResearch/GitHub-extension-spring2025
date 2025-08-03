@@ -36,7 +36,14 @@ Check Edit the System Environment Variables on your workspace -> Click Environme
 - Provide the obtained license code from step 2 and click on OK
 </ul>
 
-## Manually running the application:
+## Dockerized Local Installation Version (recommended) -
+- Ensure Docker Desktop is open
+- Run `start.bat` in a Command Prompt terminal
+- Follow the instructions in the console, inputting your OpenAI API key
+- In a new Command Prompt terminal, run `npm i`, then run `npm build`
+- Navigate to `chromeext_frontend/build/` folder, cut and paste all the contents into the `chromeext_frontend/` folder 
+
+## Manually Installing The Application (not recommended) - 
 ### For frontend -
 Run the following commands from chromeext_frontend folder:
 -	npm i react
@@ -58,31 +65,25 @@ Run the following command from chromeext_metrics folder:
 -	Go to the src -> main -> java -> saim
 -	Right click on RestServiceApplication.java and click on "Run java"
 
-## Dockerized version:
-- Please add your OpenAI API key in docker-compose.yml in the place of highlighted variable
-  ![image](https://github.com/user-attachments/assets/bd1602a6-3648-42bd-8e2e-b73821bc919c)
 
-Run the following command from the main folder:
-- restart.bat
-- start.bat
 
 ## After Setup of application:
 ### After following the above-mentioned steps-
-- Open chrome browser and go to "chrome://extensions/"
-- Click on Developer Mode
+- Open a Chrome browser and go to "chrome://extensions/"
+- Enable Developer Mode
 - Click on "Load unpacked"
 - Upload the "chromeext_frontend" folder
-- Open any java repository e.g., "https://github.com/danilofes/refactoring-toy-example/commit/d4bce13a443cf12da40a77c16c1e591f4f985b47" or "https://github.com/jaygajera17/E-commerce-project-springBoot/commit/a229716179982a98f41033f7d76670f344b68cd8"
-- Click on extension icon
+- Open any Java repository, e.g. "https://github.com/danilofes/refactoring-toy-example/commit/d4bce13a443cf12da40a77c16c1e591f4f985b47" or "https://github.com/jaygajera17/E-commerce-project-springBoot/commit/a229716179982a98f41033f7d76670f344b68cd8"
+- Click on the extension icon
 - Click on CommitPro
-- Click on setting icon
-- Provide the GitHub Oauth token
+- Click on the settings icon
+- Provide the GitHub OAuth token
 - Provide the OpenAPI key
-- Click on back button
-- Click on "Generate Summary" button
+- Click on the back button
+- Click on the "Generate Summary" button
 
 ## Metrics
-To view metrics, after generating the commit's summary, click on "Repository Analysis" link near the bottom of the generated commit message.
+To view metrics, after generating the commit's summary, click on the "Repository Analysis" link near the bottom of the generated commit message.
 
 Metrics Listed: 
 - <b> Cyclomatic Complexity (CC) </b> -> Indicates how complex the decision structure is
@@ -93,7 +94,11 @@ Metrics Listed:
 - <b> Depth of Inheritance Tree (DIT) </b> -> The maximum number of ancestor classes from a given class up to the root of the inheritance hierarchy
 - <b> Number of Children </b> -> The count of immediate subclasses that directly inherit from a particular class
 
-## TroubleShooting:
-If the Dashboard is not showing any metrics then recheck for the license code provided in Understand tool.
-
-If the start.bat command doesn't work, install Docker (https://www.docker.com/) and delete all associated CommitPro containers before reattempting. 
+## Troubleshooting:
+- If the Dashboard is not showing any metrics, then check for the license code provided in the Understand tool.
+- Ensure Docker Desktop is installed (https://www.docker.com/) and delete all associated CommitPro containers before reattempting.
+- If Spring Boot App fails to start, try deleting CommitPro Docker containers, running `restart.bat` and `start.bat`
+- If errors occur during the generation of the summary:
+  - Ensure there is some money in your OpenAI API account
+  - Try removing the extension and reloading it
+  - Ensure your OpenAI API key is in the `chromeext_metrics/.env/` file (should look like `OPENAI_API_KEY=sk-proj-...`)
