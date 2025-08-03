@@ -119,6 +119,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
                 catch (error) {
                     console.error('Error fetching data:', error);
                     clearTimeout(responseTimeoutId);
+
+                    if(error.message.includes("Request timed out")) {
+                        chrome.runtime.sendMessage({ 
+                            action: "timeOut",
+                            content: "none" 
+                        });
+
+                    } else {
+                        chrome.tabs.sendMessage(tabs[0].id, { 
+                            action: 'error',
+                            content: error
+                        });
+                    }
+    
                     sendResponse({ 
                         success: false, 
                         error: "Failed to fetch commit data: " + error.message 

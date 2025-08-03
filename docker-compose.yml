@@ -29,8 +29,8 @@ services:
       # - /Applications/Understand.app/Contents/MacOS:/scitools:ro
     env_file:
       - ./chromeext_metrics/.env
-    environment:
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-missing}
+    # environment:
+    #    - OPENAI_API_KEY=${OPENAI_API_KEY}
     networks:
       - chromeext_network
 

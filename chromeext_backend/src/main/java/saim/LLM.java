@@ -16,7 +16,7 @@ public class LLM {
 
     public String buildPromptFromURL(String fullUrl) {
         System.out.println("Building prompt from " + fullUrl);
-        String prompt = "You are an expert software engineer trained in commit summarization.\n" +
+        /* String prompt = "You are an expert software engineer trained in commit summarization.\n" +
                 "Given a code diff or commit URL, go through the entire changes, and extract a meaningful summary using this structure. If the URL is provided, go to the URL and extract information from the webpage:\n" +
                 "\n" +
                 "MANDATORY FORMAT:\n" +
@@ -60,12 +60,11 @@ public class LLM {
                 "INTENT: Improved External Quality\n" +
                 "IMPACT: Improved user experience by providing actionable information during errors.\n" +
                 "\n" +
-                "Now, generate the structured summary for:\n" +
-                "URL: " + fullUrl;
+                "Now, generate the structured summary for: " + fullUrl;
 
 
-
-        return prompt;
+ */
+        return fullUrl;
     }
 
 
@@ -147,19 +146,20 @@ public class LLM {
     }
 
 
-    public String generateSummaryForNoRefactorings(String fullUrl, String repoUrl, OpenAiService service, String aiToken) {
+    public String generateSummaryForNoRefactorings(String commitUrl, String repoUrl, OpenAiService service, String aiToken) {
         System.out.println("Generating summary for no refactorings");
 
         System.out.println("🔄 Sending request to: http://chromeext-metrics:8000/get-response");
         System.out.println("With token: Bearer " + aiToken);
         
         try {
-            String prompt = buildPromptFromRefactorings(fullUrl);
+            String prompt = buildPromptFromURL(commitUrl);
 
             JsonObject json = new JsonObject();
-            json.addProperty("query", fullUrl);
+            json.addProperty("query", prompt);
             json.addProperty("userag", false);
             json.addProperty("git_url", repoUrl);
+            json.addProperty("commit_url", commitUrl);
             String jsonRequestBody = json.toString();
             System.out.println(jsonRequestBody);
 
@@ -178,6 +178,9 @@ public class LLM {
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            
+            System.out.println(" Response status code: " + response.statusCode());
+            System.out.println(" Response body: " + response.body());
 
             JSONObject jsonResponse = new JSONObject(response.body());
             String generatedText = jsonResponse.optString("response_with_cs", ""); 
@@ -239,7 +242,6 @@ public class LLM {
             return generatedText + " INSTRUCTION: " + instructions.toString();
         } catch (Exception exp) {
             System.err.println("Error generating summary: " + exp.getMessage());
-            //throw new RuntimeException(exp.getMessage());
             return exp.getMessage();
         }
     }

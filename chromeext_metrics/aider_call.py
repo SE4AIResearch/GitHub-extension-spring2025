@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 import argparse
 import subprocess
+import textwrap
 import shutil
 import os
 import sys
 import stat
 import shlex
+import re
 
 def run(cmd):
     print(f"Running: {' '.join(cmd)}")
@@ -41,6 +43,20 @@ def clone_repo(repo_url):
     run(["git", "clone", "--depth", "1", repo_url, dest_dir])
     return dest_dir
 
+def _trim_aider_output(raw: str) -> str:
+    """
+    Keep only the part starting at 'Summary:' and ending after the JSON list.
+    Falls back to the full text if it cannot be parsed.
+    """
+    m = re.search(
+        r"(?s)(Summary:.*?)(Key Files:\s*\[\s*(?:.*?\n)*?\])",
+        raw
+    )
+    if m:
+        return (m.group(1) + "\n" + m.group(2)).strip()
+    else:
+        return raw.strip()
+
 def get_summary_from_aider(repo_url):
     repo_url = str(repo_url)
     is_remote = repo_url.startswith(("http://", "https://", "git@"))
@@ -52,10 +68,30 @@ def get_summary_from_aider(repo_url):
             print("ERROR: Repository path not found.", file=sys.stderr)
             sys.exit(1)
     
-    message = "give me a brief summary of the project including a brief list of files (not all)"
+    message = textwrap.dedent("""\
+        Give me a 5‑7 sentence, one‑paragraph summary of the project and a
+        JSON‑formatted list of 5‑7 key files with a 1-2 sentence description of each file.
+        The format should be as follows:
+        Summary:
+        <summary of the project>
+        Key Files:
+        [
+        {
+            "file" : 1
+            "path": "path/to/file1",
+            "description: 1-2 sentence description of file1"
+        },
+        {
+            "file" : 2
+            "path": "path/to/file2",
+            "description: 1-2 sentence description of file2"
+        },
+        ...
+        ]
+    """)
     quoted_message = shlex.quote(message)
     
-    command_string = f"aider --no-gitignore --reasoning-effort 2 --yes-always --message {quoted_message} {shlex.quote(src_dir)}"
+    command_string = f"echo n | aider --no-gitignore --reasoning-effort 2 --message {quoted_message} {shlex.quote(src_dir)}"
     print("Full command string:", command_string)
     
     print("Executing Aider command...")
@@ -72,65 +108,32 @@ def get_summary_from_aider(repo_url):
         print("ERROR: Aider command timed out.", file=sys.stderr)
         if is_remote:
             shutil.rmtree(src_dir, onerror=remove_readonly)
-        # sys.exit(1)
         return ''
     
     if result.returncode:
         print(f"ERROR executing command:\n{result.stderr}", file=sys.stderr)
         if is_remote:
             shutil.rmtree(src_dir, onerror=remove_readonly)
-        # sys.exit(result.returncode)
         return ''
-    else:
-        summary = result.stdout.strip()
-        print("Aider Output:\n", summary)
+    
+    trimmed = _trim_aider_output(result.stdout)
     
     if is_remote:
         print("\nCleaning up cloned repository ...")
         shutil.rmtree(src_dir, onerror=remove_readonly)
     
-    return summary
+    print('Trimmed output:', trimmed)
+    return trimmed
 
 def main():
     parser = argparse.ArgumentParser(description="Aider Project Summary")
     parser.add_argument("repo", help="Git URL or local path of the repository")
     args = parser.parse_args()
 
-    # Determine if we should clone or use existing local repo
-    if args.repo.startswith(("http://", "https://", "git@")):
-        src_dir = clone_repo(args.repo)
-    else:
-        src_dir = os.path.abspath(args.repo)
-        if not os.path.isdir(src_dir):
-            print("ERROR: Path not found.", file=sys.stderr)
-            sys.exit(1)
-
-    print("Source Directory:", src_dir)
-    
-    # Build the aider command
-    message = "\"give me a brief summary of the project including a brief list of files (not all) in a json format\""
-    command_string = f"aider --no-gitignore --reasoning-effort 2 --yes-always --message {message} {src_dir}"
-    print("Full command string:", command_string)
-    
-    print("Executing Aider command...")
-    try:
-        result = subprocess.run(command_string, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=120)
-    except subprocess.TimeoutExpired:
-        print("ERROR: Aider command timed out.", file=sys.stderr)
-        if args.repo.startswith(("http://", "https://", "git@")):
-            shutil.rmtree(src_dir, onerror=remove_readonly)
-        # sys.exit(1)
-    
-    if result.returncode:
-        print(f"ERROR executing command:\n{result.stderr}", file=sys.stderr)
-        sys.exit(result.returncode)
-    else:
-        print("Aider Output:\n", result.stdout.strip())
-    
-    # Cleanup if a remote repository was used
-    if args.repo.startswith(("http://", "https://", "git@")):
-        print("\nCleaning up cloned repository ...")
-        shutil.rmtree(src_dir, onerror=remove_readonly)
+    summary = get_summary_from_aider(args.repo)
+    if summary:
+        print("\n=== Final Summary ===")
+        print(summary)
 
 if __name__ == "__main__":
     main()
