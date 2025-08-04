@@ -6,6 +6,9 @@ CommitPro is a browser extension designed for Git to help developers understand 
 -Ali Vaziri <br/>
 -Ishan Garg <br/>
 -Priyanshi Yadav <br/>
+-Kevin Lui <br/>
+-Josephine Choong <br/>
+-Ryan Jo <br/>
 ## Steps for running the Chrome extension
 ## Pre-requisites:
 <ul>
@@ -43,7 +46,7 @@ Check Edit the System Environment Variables on your workspace -> Click Environme
 - In a new Command Prompt terminal, run `npm i`, then run `npm build`
 - Navigate to `chromeext_frontend/build/` folder, cut and paste all the contents into the `chromeext_frontend/` folder 
 
-## Manually Installing The Application (not recommended) - 
+## Manually Installing The Application (not recommended, deprecated) - 
 ### For frontend -
 Run the following commands from chromeext_frontend folder:
 -	npm i react
@@ -102,3 +105,10 @@ Metrics Listed:
   - Ensure there is some money in your OpenAI API account
   - Try removing the extension and reloading it
   - Ensure your OpenAI API key is in the `chromeext_metrics/.env/` file (should look like `OPENAI_API_KEY=sk-proj-...`)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/13d96a36-5ab8-4e4a-92aa-9f6b71aa5450" alt="image" width="300"/>
+  <br>
+  <em>Blank Commit Summary After Error</em>
+</p>
+
+
