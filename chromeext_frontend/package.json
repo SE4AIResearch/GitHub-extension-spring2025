@@ -11,7 +11,7 @@
     "start": "react-scripts start",
     "postinstall": "npm run build",
     "build": "react-scripts build",
-    "postbuild": "replace build\\index.html .\\ && replace build\\asset-manifest.json .\\ && replace build\\static .\\"
+    "postbuild": "replace build\\index.html .\\ && replace build\\asset-manifest.json .\\ && robocopy build\\static .\\static /mir"
   },
   "dependencies": {
     "bubble-chart": "^0.1.0",
