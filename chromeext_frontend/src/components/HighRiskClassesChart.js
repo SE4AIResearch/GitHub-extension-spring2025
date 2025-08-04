@@ -201,7 +201,7 @@ const HighRiskClassesChart = ({ metricData = [] }) => {
 
   return (
     <div className="high-risk-bubble-wrapper">
-        <h1>High Risk CLasses Metric</h1>
+        <h1>High Risk Classes Metric</h1>
         <p>Click on the bubble to get more details</p>
       <div className="risk-filter-controls" style={{ marginBottom: "10px", display: "flex", justifyContent: "center" }}>
         <select
