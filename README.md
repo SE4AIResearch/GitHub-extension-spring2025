@@ -8,7 +8,7 @@ CommitPro is a browser extension designed for Git to help developers understand 
 -Priyanshi Yadav <br/>
 -Kevin Lui <br/>
 -Josephine Choong <br/>
--Ryan Jo <br/>
+
 ## Steps for running the Chrome extension
 ## Pre-requisites:
 <ul>
